@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0D2B55">
+<title>ORION Master</title>
+<style>
+:root{
+  --navy:#0D2B55;--azul:#1A5276;--azul-l:#D6EAF8;
+  --teal:#0E6655;--teal-l:#D1F2EB;
+  --orange:#CA6F1E;--orange-l:#FAD7A0;
+  --purple:#6C3483;--gold:#F9E79F;
+  --gray:#F4F6F7;--gray2:#E5E8E8;--border:#D5D8DC;
+  --text:#1B2631;--text2:#566573;--text3:#AAB7B8;
+  --white:#FFFFFF;--green:#1E8449;--green-l:#D5F5E3;
+  --red:#C0392B;--red-l:#FADBD8;
+  --r:12px;--sh:0 2px 12px rgba(13,43,85,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;color:var(--text)}
+.app{display:flex;flex-direction:column;height:100vh;height:-webkit-fill-available;overflow:hidden}
+/* topbar */
+.tb{background:var(--navy);color:#fff;padding:14px 16px 10px;padding-top:max(14px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.tb-logo{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.tb-t{font-size:15px;font-weight:600}.tb-s{font-size:11px;opacity:.7}
+.sdot{width:8px;height:8px;border-radius:50%;background:#AAB7B8;margin-left:auto;flex-shrink:0;transition:background .3s}
+.sdot.ok{background:#2ECC71}.sdot.err{background:var(--red)}.sdot.load{background:#F39C12;animation:bk .8s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.3}}
+/* tabs */
+.tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:10px 4px 8px;text-align:center;font-size:11px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy)}
+.tab em{display:block;font-size:17px;font-style:normal;margin-bottom:1px}
+/* content */
+.cnt{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
+.cnt::-webkit-scrollbar{display:none}
+.pg{display:none;padding:14px}
+.pg.on{display:block}
+/* cards */
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+.ch{padding:12px 14px;border-bottom:1px solid var(--gray2);display:flex;align-items:center;gap:8px}
+.ch h3{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.cb{padding:12px 14px}
+/* badges */
+.bx{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.bf{background:var(--azul-l);color:var(--navy)}.bs{background:var(--teal-l);color:var(--teal)}
+.bw{background:var(--orange-l);color:var(--orange)}.bg{background:var(--green-l);color:var(--green)}
+/* layout */
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+/* pills */
+.pill{padding:10px 8px;border:1.5px solid var(--border);border-radius:10px;background:var(--white);cursor:pointer;text-align:center}
+.pill.on{border-color:var(--navy);background:var(--azul-l)}
+.pill.on-s{border-color:var(--teal);background:var(--teal-l)}
+.pill em{font-size:20px;display:block;margin-bottom:3px;font-style:normal}
+.pill b{font-size:12px;font-weight:600;display:block;color:var(--text)}
+.pill small{font-size:10px;color:var(--text3)}
+/* fields */
+.fr{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--gray2)}
+.fr:last-child{border-bottom:none}
+.fl{font-size:12px;color:var(--text2)}
+.fv{font-size:12px;font-weight:600;color:var(--text)}
+.fv.ok{color:var(--green)}.fv.win{color:var(--green)}.fv.miss{color:var(--red)}.fv.na{color:var(--text3);font-weight:400;font-style:italic}
+/* labels */
+.lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+/* buttons */
+.btn{width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{opacity:.8}.btn:disabled{opacity:.35;cursor:default}
+.btn.tl{background:var(--teal)}
+.btn2{width:100%;padding:12px;background:transparent;color:var(--text);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;margin-top:8px}
+/* upload */
+.upz{border:2px dashed var(--border);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;background:var(--gray);position:relative}
+.upz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upz em{font-size:28px;display:block;margin-bottom:8px;font-style:normal}
+.upz p{font-size:13px;color:var(--text2);font-weight:500;margin-bottom:3px}
+.upz span{font-size:11px;color:var(--text3)}
+/* thumbs */
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.thumb{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:9/16;border:1px solid var(--border)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb-rm{position:absolute;top:3px;right:3px;width:20px;height:20px;background:rgba(0,0,0,.6);border-radius:50%;border:none;color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* session cards */
+.sc{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--gray2)}
+.sc.ta{border-left-color:var(--navy)}.sc.tb2{border-left-color:var(--purple)}.sc.tc{border-left-color:var(--orange)}.sc.done{border-left-color:var(--green);opacity:.8}
+.sc-h{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.sc-h h4{font-size:13px;font-weight:600;flex:1}
+.sc-d{font-size:11px;color:var(--text3)}
+.sc-b{padding:0 14px 12px;display:none}
+.sc-b.open{display:block}
+/* bloques entrenamiento */
+.blq{background:var(--gray);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.blq-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:4px}
+.blq-d{font-size:12px;color:var(--text);line-height:1.5}
+.blq-f{font-size:11px;color:var(--navy);font-weight:600;margin-top:4px}
+.blq-s{font-size:11px;color:var(--teal);font-weight:600}
+/* compare */
+.cmp-r{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;align-items:center}
+/* vueltas */
+.vtbl{width:100%;border-collapse:collapse;font-size:11px}
+.vtbl th{background:var(--gray);padding:6px 8px;text-align:right;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)}
+.vtbl th:first-child{text-align:left}
+.vtbl td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--gray2);color:var(--text)}
+.vtbl td:first-child{text-align:left;color:var(--text2)}
+.vtbl tr.tot td{font-weight:700;color:var(--navy);background:var(--azul-l)}
+/* kpi */
+.kpig{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:var(--white);border-radius:10px;padding:12px;box-shadow:var(--sh)}
+.kpi-v{font-size:22px;font-weight:700;color:var(--navy);line-height:1}
+.kpi-v.s{color:var(--teal)}
+.kpi-l{font-size:11px;color:var(--text3);margin-top:3px}
+/* success */
+.ok-box{text-align:center;padding:30px 16px 20px}
+.ok-ico{width:56px;height:56px;background:var(--green-l);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px}
+.ok-t{font-size:18px;font-weight:700;margin-bottom:6px}
+.ok-s{font-size:13px;color:var(--text2);line-height:1.6}
+/* misc */
+.itag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;background:var(--gray);color:var(--text2);border:1px solid var(--gray2);margin:2px}
+.note{background:var(--gold);border-radius:8px;padding:10px 12px;font-size:12px;color:#7D6608;line-height:1.5;margin-bottom:10px}
+.div{height:1px;background:var(--gray2);margin:10px 0}
+/* loading overlay */
+#lov{display:none;position:fixed;inset:0;background:rgba(13,43,85,.88);z-index:999;flex-direction:column;align-items:center;justify-content:center;padding:32px}
+#lov.on{display:flex}
+.lo-i{font-size:38px;margin-bottom:16px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.lo-m{font-size:16px;font-weight:600;color:#fff;text-align:center;margin-bottom:6px}
+.lo-s{font-size:13px;color:rgba(255,255,255,.7);text-align:center;margin-bottom:20px}
+.lo-p{width:100%;height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
+.lo-f{height:100%;background:#5DADE2;border-radius:2px;transition:width .5s ease}
+/* toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1B2631;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:1000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+
+/* bloque checklist */
+.blq-check-card{background:var(--white);border-radius:10px;box-shadow:var(--sh);margin-bottom:8px;overflow:hidden;border-left:4px solid var(--green);}
+.blq-check-card.bcc-omit{border-left-color:var(--red);opacity:.6;}
+.bcc-hdr{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;cursor:pointer;}
+.bcc-check{width:24px;height:24px;border-radius:6px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.bcc-check.bcc-omit-chk{background:var(--red);}
+.bcc-tipo{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.bcc-desc{font-size:11px;color:var(--text2);line-height:1.4;}
+.bcc-opts{padding:0 14px 12px;border-top:1px solid var(--gray2);}
+.estilo-btn{padding:5px 10px;border-radius:16px;border:1px solid var(--border);background:var(--white);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;margin:0;}
+.estilo-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.nota-inp{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;color:var(--text);background:var(--gray);outline:none;}
+.nota-inp:focus{border-color:var(--navy);background:var(--white);}
+
+/* bloque switcher */
+.bsw{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.bsw button{flex-shrink:0;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid var(--border);background:var(--white);color:var(--text2)}
+.bsw button.on{color:#fff}
+/* bloque header */
+.bl-hdr{border-radius:10px;padding:12px 14px;margin-bottom:12px;color:#fff}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="tb">
+    <div class="tb-logo">🌊</div>
+    <div><div class="tb-t">ORION Master</div><div class="tb-s">Felipe &amp; Sergio · 2026</div></div>
+    <div id="sdot" class="sdot" title="Sincronización"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" id="tab-hoy"      onclick="goTab('hoy')"><em>📅</em>Hoy</button>
+    <button class="tab"   id="tab-plan"      onclick="goTab('plan')"><em>🏊</em>Plan</button>
+    <button class="tab"   id="tab-cargar"    onclick="goTab('cargar')"><em>📤</em>Cargar</button>
+    <button class="tab"   id="tab-historial" onclick="goTab('historial')"><em>📈</em>Historial</button>
+  </div>
+  <div class="cnt">
+    <div class="pg on" id="pg-hoy"></div>
+    <div class="pg"    id="pg-plan"></div>
+    <div class="pg"    id="pg-cargar"></div>
+    <div class="pg"    id="pg-historial"></div>
+  </div>
+</div>
+<div id="lov"><div class="lo-i">🔍</div><div class="lo-m" id="lo-m">Procesando...</div><div class="lo-s" id="lo-s"></div><div class="lo-p"><div class="lo-f" id="lo-f" style="width:5%"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyNcjzq66U6U5qBVUCorvYLzwhyX7jE6Vre7UbEXj4MtRawoIRm00foi4vA2SNr6JkKuw/exec';
+
+// ═══════════════════════════════════════════════════
+// PLAN DATA — BLOQUES
+// ═══════════════════════════════════════════════════
+const BLOQUES = [
+  {
+    id:'B1', activo:true, color:'#6C3483',
+    nombre:'🏁 Competencia 20 Jun — Estilos',
+    subtitulo:'50m Libre · 50m Espalda · 100m Combinado',
+    fechaFin:'2026-06-20',
+    semanas:[
+      {
+        id:'B1-W1', nombre:'Semana 1 (2-6 Jun) — Base + técnica estilos',
+        sesiones:[
+          {
+            id:'B1-1A', tipo:'A', nombre:'Sesión A — Aeróbico + técnica espalda',
+            fecha:'2026-06-02', dia:'Lun 2 Jun', volumen:2600, intensidad:'🟢 Aeróbico',
+            objetivo:'Activar espalda · Introducir combinado',
+            bloques:[
+              {tipo:'Entrada',      desc:'200m libre suave',                                                                    mf:'Activar, respiración',           ms:'Activar, respiración',            desc2:'—'},
+              {tipo:'Pull+resp',    desc:'200m pull con respiración 3/5/5/7 x 25m',                                             mf:'Control respiratorio',           ms:'Control respiratorio',            desc2:'—'},
+              {tipo:'Drill IM',     desc:'300m: 50 libre + 25 drill espalda en orden · foco entrada mano espalda',              mf:'Técnica entrada brazada esp',     ms:'Posición cadera espalda',         desc2:'15seg'},
+              {tipo:'Mixto',        desc:'400m: 100 libre + 100 esp + 100 libre + 100 pecho (suave)',                           mf:'Sentir los 4 estilos',           ms:'Sentir los 4 estilos',            desc2:'20seg'},
+              {tipo:'Principal',    desc:'3x: [50 esp @65seg · 50 suave libre · 2x50 ritmo · 100 suave · 3x50 ritmo · 150 suave] · Series 1+3 espalda · Serie 2 libre', mf:'Técnica brazada en la fatiga', ms:'Agresividad en esp impares', desc2:'@tabla', ritmo:'1:45-1:55/100'},
+              {tipo:'Pateo',        desc:'200m con aletas · 2x100 pateo @2:50 · 2x100 libre 80% @1:50',                        mf:'Pateo espalda 6 tiempos',        ms:'Potencia pateo espalda',          desc2:'@tabla'},
+              {tipo:'Afloje',       desc:'200m libre suave',                                                                    mf:'Relajar',                        ms:'Relajar',                         desc2:'—'},
+            ]
+          },
+          {
+            id:'B1-1B', tipo:'B', nombre:'Sesión B — Velocidad 50m libre',
+            fecha:'2026-06-04', dia:'Mié 4 Jun', volumen:2200, intensidad:'🔴 Velocidad',
+            objetivo:'Velocidad corta · Salidas y subacuático libre',
+            bloques:[
+              {tipo:'Entrada',      desc:'400m progresivo (200 suave + 4x50 acelerando)',                                       mf:'Último 50 a ritmo carrera',      ms:'Último 50 máximo',                desc2:'—'},
+              {tipo:'Salidas',      desc:'6x25 desde el borde · foco reacción + subacuático 7-10m · desc 45seg',               mf:'Subacuático limpio',             ms:'Máxima potencia salida',          desc2:'45seg'},
+              {tipo:'Principal',    desc:'8x50 libre: pares ritmo 200 / impares sprint · desc 30seg',                          mf:'Pares técnica · Impares potencia', ms:'Impares: atacar desde la pared', desc2:'30seg', ritmo:'1:20-1:35/100'},
+              {tipo:'Resistencia',  desc:'4x100 libre @1:50 · foco últimos 25m · desc 30seg',                                  mf:'No bajar ritmo al final',        ms:'Últimos 25m más rápido',          desc2:'30seg', ritmo:'1:40-1:48/100'},
+              {tipo:'Pateo',        desc:'4x50 pateo libre con tabla @1:20',                                                    mf:'6 tiempos, cadera alta',         ms:'Potencia + cadera alta',          desc2:'20seg'},
+              {tipo:'Afloje',       desc:'200m suave técnica libre',                                                            mf:'Relajar hombros',                ms:'Relajar hombros',                 desc2:'—'},
+            ]
+          },
+          {
+            id:'B1-1C', tipo:'C', nombre:'Sesión C — 100 Combinado + transiciones',
+            fecha:'2026-06-06', dia:'Vie 6 Jun', volumen:2400, intensidad:'🟡 Umbral',
+            objetivo:'Técnica de transiciones · Ritmo 100 combinado',
+            bloques:[
+              {tipo:'Entrada',      desc:'300m libre suave + 4x25 drill por estilo (esp/libre) · desc 15seg',                  mf:'Activar espalda y libre',        ms:'Activar espalda y libre',         desc2:'15seg'},
+              {tipo:'Transiciones', desc:'8x25 alternando esp → libre al toque de pared · foco viraje · desc 20seg',           mf:'Sin perder ritmo en viraje',     ms:'Acelerar salida del viraje',      desc2:'20seg'},
+              {tipo:'Principal',    desc:'4x100 combinado (25esp+25lib+25pecho+25lib) @2:30 · desc 45seg',                     mf:'Constancia en los 4 segmentos', ms:'Cierre en el último libre',        desc2:'45seg', ritmo:'1:45-1:55/100'},
+              {tipo:'Series',       desc:'6x50 alternando esp/libre @1:20 · desc 20seg',                                       mf:'Técnica brazada esp bajo fatiga', ms:'Velocidad en el libre',          desc2:'20seg', ritmo:'1:15-1:30/100'},
+              {tipo:'Pateo',        desc:'200m aletas + 4x25 pateo esp a fondo · desc 30seg',                                  mf:'6 tiempos espalda',              ms:'Potencia pateo espalda',          desc2:'30seg'},
+              {tipo:'Afloje',       desc:'200m suave mixto',                                                                    mf:'Relajar',                        ms:'Relajar',                         desc2:'—'},
+            ]
+          },
+        ]
+      },
+      {
+        id:'B1-W2', nombre:'Semana 2 (9-13 Jun) — Velocidad específica + test',
+        sesiones:[
+          {
+            id:'B1-2A', tipo:'A', nombre:'Sesión A — Sprint espalda + libre',
+            fecha:'2026-06-09', dia:'Mar 9 Jun', volumen:2000, intensidad:'🔴 Velocidad',
+            objetivo:'Velocidad máxima 50m · Técnica bajo fatiga',
+            bloques:[
+              {tipo:'Entrada',      desc:'400m: 200 libre + 4x50 prog (últimos 2 a ritmo carrera)',                            mf:'Activar SNC',                    ms:'Activar SNC',                     desc2:'—'},
+              {tipo:'Salidas esp',  desc:'6x25 espalda desde bloque · posición hidrodinámica · desc 45seg',                    mf:'Cabeza alineada',                ms:'Máxima potencia + alineación',    desc2:'45seg'},
+              {tipo:'Sprint esp',   desc:'6x50 espalda progresivos: 1-2 técnica / 3-4 ritmo / 5-6 máximo · desc 40seg',       mf:'Progresión clara',               ms:'5-6 sin reserva',                 desc2:'40seg', ritmo:'1:25-1:40/100'},
+              {tipo:'Sprint lib',   desc:'4x50 libre sprint máximo @45seg',                                                    mf:'Mantener técnica en el sprint',  ms:'Atacar primeros 15m',             desc2:'45seg', ritmo:'<1:20/100'},
+              {tipo:'Recuperación', desc:'2x200 combinado suave @4:00 · recuperación activa · desc 60seg',                    mf:'Soltar y recuperar',             ms:'Soltar y recuperar',              desc2:'60seg'},
+              {tipo:'Afloje',       desc:'200m suave',                                                                          mf:'Relajar',                        ms:'Relajar',                         desc2:'—'},
+            ]
+          },
+          {
+            id:'B1-2B', tipo:'B', nombre:'Sesión B — Test de marcas',
+            fecha:'2026-06-11', dia:'Jue 11 Jun', volumen:1800, intensidad:'🔴 Test',
+            objetivo:'🏁 Test oficial de referencia previo a competencia',
+            bloques:[
+              {tipo:'Entrada',      desc:'500m: 200 suave + 6x50 activación progresiva',                                       mf:'Bien activado antes del test',   ms:'Bien activado antes del test',    desc2:'—'},
+              {tipo:'Test 50 lib',  desc:'1x50m libre a fondo · salida desde bloque · desc 5min',                              mf:'Registrar marca de referencia',  ms:'Registrar marca de referencia',   desc2:'5min'},
+              {tipo:'Test 50 esp',  desc:'1x50m espalda a fondo · salida desde bloque · desc 5min',                            mf:'Registrar marca de referencia',  ms:'Registrar marca de referencia',   desc2:'5min'},
+              {tipo:'Test 100 comb',desc:'1x100m combinado a fondo (25esp+25lib+25pecho+25lib) · desc 8min',                   mf:'Registrar marca de referencia',  ms:'Registrar marca de referencia',   desc2:'8min'},
+              {tipo:'Afloje',       desc:'400m suave mixto · estirar hombros y espalda',                                       mf:'Recuperación completa',          ms:'Recuperación completa',           desc2:'—'},
+            ]
+          },
+          {
+            id:'B1-2C', tipo:'C', nombre:'Sesión C — Técnica + resistencia velocidad',
+            fecha:'2026-06-13', dia:'Sáb 13 Jun', volumen:2300, intensidad:'🟡 Umbral',
+            objetivo:'Consolidar técnica · Resistencia de velocidad',
+            bloques:[
+              {tipo:'Entrada',      desc:'300m libre + 200m pull respiración 3/5/5/7',                                         mf:'Control respiratorio',           ms:'Control respiratorio',            desc2:'—'},
+              {tipo:'Drill',        desc:'6x50 drill alternado esp/libre · foco entrada mano y rolido · desc 15seg',           mf:'DPS en espalda',                 ms:'Posición cadera espalda',         desc2:'15seg'},
+              {tipo:'Principal',    desc:'3x [100 esp + 100 libre] @2:00 c/u · desc 30seg entre 100s · desc 60seg entre series', mf:'No bajar ritmo en el libre', ms:'Libre más rápido que el esp',     desc2:'30/60seg', ritmo:'1:35-1:50/100'},
+              {tipo:'Velocidad',    desc:'6x25 sprint alternando esp/libre · máximo · desc 30seg',                             mf:'Técnica limpia en el sprint',    ms:'Sin reserva',                     desc2:'30seg'},
+              {tipo:'Pateo',        desc:'200m aletas · 4x25 pateo esp máximo @45seg',                                         mf:'Potencia pateo',                 ms:'Potencia pateo',                  desc2:'45seg'},
+              {tipo:'Afloje',       desc:'200m suave',                                                                          mf:'Relajar',                        ms:'Relajar',                         desc2:'—'},
+            ]
+          },
+        ]
+      },
+      {
+        id:'B1-W3', nombre:'Semana 3 (16-20 Jun) — Activación + COMPETENCIA',
+        sesiones:[
+          {
+            id:'B1-3A', tipo:'A', nombre:'Sesión A — Activación velocidad',
+            fecha:'2026-06-16', dia:'Mar 16 Jun', volumen:1800, intensidad:'🟡 Activación',
+            objetivo:'Mantener velocidad · No acumular fatiga',
+            bloques:[
+              {tipo:'Entrada',      desc:'400m progresivo suave',                                                               mf:'Activar sin forzar',             ms:'Activar sin forzar',              desc2:'—'},
+              {tipo:'Técnica',      desc:'6x50 drill esp+libre alternado · calidad máxima sin esfuerzo · desc 20seg',          mf:'Técnica pura',                   ms:'Técnica pura',                    desc2:'20seg'},
+              {tipo:'Velocidad',    desc:'4x50 progresivo: 1 suave → 4 máximo · desc 45seg',                                   mf:'Sensación de carrera',           ms:'Sensación de carrera',            desc2:'45seg', ritmo:'progresivo hasta máximo'},
+              {tipo:'Combinado',    desc:'2x100 combinado al 85% · foco transiciones limpias · desc 3min',                     mf:'Transiciones sin perder ritmo',  ms:'Transiciones + cierre libre',     desc2:'3min'},
+              {tipo:'Afloje',       desc:'400m suave mixto',                                                                    mf:'Fresco para el jueves',          ms:'Fresco para el jueves',           desc2:'—'},
+            ]
+          },
+          {
+            id:'B1-3B', tipo:'B', nombre:'Sesión B — Pre-competencia',
+            fecha:'2026-06-18', dia:'Jue 18 Jun', volumen:1200, intensidad:'⚡ Pre-comp',
+            objetivo:'Última activación antes del 20 Jun',
+            bloques:[
+              {tipo:'Entrada',      desc:'300m suave libre',                                                                    mf:'Activar suave',                  ms:'Activar suave',                   desc2:'—'},
+              {tipo:'Activación',   desc:'4x50: 1 suave / 2 ritmo / 3 fuerte / 4 máximo · desc 45seg',                        mf:'Sentir la velocidad',            ms:'Sentir la velocidad',             desc2:'45seg'},
+              {tipo:'Sprints',      desc:'3x25 máximo esp + 3x25 máximo libre · desc 1min',                                    mf:'Explosividad pura',              ms:'Explosividad pura',               desc2:'1min'},
+              {tipo:'Afloje',       desc:'300m suave · estirar bien',                                                           mf:'Llegar descansado al viernes',   ms:'Llegar descansado al viernes',    desc2:'—'},
+            ]
+          },
+          {
+            id:'B1-3C', tipo:'C', nombre:'🏆 COMPETENCIA — 20 Jun 2026',
+            fecha:'2026-06-20', dia:'Vie 20 Jun', volumen:0, intensidad:'🏆 Competencia',
+            objetivo:'50m Libre · 50m Espalda · 100m Combinado',
+            bloques:[
+              {tipo:'Entrada agua', desc:'400-600m suave progresivo · últimos 2x50 a ritmo carrera',                           mf:'Activar SNC · sentir el agua',   ms:'Activar SNC · sentir el agua',    desc2:'—'},
+              {tipo:'50m Libre',    desc:'Salida bloque · máximo esfuerzo · subacuático 10m · cierre fuerte',                  mf:'No salir frenado · mantener hasta el final', ms:'Atacar los primeros 25m', desc2:'—'},
+              {tipo:'50m Espalda',  desc:'Salida de espaldas · subacuático espalda · brazada larga y potente',                 mf:'Posición hidrodinámica · pateo constante', ms:'Velocidad desde la salida', desc2:'—'},
+              {tipo:'100 Combinado',desc:'25 esp → 25 lib → 25 pecho → 25 lib · transiciones sin perder impulso',             mf:'Constancia en 4 segmentos · no frenar en transiciones', ms:'Cierre fuerte en el último libre', desc2:'—'},
+            ]
+          },
+        ]
+      },
+    ]
+  },
+  {
+    id:'B2', activo:false, color:'#0E6655',
+    nombre:'🏊 Fondo Julio — 800m & 1500m',
+    subtitulo:'800m Libre · 1500m Libre · Piscina',
+    fechaFin:'2026-07-31',
+    semanas:[
+      {
+        id:'B2-W1', nombre:'Semana 1 Julio — Base aeróbica',
+        sesiones:[
+          {
+            id:'B2-1A', tipo:'A', nombre:'Sesión A — Ritmo 1500m',
+            fecha:'2026-07-01', dia:'Mié 1 Jul', volumen:2200, intensidad:'🟢 Aeróbico',
+            objetivo:'Establecer ritmo base 1500m · Economía de nado',
+            bloques:[
+              {tipo:'Entrada',      desc:'400m continuo suave',                                                                 mf:'<1:55/100',                      ms:'<1:50/100',                       desc2:'—'},
+              {tipo:'Técnica',      desc:'4x50 foco rolido + entrada de mano · desc 15seg',                                    mf:'Máximo DPS, <26 braz/largo',     ms:'Posición cadera, entrada limpia', desc2:'15seg'},
+              {tipo:'Principal',    desc:'3x400 ritmo objetivo 1500m · desc 45seg',                                            mf:'Eficiencia, <26 braz/largo',     ms:'Cierre: últimos 100m más rápido', desc2:'45seg', ritmo:'1:45-1:50/100'},
+              {tipo:'Velocidad',    desc:'6x50 fuerte controlado · desc 20seg',                                                mf:'Sostener técnica bajo fatiga',   ms:'Practicar aceleración',           desc2:'20seg', ritmo:'1:35-1:42/100'},
+              {tipo:'Vuelta calma', desc:'200m continuo suave',                                                                 mf:'Relajado',                       ms:'Relajado',                        desc2:'—'},
+            ]
+          },
+          {
+            id:'B2-1B', tipo:'B', nombre:'Sesión B — Ritmo 800m',
+            fecha:'2026-07-03', dia:'Vie 3 Jul', volumen:2500, intensidad:'🟡 Umbral',
+            objetivo:'Sensación de ritmo 800m · Contar brazadas',
+            bloques:[
+              {tipo:'Entrada',      desc:'300m + 4x50 progresivo · último a ritmo carrera · desc 15seg',                       mf:'<1:55/100',                      ms:'<1:50/100',                       desc2:'15seg'},
+              {tipo:'Activación',   desc:'4x25 sprints técnicos · foco salida y subacuático · desc 30seg',                    mf:'Explosividad limpia',            ms:'Velocidad máxima',                desc2:'30seg'},
+              {tipo:'Principal',    desc:'3x400 ritmo objetivo 800m · desc 45seg',                                             mf:'Constancia',                     ms:'Cierre fuerte',                   desc2:'45seg', ritmo:'1:40-1:48/100'},
+              {tipo:'Umbral',       desc:'4x200 ritmo medio-fuerte · desc 30seg',                                              mf:'Sostener técnica',               ms:'Mantener agresividad',            desc2:'30seg', ritmo:'1:42-1:48/100'},
+              {tipo:'Vuelta calma', desc:'150m suave, soltar hombros y piernas',                                               mf:'Relajado',                       ms:'Relajado',                        desc2:'—'},
+            ]
+          },
+        ]
+      },
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const S = {nadador:null, sesionPlan:null, files:[], extracted:null};
+let CACHE = [];
+let cacheOk = false;
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+function getBloqueActivo() { return BLOQUES.find(b=>b.activo)||BLOQUES[0]; }
+function getAllSesiones() { return getBloqueActivo().semanas.flatMap(w=>w.sesiones); }
+function getSesion(id) { return BLOQUES.flatMap(b=>b.semanas.flatMap(w=>w.sesiones)).find(s=>s.id===id); }
+function completadas(id) { return CACHE.filter(r=>r.Sesion_Plan===id); }
+function todayStr() { const d=new Date(); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
+function z(n){ return String(n).padStart(2,'0'); }
+function genId(nad) {
+  const d=new Date(); const ds=d.getFullYear()+z(d.getMonth()+1)+z(d.getDate());
+  const idx=CACHE.filter(r=>r.Fecha===ds&&r.Nadador===nad).length+1;
+  return ds+'_'+z(idx)+(nad==='Felipe'?'F':'S');
+}
+function scClass(tipo){ return {A:'ta',B:'tb2',C:'tc'}[tipo]||''; }
+function blColor(id){ const b=BLOQUES.find(x=>x.id===id); return b?b.color:'var(--navy)'; }
+function toast(msg,ms=2500){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),ms); }
+function setLoad(pct,msg,sub){ document.getElementById('lo-f').style.width=pct+'%'; document.getElementById('lo-m').textContent=msg; document.getElementById('lo-s').textContent=sub||''; }
+function lov(show){ document.getElementById('lov').classList[show?'add':'remove']('on'); }
+function syncDot(st){ const d=document.getElementById('sdot'); d.className='sdot '+st; }
+function frow(lbl,val,cls){ const v=(val===null||val===undefined||val==='')? '—':val; return '<div class="fr"><span class="fl">'+lbl+'</span><span class="fv '+(v==='—'?'na':(cls||''))+'">'+v+'</span></div>'; }
+function evalRitmo(real, obj) {
+  if(!real||!obj) return null;
+  const p=r=>{ const m=String(r).replace(/[^0-9:]/g,'').match(/(\d+):(\d+)/); return m?parseInt(m[1])*60+parseInt(m[2]):null; };
+  const rv=p(real), parts=String(obj).split('-');
+  if(parts.length<2) return null;
+  const lo=p(parts[0]),hi=p(parts[1]);
+  if(!rv||!lo||!hi) return null;
+  if(rv<lo) return 'win'; if(rv<=hi) return 'ok'; return 'miss';
+}
+
+// ═══════════════════════════════════════════════════
+// SHEETS
+// ═══════════════════════════════════════════════════
+async function sheetsLoad() {
+  syncDot('load');
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),8000);
+  try {
+    const r=await fetch(SHEETS_URL+'?t='+Date.now(),{signal:ctrl.signal,mode:'cors',cache:'no-cache'});
+    clearTimeout(t);
+    const j=await r.json();
+    if(j.ok&&j.data){ CACHE=j.data.filter(x=>x.ID&&x.ID!=='ID'); cacheOk=true; syncDot('ok'); toast('✅ Sincronizado ('+CACHE.length+' sesiones)',2000); }
+    else syncDot('err');
+  } catch(e){ clearTimeout(t); syncDot('err'); }
+}
+
+async function sheetsSave(reg) {
+  syncDot('load');
+  try {
+    const r=await fetch(SHEETS_URL,{method:'POST',body:JSON.stringify(reg),headers:{'Content-Type':'application/json'}});
+    const j=await r.json();
+    if(j.ok){ CACHE.push({ID:reg.id,Fecha:reg.fecha,Nadador:reg.nadador,Sesion_Plan:reg.sesionPlan,Distancia_m:reg.resumen?.distancia_m,Ritmo_100m:reg.resumen?.ritmo_medio,FC_Media:reg.resumen?.fc_media,SWOLF:reg.resumen?.swolf_medio,TE_Aerobico:reg.resumen?.te_aerobico,Carga:reg.resumen?.carga_ejercicio}); syncDot('ok'); return true; }
+    syncDot('err'); return false;
+  } catch(e){ syncDot('err'); return false; }
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function goTab(tab) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('tab-'+tab).classList.add('on');
+  document.getElementById('pg-'+tab).classList.add('on');
+  if(tab==='hoy') renderHoy();
+  if(tab==='plan') renderPlan();
+  if(tab==='cargar') renderCargar1();
+  if(tab==='historial') renderHistorial();
+}
+
+// ═══════════════════════════════════════════════════
+// HOY
+// ═══════════════════════════════════════════════════
+function renderHoy() {
+  const today=todayStr();
+  const bl=getBloqueActivo();
+  const sesiones=getAllSesiones();
+  const sesHoy=sesiones.find(s=>s.fecha===today);
+  const pendientes=sesiones.filter(s=>{ const c=completadas(s.id); return c.length<2 && !s.intensidad.includes('🏆'); });
+  const ultimas=cacheOk?[...CACHE].reverse().slice(0,3):[];
+
+  const fStr=new Date().toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const days=Math.ceil((new Date(bl.fechaFin)-new Date())/(864e5));
+  const daysStr=days>0?days+' días':days===0?'¡Hoy!':'Finalizado';
+
+  const sesF=CACHE.filter(r=>r.Nadador==='Felipe').length;
+  const sesS=CACHE.filter(r=>r.Nadador==='Sergio').length;
+
+  let h='<div style="padding:2px 2px 8px;font-size:13px;font-weight:600;color:var(--text2)">'+fStr.charAt(0).toUpperCase()+fStr.slice(1)+'</div>';
+
+  // Bloque activo banner
+  h+='<div style="background:'+bl.color+';border-radius:10px;padding:10px 14px;margin-bottom:12px;color:#fff;display:flex;align-items:center;gap:10px">';
+  h+='<div style="flex:1"><div style="font-size:12px;font-weight:700">'+bl.nombre+'</div><div style="font-size:11px;opacity:.8">'+bl.subtitulo+'</div></div>';
+  h+='<div style="text-align:right;flex-shrink:0"><div style="font-size:20px;font-weight:700">'+(days>0?days:'🏆')+'</div><div style="font-size:10px;opacity:.8">'+(days>0?'días':'')+' </div></div></div>';
+
+  // KPIs
+  h+='<div class="kpig" style="margin-bottom:14px"><div class="kpi"><div class="kpi-v">'+sesF+'</div><div class="kpi-l">Sesiones Felipe</div></div><div class="kpi"><div class="kpi-v s">'+sesS+'</div><div class="kpi-l">Sesiones Sergio</div></div></div>';
+
+  // Sesión de hoy
+  if(sesHoy) {
+    const comp=completadas(sesHoy.id);
+    h+='<div class="card"><div class="ch" style="background:'+bl.color+';color:#fff"><div style="font-size:18px">🏊</div><h3 style="color:#fff">'+sesHoy.nombre+'</h3><span class="bx" style="background:rgba(255,255,255,.25);color:#fff">HOY</span></div>';
+    h+='<div class="cb"><p style="font-size:13px;color:var(--text2);margin-bottom:10px">'+sesHoy.objetivo+'</p>';
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><span class="itag">📏 ~'+sesHoy.volumen+'m</span><span class="itag">'+sesHoy.intensidad+'</span><span class="itag">'+comp.length+'/2 completadas</span></div>';
+    comp.forEach(c=>{h+='<div style="background:var(--green-l);border-radius:8px;padding:7px 10px;font-size:12px;margin-bottom:6px">✅ <b>'+c.Nadador+'</b>: '+(c.Distancia_m||'?')+'m · '+(c.Ritmo_100m||'?')+'/100m</div>';});
+    h+='<button class="btn" onclick="iniciarDesde(\''+sesHoy.id+'\')">📤 Cargar resultado</button>';
+    h+='<button class="btn2" onclick="goTab(\'plan\')">👁 Ver programa completo</button></div></div>';
+  } else {
+    h+='<div class="note">📅 No hay sesión programada exactamente hoy. Selecciona una pendiente abajo.</div>';
+  }
+
+  // Pendientes
+  if(pendientes.length) {
+    h+='<div class="lbl" style="margin-top:4px">Pendientes este bloque</div>';
+    pendientes.forEach(s=>{
+      const c=completadas(s.id).length;
+      const badge=c===0?'<span class="bx" style="background:var(--red-l);color:var(--red)">Pendiente</span>':'<span class="bx bw">'+c+'/2</span>';
+      h+='<div class="sc '+scClass(s.tipo)+'" onclick="iniciarDesde(\''+s.id+'\')" style="cursor:pointer;margin-bottom:8px"><div class="sc-h"><div><h4>'+s.nombre+'</h4><div class="sc-d">'+s.dia+' · '+s.intensidad+'</div></div>'+badge+'</div></div>';
+    });
+  }
+
+  // Últimas
+  if(ultimas.length) {
+    h+='<div class="lbl" style="margin-top:4px">Últimas sesiones</div>';
+    ultimas.forEach(r=>{h+=miniCard(r);});
+  }
+
+  document.getElementById('pg-hoy').innerHTML=h;
+}
+
+// ═══════════════════════════════════════════════════
+// PLAN
+// ═══════════════════════════════════════════════════
+function renderPlan() {
+  const bl=getBloqueActivo();
+  let h='';
+
+  // Block switcher
+  h+='<div class="bsw">';
+  BLOQUES.forEach(b=>{
+    const on=b.id===bl.id;
+    h+='<button onclick="setBloque(\''+b.id+'\')" style="'+(on?'background:'+b.color+';color:#fff;border-color:'+b.color:'')+'">'+b.nombre.replace(/🏁|🏊/g,'').trim().split('—')[0].trim()+'</button>';
+  });
+  h+='</div>';
+
+  // Bloque header
+  h+='<div class="bl-hdr" style="background:'+bl.color+'">';
+  h+='<div style="font-size:14px;font-weight:700;margin-bottom:3px">'+bl.nombre+'</div>';
+  h+='<div style="font-size:12px;opacity:.85">'+bl.subtitulo+'</div>';
+  h+='<div style="font-size:11px;opacity:.7;margin-top:4px">📅 Meta: '+bl.fechaFin+'</div></div>';
+
+  bl.semanas.forEach(sem=>{
+    h+='<div class="lbl">'+sem.nombre+'</div>';
+    sem.sesiones.forEach(s=>{
+      const comp=completadas(s.id);
+      const done=comp.length>=2;
+      const isComp=s.intensidad.includes('🏆');
+      h+='<div class="sc '+scClass(s.tipo)+' '+(done?'done':'')+'" '+(isComp?'style="border-left-color:#F1C40F"':'')+' >';
+      h+='<div class="sc-h" onclick="toggleSC(\'sb-'+s.id+'\')"><div style="flex:1"><h4>'+s.nombre+' '+(done?'✅':'')+'</h4><div class="sc-d">'+s.dia+(s.volumen?' · ~'+s.volumen+'m':'')+' · '+s.intensidad+'</div></div><span style="font-size:11px;color:var(--text3)">▼</span></div>';
+      h+='<div class="sc-b" id="sb-'+s.id+'">';
+      h+='<p style="font-size:12px;color:var(--text2);margin-bottom:10px">'+s.objetivo+'</p>';
+      s.bloques.forEach(b=>{
+        h+='<div class="blq"><div class="blq-t">'+b.tipo+(b.ritmo?' · 🎯 '+b.ritmo:'')+(b.desc2!=='—'?' · ⏸ '+b.desc2:'')+'</div>';
+        h+='<div class="blq-d">'+b.desc+'</div>';
+        h+='<div class="blq-f">🔵 Felipe: '+b.mf+'</div>';
+        h+='<div class="blq-s">🟢 Sergio: '+b.ms+'</div></div>';
+      });
+      comp.forEach(c=>{h+='<div style="background:var(--green-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px">✅ <b>'+c.Nadador+'</b>: '+(c.Distancia_m||'?')+'m · '+(c.Ritmo_100m||'?')+'/100m · SWOLF '+(c.SWOLF||'?')+'</div>';});
+      if(!isComp) h+='<button class="btn" style="margin-top:10px" onclick="iniciarDesde(\''+s.id+'\')">📤 Cargar resultado</button>';
+      h+='</div></div>';
+    });
+  });
+
+  document.getElementById('pg-plan').innerHTML=h;
+}
+
+function setBloque(id) {
+  BLOQUES.forEach(b=>b.activo=b.id===id);
+  renderPlan(); renderHoy();
+}
+
+function toggleSC(id) { document.getElementById(id)?.classList.toggle('open'); }
+
+// ═══════════════════════════════════════════════════
+// CARGAR — STEP 1
+// ═══════════════════════════════════════════════════
+function renderCargar1() {
+  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null;
+  const sesiones=getAllSesiones().filter(s=>!s.intensidad.includes('🏆'));
+  let h='<div class="lbl">1 · Nadador</div>';
+  h+='<div class="r2" style="margin-bottom:16px">';
+  h+='<div class="pill" id="pf" onclick="selNad(\'Felipe\')"><em>🔵</em><b>Felipe</b><small>Motor aeróbico</small></div>';
+  h+='<div class="pill" id="ps" onclick="selNad(\'Sergio\')"><em>🟢</em><b>Sergio</b><small>Eficiencia técnica</small></div></div>';
+  h+='<div class="lbl">2 · Sesión realizada</div>';
+  h+='<p style="font-size:12px;color:var(--text2);margin-bottom:10px">Selecciona la sesión del plan que hiciste hoy o recientemente.</p>';
+  sesiones.forEach(s=>{
+    const c=completadas(s.id).length;
+    h+='<div class="sc '+scClass(s.tipo)+'" id="sc2-'+s.id+'" onclick="selSes(\''+s.id+'\')" style="cursor:pointer;margin-bottom:8px">';
+    h+='<div class="sc-h"><div style="flex:1"><h4>'+s.nombre+'</h4><div class="sc-d">'+s.dia+' · '+s.intensidad+' · '+c+'/2 registradas</div></div>';
+    h+='<div id="sel-'+s.id+'" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0"></div></div></div>';
+  });
+  h+='<div class="sc" id="sc2-LIBRE" onclick="selSes(\'LIBRE\')" style="cursor:pointer;margin-bottom:16px"><div class="sc-h"><div style="flex:1"><h4>🔓 Sesión libre / no planificada</h4><div class="sc-d">Fuera del plan</div></div><div id="sel-LIBRE" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0"></div></div></div>';
+  h+='<button class="btn" id="btn-cont" onclick="renderCargar2()" disabled>Continuar → Subir fotos Garmin</button>';
+  document.getElementById('pg-cargar').innerHTML=h;
+}
+
+function iniciarDesde(id) { goTab('cargar'); setTimeout(()=>selSes(id),120); }
+
+function selNad(n) {
+  S.nadador=n;
+  document.getElementById('pf').className='pill'+(n==='Felipe'?' on':'');
+  document.getElementById('ps').className='pill'+(n==='Sergio'?' on-s':'');
+  checkCont();
+}
+
+function selSes(id) {
+  S.sesionPlan=id;
+  const allIds=getAllSesiones().map(s=>s.id).concat(['LIBRE']);
+  allIds.forEach(sid=>{
+    const sc=document.getElementById('sc2-'+sid);
+    const sel=document.getElementById('sel-'+sid);
+    if(sc) sc.style.background='';
+    if(sel){sel.innerHTML='';sel.style.borderColor='var(--border)';sel.style.color='';}
+  });
+  const sc=document.getElementById('sc2-'+id);
+  const sel=document.getElementById('sel-'+id);
+  if(sc) sc.style.background='var(--azul-l)';
+  if(sel){sel.innerHTML='✓';sel.style.borderColor='var(--navy)';sel.style.color='var(--navy)';sel.style.fontWeight='700';}
+  checkCont();
+}
+
+function checkCont() { const b=document.getElementById('btn-cont'); if(b) b.disabled=!(S.nadador&&S.sesionPlan); }
+
+// ═══════════════════════════════════════════════════
+// CARGAR — STEP 2
+// ═══════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════
+// CARGAR — STEP 2: Checklist de bloques
+// ═══════════════════════════════════════════════════
+function renderCargar2() {
+  const plan = getSesion(S.sesionPlan);
+  if (!plan) { renderCargar3(); return; }
+
+  // Init bloque states: {hecho, estilo_variacion, nota}
+  S.bloqueStates = plan.bloques.map(b => ({
+    hecho: true,
+    estiloVar: '',
+    nota: ''
+  }));
+
+  const bx = S.nadador==='Felipe'
+    ? '<span class="bx bf">Felipe</span>'
+    : '<span class="bx bs">Sergio</span>';
+
+  let h = '<div class="card" style="margin-bottom:12px">'
+    + '<div class="cb"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">'
+    + bx + '<span class="itag">' + plan.nombre + '</span></div>'
+    + '<p style="font-size:12px;color:var(--text2)">Revisa cada bloque. Desmarca los que <b>no hiciste</b> o indica si cambiaste el estilo.</p>'
+    + '</div></div>';
+
+  h += '<div class="lbl">Bloques del entrenamiento</div>';
+  h += '<div id="blq-list">';
+
+  plan.bloques.forEach((b, i) => {
+    const estilos = ['Libre','Espalda','Pecho','Mariposa','Combinado'];
+    h += '<div class="blq-check-card" id="bcc-' + i + '">';
+    // Header row: checkbox + tipo + desc breve
+    h += '<div class="bcc-hdr" onclick="toggleBloque(' + i + ')">';
+    h += '<div class="bcc-check" id="bcc-chk-' + i + '">✓</div>';
+    h += '<div style="flex:1;min-width:0">';
+    h += '<div class="bcc-tipo">' + b.tipo + (b.ritmo ? ' · 🎯 ' + b.ritmo : '') + '</div>';
+    h += '<div class="bcc-desc">' + b.desc + '</div>';
+    h += '</div></div>';
+    // Expanded options (shown when hecho=true)
+    h += '<div class="bcc-opts" id="bcc-opts-' + i + '">';
+    // Estilo variation
+    h += '<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:600">VARIACIÓN DE ESTILO</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    h += '<button class="estilo-btn on" id="est-' + i + '-" onclick="setEstilo(' + i + ',\'\')">Sin cambio</button>';
+    estilos.forEach(e => {
+      h += '<button class="estilo-btn" id="est-' + i + '-' + e + '" onclick="setEstilo(' + i + ',\'' + e + '\')">' + e + '</button>';
+    });
+    h += '</div></div>';
+    // Nota libre
+    h += '<div><div style="font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:600">NOTA (opcional)</div>';
+    h += '<input type="text" class="nota-inp" placeholder="ej: hice 2x400 en vez de 3x400" oninput="setNota(' + i + ',this.value)" id="nota-' + i + '"></div>';
+    h += '</div></div>';
+  });
+
+  h += '</div>';
+
+  // Summary count
+  h += '<div id="blq-summary" style="background:var(--azul-l);border-radius:8px;padding:10px 12px;margin:12px 0;font-size:12px;color:var(--navy);font-weight:500">';
+  h += '✅ Todos los bloques marcados como realizados</div>';
+
+  h += '<button class="btn" onclick="renderCargar3()">Continuar → Subir fotos Garmin</button>';
+  h += '<button class="btn2" onclick="renderCargar1()">← Volver</button>';
+
+  document.getElementById('pg-cargar').innerHTML = h;
+}
+
+function toggleBloque(i) {
+  const state = S.bloqueStates[i];
+  state.hecho = !state.hecho;
+
+  const card = document.getElementById('bcc-' + i);
+  const chk  = document.getElementById('bcc-chk-' + i);
+  const opts = document.getElementById('bcc-opts-' + i);
+
+  if (state.hecho) {
+    card.classList.remove('bcc-omit');
+    chk.textContent = '✓';
+    chk.classList.remove('bcc-omit-chk');
+    opts.style.display = '';
+  } else {
+    card.classList.add('bcc-omit');
+    chk.textContent = '✕';
+    chk.classList.add('bcc-omit-chk');
+    opts.style.display = 'none';
+  }
+  updateBloquesSummary();
+}
+
+function setEstilo(i, estilo) {
+  S.bloqueStates[i].estiloVar = estilo;
+  const plan = getSesion(S.sesionPlan);
+  const estilos = ['Libre','Espalda','Pecho','Mariposa','Combinado'];
+  ['', ...estilos].forEach(e => {
+    const btn = document.getElementById('est-' + i + '-' + e);
+    if (btn) btn.classList.toggle('on', e === estilo);
+  });
+}
+
+function setNota(i, val) {
+  S.bloqueStates[i].nota = val;
+}
+
+function updateBloquesSummary() {
+  const states = S.bloqueStates || [];
+  const hechos  = states.filter(s => s.hecho).length;
+  const omitidos = states.filter(s => !s.hecho).length;
+  const variados = states.filter(s => s.hecho && (s.estiloVar || s.nota)).length;
+  const el = document.getElementById('blq-summary');
+  if (!el) return;
+  if (omitidos === 0 && variados === 0) {
+    el.style.background = 'var(--azul-l)'; el.style.color = 'var(--navy)';
+    el.textContent = '✅ Todos los bloques realizados según el plan';
+  } else {
+    let parts = [];
+    if (hechos > 0)   parts.push('✅ ' + hechos + ' realizados');
+    if (omitidos > 0) parts.push('❌ ' + omitidos + ' omitidos');
+    if (variados > 0) parts.push('✏️ ' + variados + ' con variación');
+    el.style.background = 'var(--orange-l)'; el.style.color = 'var(--orange)';
+    el.textContent = parts.join(' · ');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// CARGAR — STEP 3: Fotos Garmin
+// ═══════════════════════════════════════════════════
+function renderCargar3() {
+  const plan = getSesion(S.sesionPlan);
+  const nombre = plan ? plan.nombre : 'Sesión libre';
+  const bx = S.nadador==='Felipe'
+    ? '<span class="bx bf">Felipe</span>'
+    : '<span class="bx bs">Sergio</span>';
+
+  // Build summary of what was done
+  let resumenBloques = '';
+  if (S.bloqueStates && plan) {
+    const omitidos = plan.bloques.filter((b,i) => !S.bloqueStates[i].hecho);
+    const variados  = plan.bloques.filter((b,i) => S.bloqueStates[i].hecho && (S.bloqueStates[i].estiloVar || S.bloqueStates[i].nota));
+    if (omitidos.length || variados.length) {
+      resumenBloques = '<div style="background:var(--orange-l);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--orange)">';
+      resumenBloques += '<div style="font-weight:700;margin-bottom:6px">📋 Ajustes registrados:</div>';
+      omitidos.forEach(b => { resumenBloques += '<div>❌ Omitido: ' + b.tipo + ' — ' + b.desc.substring(0,50) + '</div>'; });
+      variados.forEach((b,j) => {
+        const idx = plan.bloques.indexOf(b);
+        const st = S.bloqueStates[idx];
+        let txt = '✏️ ' + b.tipo;
+        if (st.estiloVar) txt += ' → estilo: ' + st.estiloVar;
+        if (st.nota) txt += ' · ' + st.nota;
+        resumenBloques += '<div>' + txt + '</div>';
+      });
+      resumenBloques += '</div>';
+    }
+  }
+
+  document.getElementById('pg-cargar').innerHTML =
+    '<div class="card" style="margin-bottom:12px"><div class="cb">'
+    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">' + bx + '<span class="itag">' + nombre + '</span></div>'
+    + '<p style="font-size:12px;color:var(--text2)">Ahora sube las pantallas de Garmin Connect.</p>'
+    + '</div></div>'
+    + resumenBloques
+    + '<div class="note">📱 Garmin Connect → actividad → <b>Estadísticas</b> (2 pantallas con scroll) → <b>Vueltas</b> (todas las pantallas)</div>'
+    + '<div class="lbl">Fotos de Garmin Connect</div>'
+    + '<div class="upz" onclick="document.getElementById(\'fi\').click()">'
+    + '<input type="file" id="fi" accept="image/*" multiple onchange="addFotos(this.files)">'
+    + '<em>📸</em><p>Toca para agregar fotos</p><span>Estadísticas (2) + Vueltas (2-3) = 4 a 5 fotos</span></div>'
+    + '<div id="thumbs" class="thumbs"></div>'
+    + '<div style="margin-top:14px">'
+    + '<button class="btn" id="btn-analizar" onclick="analizarFotos()" disabled>🧠 Analizar con IA</button>'
+    + '<button class="btn2" onclick="renderCargar2()">← Ajustar bloques</button>'
+    + '</div>';
+}
+
+function addFotos(files) {
+  S.files = [...S.files, ...Array.from(files)].slice(0,7);
+  const c = document.getElementById('thumbs'); if (!c) return;
+  c.innerHTML = '';
+  S.files.forEach((f,i) => {
+    const url = URL.createObjectURL(f);
+    const d = document.createElement('div'); d.className = 'thumb';
+    d.innerHTML = '<img src="' + url + '" alt="Pantalla ' + (i+1) + '"><button class="thumb-rm" onclick="rmFoto(' + i + ')">✕</button>';
+    c.appendChild(d);
+  });
+  const b = document.getElementById('btn-analizar'); if (b) b.disabled = S.files.length === 0;
+}
+
+function rmFoto(i) { S.files.splice(i,1); addFotos([]); }
+
+
+// CARGAR — STEP 3: Claude API
+// ═══════════════════════════════════════════════════
+async function b64(file){ return new Promise(r=>{ const fr=new FileReader(); fr.onload=e=>r(e.target.result.split(',')[1]); fr.readAsDataURL(file); }); }
+
+async function analizarFotos() {
+  if(!S.files.length) return;
+  lov(true); setLoad(5,'Preparando imágenes...','Leyendo fotos de Garmin Connect');
+  const pasos=[[20,'Leyendo Estadísticas...','Tiempo, distancia, ritmo, FC'],[45,'Extrayendo dinámica...','Brazadas, SWOLF, cadencia'],[65,'Procesando Vueltas...','Todos los intervalos'],[82,'Calculando Training Effect...','TE aeróbico, anaeróbico, carga'],[93,'Generando análisis...','Comparando con objetivos del plan']];
+  let si=0; const iv=setInterval(()=>{if(si<pasos.length){setLoad(...pasos[si]);si++;}},900);
+  try {
+    const imgs=[];
+    for(const f of S.files){ const d=await b64(f); imgs.push({type:'image',source:{type:'base64',media_type:f.type||'image/jpeg',data:d}}); }
+    const plan=getSesion(S.sesionPlan);
+    // Build context including what was actually done
+  let ctx = 'Sesión libre.';
+  if (plan) {
+    const states = S.bloqueStates || plan.bloques.map(()=>({hecho:true,estiloVar:'',nota:''}));
+    const bloqueInfo = plan.bloques.map((b,i) => {
+      const st = states[i];
+      if (!st.hecho) return b.tipo + ': OMITIDO';
+      let info = b.tipo + ': realizado';
+      if (st.estiloVar) info += ' (estilo cambiado a ' + st.estiloVar + ')';
+      if (st.nota) info += ' (nota: ' + st.nota + ')';
+      if (b.ritmo) info += ' · objetivo ritmo ' + b.ritmo;
+      return info;
+    });
+    const omitidos = plan.bloques.filter((b,i)=>!(states[i]?.hecho)).map(b=>b.tipo);
+    ctx = 'Sesion: "'+plan.nombre+'" ('+plan.dia+'). '
+      + 'Bloques realizados: ' + bloqueInfo.join(' | ') + '. '
+      + (omitidos.length ? 'BLOQUES OMITIDOS: ' + omitidos.join(', ') + '. ' : '')
+      + 'Vol planificado: ~' + plan.volumen + 'm (puede ser menor por omisiones).';
+  }
+    const prompt='Eres analista experto en natación del proyecto ORION Master.\nAnaliza estas pantallas de Garmin Connect (Estadísticas y Vueltas, piscina).\nContexto: '+ctx+'\nNadador: '+S.nadador+'\n\nDevuelve SOLO JSON válido sin texto adicional ni backticks:\n{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[{"intervalo":1,"tiempo":null,"distancia_m":null,"ritmo":null}],"evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"para_proxima":[]}}';
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})});
+    clearInterval(iv); setLoad(100,'Análisis completo ✓','');
+    if(!resp.ok) throw new Error('API error '+resp.status);
+    const data=await resp.json();
+    const raw=data.content.map(b=>b.text||'').join('').trim().replace(/```json|```/g,'').trim();
+    S.extracted=JSON.parse(raw);
+    setTimeout(()=>{ lov(false); renderResultado(); },300);
+  } catch(e){ clearInterval(iv); lov(false); toast('❌ Error: '+e.message,4000); }
+}
+
+// ═══════════════════════════════════════════════════
+// CARGAR — STEP 4: Resultado
+// ═══════════════════════════════════════════════════
+function renderResultado() {
+  const ext=S.extracted; const r=ext?.resumen||{}; const ev=ext?.evaluacion||{};
+  const plan=getSesion(S.sesionPlan);
+  const today=new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const bx=S.nadador==='Felipe'?'<span class="bx bf">Felipe</span>':'<span class="bx bs">Sergio</span>';
+
+  // Comparación plan
+  let compH='';
+  if(plan){
+    const bConRitmo=plan.bloques.filter(b=>b.ritmo);
+    compH='<div class="card" style="margin-bottom:10px"><div class="ch" style="background:'+getBloqueActivo().color+'"><h3 style="color:#fff;font-size:12px">📊 Real vs Plan: '+plan.nombre+'</h3></div><div class="cb">';
+    compH+='<div class="cmp-r" style="margin-bottom:6px"><div style="font-size:11px;font-weight:600">Bloque</div><div style="font-size:11px;color:var(--text2);text-align:center;font-weight:600">Objetivo</div><div style="font-size:12px;font-weight:600;text-align:right">Real</div></div>';
+    bConRitmo.forEach(b=>{
+      const ev2=evalRitmo(r.ritmo_medio,b.ritmo);
+      const ic={win:'✅',ok:'✅',miss:'⚠️'}[ev2]||'';
+      compH+='<div class="cmp-r"><div style="font-size:11px;color:var(--text2)">'+b.tipo+'</div><div style="font-size:11px;color:var(--text3);text-align:center">'+b.ritmo+'</div><div class="fv '+(ev2||'na')+'" style="text-align:right">'+ic+' '+(r.ritmo_medio||'—')+'/100</div></div>';
+    });
+    const volOk=r.distancia_m>=(plan.volumen*.9);
+    compH+='<div class="cmp-r"><div style="font-size:11px;color:var(--text2)">Volumen</div><div style="font-size:11px;color:var(--text3);text-align:center">~'+plan.volumen+'m</div><div class="fv '+(volOk?'win':'miss')+'" style="text-align:right">'+(r.distancia_m||'—')+'m</div></div>';
+    compH+='</div></div>';
+  }
+
+  // Evaluación
+  let evH='';
+  if(ev.puntos_positivos?.length||ev.puntos_mejora?.length){
+    evH='<div class="card" style="margin-bottom:10px"><div class="ch"><h3>🧠 Análisis coach ORION</h3></div><div class="cb">';
+    if(ev.puntos_positivos?.length){ evH+='<div class="lbl" style="color:var(--green)">✅ Logros</div>'; ev.puntos_positivos.forEach(p=>{evH+='<div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--gray2)">· '+p+'</div>';}); evH+='<div class="div"></div>'; }
+    if(ev.puntos_mejora?.length){ evH+='<div class="lbl" style="color:var(--orange)">⚠️ A mejorar</div>'; ev.puntos_mejora.forEach(p=>{evH+='<div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--gray2)">· '+p+'</div>';}); evH+='<div class="div"></div>'; }
+    if(ev.para_proxima?.length){ evH+='<div class="lbl" style="color:var(--navy)">🎯 Para la próxima</div>'; ev.para_proxima.forEach(p=>{evH+='<div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--gray2)">· '+p+'</div>';}); }
+    evH+='</div></div>';
+  }
+
+  let h=compH+
+    '<div class="card" style="margin-bottom:10px"><div class="ch">'+bx+'<h3 style="flex:1">'+(plan?.nombre||'Sesión libre')+'</h3><span style="font-size:11px;color:var(--text3)">'+today+'</span></div><div class="cb">'+
+    '<div class="lbl">Rendimiento</div>'+
+    frow('Distancia',r.distancia_m?r.distancia_m+'m':null,'ok')+
+    frow('Tiempo total',r.tiempo_total,'ok')+
+    frow('Tiempo en movimiento',r.tiempo_movimiento,'')+
+    frow('Ritmo medio /100m',r.ritmo_medio?r.ritmo_medio+'/100m':null,'ok')+
+    '<div class="div"></div><div class="lbl">Frecuencia cardíaca</div>'+
+    frow('FC media',r.fc_media?r.fc_media+' ppm':null,'')+
+    frow('FC máxima',r.fc_max?r.fc_max+' ppm':null,'')+
+    '<div class="div"></div><div class="lbl">Dinámica de natación</div>'+
+    frow('Cadencia',r.cadencia_ppm?r.cadencia_ppm+' ppm':null,'')+
+    frow('Brazadas totales',r.brazadas_totales,'')+
+    frow('Brazada media /largo',r.brazada_media_largo,'')+
+    frow('SWOLF medio',r.swolf_medio,'')+
+    '<div class="div"></div><div class="lbl">Training Effect</div>'+
+    frow('TE Aeróbico',r.te_aerobico,'')+
+    frow('TE Anaeróbico',r.te_anaerobico,'')+
+    frow('Carga de ejercicio',r.carga_ejercicio,'')+
+    frow('Calorías totales',r.calorias_totales,'')+
+    '</div></div>';
+
+  if(ext?.vueltas?.length){
+    h+='<div class="card" style="margin-bottom:10px"><div class="ch"><h3>Vueltas — '+ext.vueltas.length+' intervalos</h3></div><div style="overflow-x:auto;padding:0 6px 10px"><table class="vtbl"><thead><tr><th>Int.</th><th>Tiempo</th><th>Dist.</th><th>Ritmo</th></tr></thead><tbody>';
+    ext.vueltas.forEach(v=>{h+='<tr><td>'+v.intervalo+'</td><td>'+(v.tiempo||'—')+'</td><td>'+(v.distancia_m||'—')+'m</td><td>'+(v.ritmo||'—')+'</td></tr>';});
+    h+='<tr class="tot"><td>Total</td><td>'+(r.tiempo_total||'—')+'</td><td>'+(r.distancia_m||'—')+'m</td><td>'+(r.ritmo_medio||'—')+'/100</td></tr></tbody></table></div></div>';
+  }
+
+  h+=evH;
+  // Bloque summary in result
+  if (S.bloqueStates && plan) {
+    const states = S.bloqueStates;
+    const omitidos = plan.bloques.filter((b,i)=>!states[i].hecho);
+    const variados  = plan.bloques.filter((b,i)=>states[i].hecho&&(states[i].estiloVar||states[i].nota));
+    if (omitidos.length || variados.length) {
+      h += '<div class="card" style="margin-bottom:10px"><div class="ch"><h3>📋 Ajustes al plan registrados</h3></div><div class="cb">';
+      omitidos.forEach(b => { h += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--gray2)"><span style="color:var(--red);font-size:13px">❌</span><div><div style="font-size:12px;font-weight:600">'+b.tipo+' — Omitido</div><div style="font-size:11px;color:var(--text2)">'+b.desc.substring(0,60)+'</div></div></div>'; });
+      variados.forEach(b => {
+        const idx = plan.bloques.indexOf(b); const st = states[idx];
+        h += '<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--gray2)"><span style="color:var(--orange);font-size:13px">✏️</span><div><div style="font-size:12px;font-weight:600">'+b.tipo+(st.estiloVar?' → '+st.estiloVar:'')+'</div>'+(st.nota?'<div style="font-size:11px;color:var(--text2)">'+st.nota+'</div>':'')+'</div></div>';
+      });
+      h += '</div></div>';
+    }
+  }
+  h+='<div class="r2" style="margin-bottom:8px"><button class="btn2" onclick="renderCargar3()">← Volver</button><button class="btn" onclick="guardar()">💾 Guardar</button></div>';
+  h+='<p style="font-size:11px;color:var(--text3);text-align:center">Los datos se guardarán en Google Sheets compartido</p>';
+
+  document.getElementById('pg-cargar').innerHTML=h;
+}
+
+// ═══════════════════════════════════════════════════
+// GUARDAR
+// ═══════════════════════════════════════════════════
+async function guardar() {
+  const r=S.extracted?.resumen||{};
+  const reg={id:genId(S.nadador),fecha:todayStr(),nadador:S.nadador,sesionPlan:S.sesionPlan,medio:'Piscina',resumen:r,vueltas:S.extracted?.vueltas||[],bloqueStates:S.bloqueStates||[]};
+  lov(true); setLoad(50,'Guardando en Google Sheets...','Sincronizando con la nube ☁️');
+  const ok=await sheetsSave(reg);
+  lov(false);
+  if(ok){
+    document.getElementById('pg-cargar').innerHTML=
+      '<div class="ok-box"><div class="ok-ico">✅</div><div class="ok-t">Sesión guardada</div><div class="ok-s">'+reg.id+'<br>'+S.nadador+' · '+(r.distancia_m||'?')+'m en '+(r.tiempo_total||'?')+'<br>Ritmo '+(r.ritmo_medio||'?')+'/100m · SWOLF '+(r.swolf_medio||'?')+'<br><br>✅ Guardado en Google Sheets compartido</div></div>'+
+      '<button class="btn" onclick="renderCargar1()">📤 Registrar otra sesión</button>'+
+      '<button class="btn2" onclick="goTab(\'historial\')">📈 Ver historial</button>'+
+      '<button class="btn2" onclick="goTab(\'hoy\')">🏠 Inicio</button>';
+    toast('✅ Guardado en Google Sheets');
+  } else {
+    toast('⚠️ Error al guardar. Verifica conexión.',4000);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// HISTORIAL
+// ═══════════════════════════════════════════════════
+function renderHistorial() {
+  const el=document.getElementById('pg-historial');
+  if(!CACHE.length){
+    el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3)"><div style="font-size:40px;margin-bottom:12px">📭</div><div style="font-size:14px;font-weight:600;margin-bottom:6px">Sin sesiones aún</div><div style="font-size:12px">Carga la primera en la pestaña 📤</div></div><button class="btn2" onclick="sheetsLoad().then(renderHistorial)">🔄 Actualizar desde Sheets</button>';
+    return;
+  }
+  const sesF=CACHE.filter(r=>r.Nadador==='Felipe').length;
+  const sesS=CACHE.filter(r=>r.Nadador==='Sergio').length;
+  let h='<div class="kpig" style="margin-bottom:14px"><div class="kpi"><div class="kpi-v">'+sesF+'</div><div class="kpi-l">Felipe</div></div><div class="kpi"><div class="kpi-v s">'+sesS+'</div><div class="kpi-l">Sergio</div></div></div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="lbl" style="margin:0">'+CACHE.length+' sesiones registradas</div><button onclick="sheetsLoad().then(renderHistorial)" style="background:none;border:none;color:var(--navy);font-size:12px;cursor:pointer;padding:4px 8px">🔄 Actualizar</button></div>';
+  [...CACHE].reverse().forEach(r=>{h+=miniCard(r);});
+  el.innerHTML=h;
+}
+
+function miniCard(r) {
+  const plan=BLOQUES.flatMap(b=>b.semanas.flatMap(w=>w.sesiones)).find(s=>s.id===r.Sesion_Plan);
+  const bx=r.Nadador==='Felipe'?'<span class="bx bf">'+r.Nadador+'</span>':'<span class="bx bs">'+r.Nadador+'</span>';
+  const fecha=r.Fecha?new Date(r.Fecha+'T12:00:00').toLocaleDateString('es-CL',{day:'numeric',month:'short'}):'—';
+  return '<div class="card" style="margin-bottom:10px"><div class="ch">'+bx+'<span style="font-size:12px;color:var(--text2);flex:1;margin-left:4px">'+(plan?.nombre||r.Sesion_Plan||'Libre')+'</span><span style="font-size:11px;color:var(--text3)">'+fecha+'</span></div><div class="cb"><div class="r3"><div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--navy)">'+(r.Distancia_m||'—')+'m</div><div style="font-size:10px;color:var(--text3)">distancia</div></div><div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--navy)">'+(r.Ritmo_100m||'—')+'</div><div style="font-size:10px;color:var(--text3)">/100m</div></div><div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--navy)">'+(r.SWOLF||'—')+'</div><div style="font-size:10px;color:var(--text3)">SWOLF</div></div></div>'+(r.FC_Media?'<div style="margin-top:8px;font-size:11px;color:var(--text3)">FC '+r.FC_Media+' ppm · TE aeróbico '+(r.TE_Aerobico||'—')+' · Carga '+(r.Carga||'—')+'</div>':'')+'</div></div>';
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+renderHoy();
+sheetsLoad().then(()=>{
+  const tab=document.querySelector('.tab.on')?.id?.replace('tab-','');
+  if(tab==='hoy') renderHoy();
+  if(tab==='historial') renderHistorial();
+}).catch(()=>syncDot('err'));
+</script>
+</body>
+</html>
