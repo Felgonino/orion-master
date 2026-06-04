@@ -180,7 +180,7 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
 // ═══════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyNcjzq66U6U5qBVUCorvYLzwhyX7jE6Vre7UbEXj4MtRawoIRm00foi4vA2SNr6JkKuw/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzY1k8yoabejGIhc03oYtHsVfDFQxkBxFq9ye9osTK0ThJcSXu1aUXXjnkTjz8JUEGMhQ/exec';
 
 // ═══════════════════════════════════════════════════
 // PLAN DATA — BLOQUES
@@ -827,6 +827,7 @@ async function analizarFotos() {
     clearInterval(iv); setLoad(100,'Análisis completo ✓','');
     if(!resp.ok) throw new Error('API error '+resp.status);
     const data=await resp.json();
+    if(!data.ok) throw new Error(data.error||'Error en proxy');
     const raw=data.content.map(b=>b.text||'').join('').trim().replace(/```json|```/g,'').trim();
     S.extracted=JSON.parse(raw);
     setTimeout(()=>{ lov(false); renderResultado(); },300);
