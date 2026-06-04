@@ -405,7 +405,7 @@ async function sheetsLoad() {
   syncDot('load');
   const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),8000);
   try {
-    const r=await fetch(SHEETS_URL+'?t='+Date.now(),{signal:ctrl.signal,mode:'cors',cache:'no-cache'});
+    const r=await fetch('https://orion-proxy.felgonino.workers.dev'+'?t='+Date.now(),{signal:ctrl.signal,cache:'no-cache'});
     clearTimeout(t);
     const j=await r.json();
     if(j.ok&&j.data){ CACHE=j.data.filter(x=>x.ID&&x.ID!=='ID'); cacheOk=true; syncDot('ok'); toast('✅ Sincronizado ('+CACHE.length+' sesiones)',2000); }
