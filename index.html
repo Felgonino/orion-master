@@ -416,7 +416,7 @@ async function sheetsLoad() {
 async function sheetsSave(reg) {
   syncDot('load');
   try {
-    const r=await fetch(SHEETS_URL,{method:'POST',body:JSON.stringify(reg),headers:{'Content-Type':'application/json'}});
+    const r=await fetch('https://orion-proxy.felgonino.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(reg)});
     const j=await r.json();
     if(j.ok){ CACHE.push({ID:reg.id,Fecha:reg.fecha,Nadador:reg.nadador,Sesion_Plan:reg.sesionPlan,Distancia_m:reg.resumen?.distancia_m,Ritmo_100m:reg.resumen?.ritmo_medio,FC_Media:reg.resumen?.fc_media,SWOLF:reg.resumen?.swolf_medio,TE_Aerobico:reg.resumen?.te_aerobico,Carga:reg.resumen?.carga_ejercicio}); syncDot('ok'); return true; }
     syncDot('err'); return false;
