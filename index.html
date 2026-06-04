@@ -818,8 +818,8 @@ async function b64(file) {
 async function analizarFotos() {
   if(!S.files.length) return;
   lov(true); setLoad(5,'Preparando imágenes...','Leyendo fotos de Garmin Connect');
-  const pasos=[[20,'Leyendo Estadísticas...','Tiempo, distancia, ritmo, FC'],[45,'Extrayendo dinámica...','Brazadas, SWOLF, cadencia'],[65,'Procesando Vueltas...','Todos los intervalos'],[82,'Calculando Training Effect...','TE aeróbico, anaeróbico, carga'],[93,'Generando análisis...','Comparando con objetivos del plan']];
-  let si=0; const iv=setInterval(()=>{if(si<pasos.length){setLoad(...pasos[si]);si++;}},900);
+  const pasos=[[15,'Preparando imágenes...','Comprimiendo fotos de Garmin'],[30,'Enviando a Claude...','Conexión con servidor ORION'],[50,'Leyendo Estadísticas...','Tiempo, distancia, ritmo, FC'],[65,'Extrayendo dinámica...','Brazadas, SWOLF, cadencia'],[78,'Procesando Vueltas...','Todos los intervalos'],[88,'Calculando Training Effect...','TE aeróbico, anaeróbico, carga'],[94,'Generando análisis...','Comparando con objetivos del plan']];
+  let si=0; const iv=setInterval(()=>{if(si<pasos.length){setLoad(...pasos[si]);si++;}},4000);
   try {
     const imgs=[];
     for(const f of S.files){ const d=await b64(f); imgs.push({type:'image',source:{type:'base64',media_type:f.type||'image/jpeg',data:d}}); }
@@ -844,7 +844,17 @@ async function analizarFotos() {
       + 'Vol planificado: ~' + plan.volumen + 'm (puede ser menor por omisiones).';
   }
     const prompt='Eres analista experto en natación del proyecto ORION Master.\nAnaliza estas pantallas de Garmin Connect (Estadísticas y Vueltas, piscina).\nContexto: '+ctx+'\nNadador: '+S.nadador+'\n\nDevuelve SOLO JSON válido sin texto adicional ni backticks:\n{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[{"intervalo":1,"tiempo":null,"distancia_m":null,"ritmo":null}],"evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"para_proxima":[]}}';
-    const resp=await fetch('https://orion-proxy.felgonino.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})});
+    // Add timeout of 55 seconds
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 55000);
+    
+    const resp=await fetch('https://orion-proxy.felgonino.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      signal: controller.signal,
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})
+    });
+    clearTimeout(timeoutId);
     clearInterval(iv); setLoad(100,'Análisis completo ✓','');
     if(!resp.ok) throw new Error('API error '+resp.status);
     const data=await resp.json();
