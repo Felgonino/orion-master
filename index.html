@@ -859,10 +859,12 @@ async function analizarFotos() {
     if(!resp.ok) throw new Error('API error '+resp.status);
     const data=await resp.json();
     if(!data.ok) throw new Error(data.error||'Error en proxy: '+JSON.stringify(data));
-    // Handle both proxy response {ok, content} and direct API response {content}
-    const contentArr = data.content || (data.content === undefined && data.id ? data : null);
-    if(!contentArr) throw new Error('Respuesta inesperada: '+JSON.stringify(data).substring(0,200));
-    const raw=contentArr.map(b=>b.text||'').join('').trim().replace(/```json|```/g,'').trim();
+    if(!data.content) throw new Error('Sin contenido: '+JSON.stringify(data).substring(0,200));
+    const rawText = data.content.map(b=>b.text||'').join('').trim();
+    // Strip markdown code blocks aggressively
+    const raw = rawText
+      .replace(/^```json\s*/,'').replace(/^```\s*/,'')
+      .replace(/\s*```$/,'').trim();
     S.extracted=JSON.parse(raw);
     setTimeout(()=>{ lov(false); renderResultado(); },300);
   } catch(e){ clearInterval(iv); lov(false); toast('❌ Error: '+e.message,4000); }
