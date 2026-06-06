@@ -151,9 +151,48 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
 .bsw button.on{color:#fff}
 /* bloque header */
 .bl-hdr{border-radius:10px;padding:12px 14px;margin-bottom:12px;color:#fff}
+
+/* ── LOGIN PIN ── */
+#login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#0D2B55,#1A5276);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px}
+#login-screen.hidden{display:none}
+.login-logo{font-size:48px;margin-bottom:8px}
+.login-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.login-sub{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:28px}
+.login-who{font-size:13px;color:rgba(255,255,255,.85);margin-bottom:12px;font-weight:500}
+.login-swimmers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px;max-width:340px}
+.login-sw-btn{padding:10px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.login-sw-btn.on{background:#fff;color:#0D2B55;border-color:#fff}
+.pin-display{display:flex;gap:12px;margin-bottom:24px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.4);background:transparent}
+.pin-dot.filled{background:#fff;border-color:#fff}
+.pin-pad{display:grid;grid-template-columns:repeat(3,72px);gap:14px}
+.pin-key{width:72px;height:72px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:24px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pin-key:active{background:rgba(255,255,255,.25)}
+.pin-key.fn{font-size:14px}
+.login-err{color:#FADBD8;font-size:13px;margin-top:16px;height:18px}
+.login-hint{color:rgba(255,255,255,.5);font-size:11px;margin-top:20px;text-align:center;max-width:280px;line-height:1.5}
+
 </style>
 </head>
 <body>
+
+<div id="login-screen">
+  <div class="login-logo">🌊</div>
+  <div class="login-title">ORION Master</div>
+  <div class="login-sub">Felipe &amp; Sergio · 2026</div>
+  <div class="login-who" id="login-who">¿Quién eres?</div>
+  <div class="login-swimmers" id="login-swimmers"></div>
+  <div class="pin-display" id="pin-display" style="display:none">
+    <div class="pin-dot" id="pd-0"></div>
+    <div class="pin-dot" id="pd-1"></div>
+    <div class="pin-dot" id="pd-2"></div>
+    <div class="pin-dot" id="pd-3"></div>
+  </div>
+  <div class="pin-pad" id="pin-pad" style="display:none"></div>
+  <div class="login-err" id="login-err"></div>
+  <div class="login-hint" id="login-hint"></div>
+</div>
+
 <div class="app">
   <div class="tb">
     <div class="tb-logo">🌊</div>
@@ -164,7 +203,9 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
     <button class="tab on" id="tab-hoy"      onclick="goTab('hoy')"><em>📅</em>Hoy</button>
     <button class="tab"   id="tab-plan"      onclick="goTab('plan')"><em>🏊</em>Plan</button>
     <button class="tab"   id="tab-cargar"    onclick="goTab('cargar')"><em>📤</em>Cargar</button>
+    <button class="tab"   id="tab-compe"     onclick="goTab('compe')"><em>🏆</em>Compet.</button>
     <button class="tab"   id="tab-historial" onclick="goTab('historial')"><em>📈</em>Historial</button>
+    <button class="tab"   id="tab-nadadores" onclick="goTab('nadadores')"><em>👤</em>Equipo</button>
   </div>
   <div class="cnt">
     <div class="pg on" id="pg-hoy"></div>
@@ -361,10 +402,102 @@ const BLOQUES = [
 ];
 
 // ═══════════════════════════════════════════════════
+// NADADORES (perfiles dinámicos)
+// ═══════════════════════════════════════════════════
+// PIN por defecto. Felipe=1111, Sergio=2222 (cambiar luego en la app)
+let NADADORES = [
+  { nombre:'Felipe', pin:'1111', color:'#0D2B55', emoji:'🔵',
+    ritmo_base:'1:46', mejor_50_libre:'', mejor_50_espalda:'',
+    fc_media:'', experiencia:'', fortaleza:'Motor aeróbico', debilidad:'Eficiencia técnica' },
+  { nombre:'Sergio', pin:'2222', color:'#0E6655', emoji:'🟢',
+    ritmo_base:'1:43', mejor_50_libre:'', mejor_50_espalda:'',
+    fc_media:'', experiencia:'', fortaleza:'Eficiencia técnica', debilidad:'Agresividad competitiva' }
+];
+
+let USUARIO_ACTUAL = null;
+
+// ═══════════════════════════════════════════════════
+// LOGIN PIN
+// ═══════════════════════════════════════════════════
+let loginSel = null;
+let pinBuffer = '';
+
+function renderLogin() {
+  const cont = document.getElementById('login-swimmers');
+  cont.innerHTML = '';
+  NADADORES.forEach((n, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'login-sw-btn';
+    btn.textContent = n.emoji + ' ' + n.nombre;
+    btn.onclick = () => selLoginSwimmer(i);
+    cont.appendChild(btn);
+  });
+  // hint about default PINs (solo primera vez)
+  document.getElementById('login-hint').textContent = 'PINs iniciales: Felipe 1111 · Sergio 2222 (se pueden cambiar en Nadadores)';
+}
+
+function selLoginSwimmer(i) {
+  loginSel = i;
+  pinBuffer = '';
+  document.querySelectorAll('.login-sw-btn').forEach((b,idx) => b.classList.toggle('on', idx===i));
+  document.getElementById('login-who').textContent = 'Ingresa tu PIN, ' + NADADORES[i].nombre;
+  document.getElementById('pin-display').style.display = 'flex';
+  document.getElementById('pin-pad').style.display = 'grid';
+  document.getElementById('login-hint').style.display = 'none';
+  renderPinPad();
+  updatePinDots();
+}
+
+function renderPinPad() {
+  const pad = document.getElementById('pin-pad');
+  pad.innerHTML = '';
+  const keys = ['1','2','3','4','5','6','7','8','9','C','0','OK'];
+  keys.forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'pin-key' + (k==='C'||k==='OK' ? ' fn' : '');
+    btn.textContent = k;
+    btn.onclick = () => pinKey(k);
+    pad.appendChild(btn);
+  });
+}
+
+function pinKey(k) {
+  if (k === 'C') { pinBuffer = pinBuffer.slice(0,-1); }
+  else if (k === 'OK') { checkPin(); return; }
+  else if (pinBuffer.length < 4) { pinBuffer += k; }
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(checkPin, 200);
+}
+
+function updatePinDots() {
+  for (let i=0; i<4; i++) {
+    document.getElementById('pd-'+i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function checkPin() {
+  if (loginSel === null) return;
+  const n = NADADORES[loginSel];
+  if (pinBuffer === n.pin) {
+    USUARIO_ACTUAL = n.nombre;
+    document.getElementById('login-screen').classList.add('hidden');
+    // Update topbar
+    document.querySelector('.tb-s').textContent = n.emoji + ' ' + n.nombre + ' · 2026';
+    goTab('hoy');
+  } else {
+    document.getElementById('login-err').textContent = 'PIN incorrecto';
+    pinBuffer = '';
+    updatePinDots();
+    setTimeout(() => document.getElementById('login-err').textContent = '', 2000);
+  }
+}
+
+// ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
 const S = {nadador:null, sesionPlan:null, files:[], extracted:null};
 let CACHE = [];
+let COMPETENCIAS = [];
 let cacheOk = false;
 
 // ═══════════════════════════════════════════════════
@@ -408,9 +541,15 @@ async function sheetsLoad() {
     const r=await fetch('https://orion-proxy.felgonino.workers.dev'+'?t='+Date.now(),{signal:ctrl.signal,cache:'no-cache'});
     clearTimeout(t);
     const j=await r.json();
-    if(j.ok&&j.data){ CACHE=j.data.filter(x=>x.ID&&x.ID!=='ID'); cacheOk=true; syncDot('ok'); toast('✅ Sincronizado ('+CACHE.length+' sesiones)',2000); }
+    if(j.ok&&j.data){ CACHE=j.data.filter(x=>x.ID&&x.ID!=='ID'); cacheOk=true; syncDot('ok'); }
     else syncDot('err');
   } catch(e){ clearTimeout(t); syncDot('err'); }
+  // Cargar competencias
+  try {
+    const rc=await fetch('https://orion-proxy.felgonino.workers.dev?tipo=competencias&t='+Date.now());
+    const jc=await rc.json();
+    if(jc.ok&&jc.data){ COMPETENCIAS=jc.data.filter(x=>x.Nadador); }
+  } catch(e){}
 }
 
 async function sheetsSave(reg) {
@@ -434,7 +573,9 @@ function goTab(tab) {
   if(tab==='hoy') renderHoy();
   if(tab==='plan') renderPlan();
   if(tab==='cargar') renderCargar1();
+  if(tab==='compe') renderCompe();
   if(tab==='historial') renderHistorial();
+  if(tab==='nadadores') renderNadadores();
 }
 
 // ═══════════════════════════════════════════════════
@@ -557,9 +698,11 @@ function renderCargar1() {
   S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null;
   const sesiones=getAllSesiones().filter(s=>!s.intensidad.includes('🏆'));
   let h='<div class="lbl">1 · Nadador</div>';
-  h+='<div class="r2" style="margin-bottom:16px">';
-  h+='<div class="pill" id="pf" onclick="selNad(\'Felipe\')"><em>🔵</em><b>Felipe</b><small>Motor aeróbico</small></div>';
-  h+='<div class="pill" id="ps" onclick="selNad(\'Sergio\')"><em>🟢</em><b>Sergio</b><small>Eficiencia técnica</small></div></div>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">';
+  NADADORES.forEach(function(n){
+    h+='<div class="pill" id="pn-'+n.nombre+'" onclick="selNad(\''+n.nombre+'\')" style="min-width:90px"><em>'+n.emoji+'</em><b>'+n.nombre+'</b><small>'+(n.fortaleza||'').substring(0,18)+'</small></div>';
+  });
+  h+='</div>';
   h+='<div class="lbl">2 · Sesión realizada</div>';
   h+='<p style="font-size:12px;color:var(--text2);margin-bottom:10px">Selecciona la sesión del plan que hiciste hoy o recientemente.</p>';
   sesiones.forEach(s=>{
@@ -571,14 +714,17 @@ function renderCargar1() {
   h+='<div class="sc" id="sc2-LIBRE" onclick="selSes(\'LIBRE\')" style="cursor:pointer;margin-bottom:16px"><div class="sc-h"><div style="flex:1"><h4>🔓 Sesión libre / no planificada</h4><div class="sc-d">Fuera del plan</div></div><div id="sel-LIBRE" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0"></div></div></div>';
   h+='<button class="btn" id="btn-cont" onclick="renderCargar2()" disabled>Continuar → Subir fotos Garmin</button>';
   document.getElementById('pg-cargar').innerHTML=h;
+  if(USUARIO_ACTUAL) selNad(USUARIO_ACTUAL);
 }
 
 function iniciarDesde(id) { goTab('cargar'); setTimeout(()=>selSes(id),120); }
 
 function selNad(n) {
   S.nadador=n;
-  document.getElementById('pf').className='pill'+(n==='Felipe'?' on':'');
-  document.getElementById('ps').className='pill'+(n==='Sergio'?' on-s':'');
+  NADADORES.forEach(function(nad){
+    var el=document.getElementById('pn-'+nad.nombre);
+    if(el) el.className='pill'+(nad.nombre===n ? (nad.nombre==='Sergio'?' on-s':' on') : '');
+  });
   checkCont();
 }
 
@@ -1100,14 +1246,264 @@ function miniCard(r) {
 }
 
 // ═══════════════════════════════════════════════════
+// COMPETENCIAS
+// ═══════════════════════════════════════════════════
+const COMPE_STATE = { nadador:null, medio:'Piscina', estilo:'Libre', distancia:'50' };
+
+function renderCompe() {
+  const nadOpts = NADADORES.map(function(n){
+    return '<div class="pill" id="cp-nad-'+n.nombre+'" onclick="compeSet(\'nadador\',\''+n.nombre+'\')"><em>'+n.emoji+'</em><b>'+n.nombre+'</b></div>';
+  }).join('');
+
+  var h = '<div class="lbl">Registrar resultado de competencia</div>';
+  h += '<div class="note">Ingresa los datos de tu competencia. Los campos de Garmin son opcionales.</div>';
+
+  h += '<div class="card"><div class="cb">';
+  h += '<div class="lbl">Nadador</div>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">'+nadOpts+'</div>';
+
+  h += '<div class="lbl">Medio</div>';
+  h += '<div class="r2" style="margin-bottom:14px">';
+  h += '<div class="pill on" id="cp-medio-Piscina" onclick="compeSet(\'medio\',\'Piscina\')"><em>🏊</em><b>Piscina</b></div>';
+  h += '<div class="pill" id="cp-medio-Mar" onclick="compeSet(\'medio\',\'Mar\')"><em>🌊</em><b>Aguas abiertas</b></div>';
+  h += '</div>';
+
+  h += '<div class="lbl">Estilo</div>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px" id="cp-estilos">';
+  ['Libre','Espalda','Pecho','Mariposa','Combinado','Relevo'].forEach(function(e){
+    var on = e==='Libre' ? ' on' : '';
+    h += '<button class="estilo-btn'+on+'" id="cp-est-'+e+'" onclick="compeSet(\'estilo\',\''+e+'\')">'+e+'</button>';
+  });
+  h += '</div>';
+
+  h += '<div class="lbl">Distancia (metros)</div>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px" id="cp-dist">';
+  ['50','100','200','400','800','1500','2000','3000'].forEach(function(d){
+    var on = d==='50' ? ' on' : '';
+    h += '<button class="estilo-btn'+on+'" id="cp-d-'+d+'" onclick="compeSet(\'distancia\',\''+d+'\')">'+d+'m</button>';
+  });
+  h += '</div>';
+
+  h += '<div class="lbl">Fecha</div>';
+  h += '<input type="date" id="cp-fecha" class="nota-inp" style="margin-bottom:14px" value="'+todayStr()+'">';
+
+  h += '<div class="lbl">Tiempo (obligatorio)</div>';
+  h += '<input type="text" id="cp-tiempo" class="nota-inp" placeholder="ej: 0:32.5 o 1:48:13" style="margin-bottom:14px">';
+
+  h += '<div class="lbl">Nombre de la competencia (opcional)</div>';
+  h += '<input type="text" id="cp-nombre" class="nota-inp" placeholder="ej: Seaman Papudo" style="margin-bottom:14px">';
+
+  h += '<div class="lbl">Datos Garmin (opcionales)</div>';
+  h += '<div class="r2" style="margin-bottom:8px"><input type="text" id="cp-ritmo" class="nota-inp" placeholder="Ritmo /100m"><input type="text" id="cp-fc" class="nota-inp" placeholder="FC media"></div>';
+  h += '<div class="r2" style="margin-bottom:14px"><input type="text" id="cp-pos" class="nota-inp" placeholder="Posición"><input type="text" id="cp-cond" class="nota-inp" placeholder="Condiciones"></div>';
+
+  h += '<button class="btn" onclick="guardarCompe()">💾 Guardar competencia</button>';
+  h += '</div></div>';
+
+  // Historial de competencias
+  if (COMPETENCIAS.length) {
+    h += '<div class="lbl" style="margin-top:6px">Competencias registradas</div>';
+    [].concat(COMPETENCIAS).reverse().forEach(function(c){
+      var emoji = '';
+      NADADORES.forEach(function(n){ if(n.nombre===c.Nadador) emoji=n.emoji; });
+      h += '<div class="card" style="margin-bottom:8px"><div class="cb">';
+      h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
+      h += '<span class="bx '+(c.Nadador==='Sergio'?'bs':'bf')+'">'+emoji+' '+c.Nadador+'</span>';
+      h += '<span style="font-size:12px;font-weight:700;flex:1">'+c.Distancia+'m '+c.Estilo+'</span>';
+      h += '<span style="font-size:16px;font-weight:700;color:var(--navy)">'+c.Tiempo+'</span></div>';
+      h += '<div style="font-size:11px;color:var(--text3)">'+(c.Nombre||c.Medio)+' · '+c.Fecha+(c.Ritmo?' · '+c.Ritmo+'/100m':'')+(c.Posicion?' · Pos '+c.Posicion:'')+'</div>';
+      h += '</div></div>';
+    });
+  }
+
+  document.getElementById('pg-compe').innerHTML = h;
+  // pre-select current user
+  if (USUARIO_ACTUAL) compeSet('nadador', USUARIO_ACTUAL);
+}
+
+function compeSet(key, val) {
+  COMPE_STATE[key] = val;
+  if (key === 'nadador') {
+    NADADORES.forEach(function(n){
+      var el = document.getElementById('cp-nad-'+n.nombre);
+      if(el) el.className = 'pill' + (n.nombre===val ? (n.nombre==='Sergio'?' on-s':' on') : '');
+    });
+  } else if (key === 'medio') {
+    document.getElementById('cp-medio-Piscina').className = 'pill'+(val==='Piscina'?' on':'');
+    document.getElementById('cp-medio-Mar').className = 'pill'+(val==='Mar'?' on':'');
+  } else if (key === 'estilo') {
+    ['Libre','Espalda','Pecho','Mariposa','Combinado','Relevo'].forEach(function(e){
+      var el=document.getElementById('cp-est-'+e); if(el) el.classList.toggle('on', e===val);
+    });
+  } else if (key === 'distancia') {
+    ['50','100','200','400','800','1500','2000','3000'].forEach(function(d){
+      var el=document.getElementById('cp-d-'+d); if(el) el.classList.toggle('on', d===val);
+    });
+  }
+}
+
+async function guardarCompe() {
+  const tiempo = document.getElementById('cp-tiempo').value.trim();
+  if (!COMPE_STATE.nadador) { toast('Selecciona el nadador'); return; }
+  if (!tiempo) { toast('Ingresa el tiempo'); return; }
+
+  const compe = {
+    action: 'competencia',
+    nadador: COMPE_STATE.nadador,
+    medio: COMPE_STATE.medio,
+    estilo: COMPE_STATE.estilo,
+    distancia: COMPE_STATE.distancia,
+    fecha: document.getElementById('cp-fecha').value || todayStr(),
+    tiempo: tiempo,
+    nombre: document.getElementById('cp-nombre').value.trim(),
+    ritmo: document.getElementById('cp-ritmo').value.trim(),
+    fc: document.getElementById('cp-fc').value.trim(),
+    posicion: document.getElementById('cp-pos').value.trim(),
+    condiciones: document.getElementById('cp-cond').value.trim()
+  };
+
+  lov(true); setLoad(50, 'Guardando competencia...', '');
+  try {
+    const r = await fetch('https://orion-proxy.felgonino.workers.dev', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(compe)
+    });
+    const j = await r.json();
+    lov(false);
+    if (j.ok) {
+      COMPETENCIAS.push({
+        Nadador:compe.nadador, Medio:compe.medio, Estilo:compe.estilo,
+        Distancia:compe.distancia, Fecha:compe.fecha, Tiempo:compe.tiempo,
+        Nombre:compe.nombre, Ritmo:compe.ritmo, FC:compe.fc,
+        Posicion:compe.posicion, Condiciones:compe.condiciones
+      });
+      toast('✅ Competencia guardada');
+      renderCompe();
+    } else { toast('Error al guardar'); }
+  } catch(e) { lov(false); toast('Error de conexión'); }
+}
+
+// ═══════════════════════════════════════════════════
+// NADADORES (gestión)
+// ═══════════════════════════════════════════════════
+function renderNadadores() {
+  var h = '<div class="lbl">Equipo ORION</div>';
+  h += '<div class="note">Agrega nadadores con sus indicadores base. ORION los usa para personalizar los programas.</div>';
+
+  NADADORES.forEach(function(n, i){
+    h += '<div class="card" style="margin-bottom:10px;border-left:4px solid '+n.color+'"><div class="cb">';
+    h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">';
+    h += '<span style="font-size:20px">'+n.emoji+'</span>';
+    h += '<span style="font-size:15px;font-weight:700;flex:1">'+n.nombre+'</span>';
+    h += '<button onclick="editarNadador('+i+')" style="background:none;border:none;color:var(--navy);font-size:12px;cursor:pointer">✏️ Editar</button>';
+    h += '</div>';
+    h += '<div style="font-size:12px;color:var(--text2);line-height:1.7">';
+    if(n.ritmo_base) h += '🏊 Ritmo base: <b>'+n.ritmo_base+'/100m</b><br>';
+    if(n.mejor_50_libre) h += '⚡ Mejor 50 libre: <b>'+n.mejor_50_libre+'</b><br>';
+    if(n.mejor_50_espalda) h += '⚡ Mejor 50 espalda: <b>'+n.mejor_50_espalda+'</b><br>';
+    if(n.fc_media) h += '❤️ FC media: <b>'+n.fc_media+' ppm</b><br>';
+    if(n.experiencia) h += '📅 Experiencia: <b>'+n.experiencia+'</b><br>';
+    if(n.fortaleza) h += '💪 Fortaleza: '+n.fortaleza+'<br>';
+    if(n.debilidad) h += '🎯 A mejorar: '+n.debilidad;
+    h += '</div></div></div>';
+  });
+
+  h += '<button class="btn" onclick="nuevoNadador()" style="margin-top:6px">➕ Agregar nadador</button>';
+  document.getElementById('pg-nadadores').innerHTML = h;
+}
+
+function nuevoNadador() { editarNadador(-1); }
+
+function editarNadador(i) {
+  const n = i >= 0 ? NADADORES[i] : { nombre:'', pin:'', color:'#CA6F1E', emoji:'🟠', ritmo_base:'', mejor_50_libre:'', mejor_50_espalda:'', fc_media:'', experiencia:'', fortaleza:'', debilidad:'' };
+  const titulo = i >= 0 ? 'Editar '+n.nombre : 'Nuevo nadador';
+
+  var h = '<div class="lbl">'+titulo+'</div>';
+  h += '<div class="card"><div class="cb">';
+  h += inputField('en-nombre','Nombre', n.nombre, 'text');
+  h += inputField('en-pin','PIN (4 dígitos)', n.pin, 'text');
+  h += inputField('en-ritmo','Ritmo base /100m', n.ritmo_base, 'text', 'ej: 1:45');
+  h += inputField('en-l50','Mejor 50 libre', n.mejor_50_libre, 'text', 'ej: 0:32.5');
+  h += inputField('en-e50','Mejor 50 espalda', n.mejor_50_espalda, 'text', 'ej: 0:38.0');
+  h += inputField('en-fc','FC media típica', n.fc_media, 'text', 'ej: 140');
+  h += inputField('en-exp','Experiencia', n.experiencia, 'text', 'ej: 5 años');
+  h += inputField('en-fort','Fortaleza principal', n.fortaleza, 'text');
+  h += inputField('en-deb','A mejorar', n.debilidad, 'text');
+  h += '<button class="btn" onclick="guardarNadador('+i+')" style="margin-top:6px">💾 Guardar</button>';
+  h += '<button class="btn2" onclick="renderNadadores()">← Cancelar</button>';
+  h += '</div></div>';
+  document.getElementById('pg-nadadores').innerHTML = h;
+}
+
+function inputField(id, label, val, type, ph) {
+  return '<div class="lbl" style="margin-top:8px">'+label+'</div>' +
+    '<input type="'+type+'" id="'+id+'" class="nota-inp" value="'+(val||'').replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'">';
+}
+
+async function guardarNadador(i) {
+  const nombre = document.getElementById('en-nombre').value.trim();
+  const pin = document.getElementById('en-pin').value.trim();
+  if (!nombre) { toast('Ingresa el nombre'); return; }
+  if (pin.length !== 4 || isNaN(pin)) { toast('El PIN debe ser 4 dígitos'); return; }
+
+  const colores = ['#0D2B55','#0E6655','#CA6F1E','#6C3483','#C0392B','#1A5276'];
+  const emojis = ['🔵','🟢','🟠','🟣','🔴','🔷'];
+
+  const nad = {
+    nombre: nombre, pin: pin,
+    color: i>=0 ? NADADORES[i].color : colores[NADADORES.length % colores.length],
+    emoji: i>=0 ? NADADORES[i].emoji : emojis[NADADORES.length % emojis.length],
+    ritmo_base: document.getElementById('en-ritmo').value.trim(),
+    mejor_50_libre: document.getElementById('en-l50').value.trim(),
+    mejor_50_espalda: document.getElementById('en-e50').value.trim(),
+    fc_media: document.getElementById('en-fc').value.trim(),
+    experiencia: document.getElementById('en-exp').value.trim(),
+    fortaleza: document.getElementById('en-fort').value.trim(),
+    debilidad: document.getElementById('en-deb').value.trim()
+  };
+
+  if (i >= 0) NADADORES[i] = nad;
+  else NADADORES.push(nad);
+
+  // Guardar en Sheets
+  lov(true); setLoad(50, 'Guardando nadador...', '');
+  try {
+    await fetch('https://orion-proxy.felgonino.workers.dev', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'nadadores', nadadores: NADADORES })
+    });
+    lov(false);
+    toast('✅ Nadador guardado');
+  } catch(e) { lov(false); toast('Guardado local (sin conexión)'); }
+  renderNadadores();
+}
+
+// ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
-renderHoy();
-sheetsLoad().then(()=>{
-  const tab=document.querySelector('.tab.on')?.id?.replace('tab-','');
-  if(tab==='hoy') renderHoy();
-  if(tab==='historial') renderHistorial();
-}).catch(()=>syncDot('err'));
+// Cargar nadadores y competencias desde Sheets, luego mostrar login
+async function initApp() {
+  await cargarNadadores();
+  renderLogin();
+  // Cargar datos en background
+  sheetsLoad().then(()=>{
+    const tab=document.querySelector('.tab.on')?.id?.replace('tab-','');
+    if(tab==='hoy'&&USUARIO_ACTUAL) renderHoy();
+    if(tab==='historial'&&USUARIO_ACTUAL) renderHistorial();
+  }).catch(()=>syncDot('err'));
+}
+
+async function cargarNadadores() {
+  try {
+    const r = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=nadadores&t='+Date.now());
+    const j = await r.json();
+    if (j.ok && j.nadadores && j.nadadores.length) {
+      NADADORES = j.nadadores;
+    }
+  } catch(e) { /* usa los por defecto */ }
+}
+
+initApp();
 </script>
 </body>
 </html>
