@@ -955,21 +955,124 @@ function renderResultado() {
 // GUARDAR
 // ═══════════════════════════════════════════════════
 async function guardar() {
-  const r=S.extracted?.resumen||{};
-  const reg={id:genId(S.nadador),fecha:todayStr(),nadador:S.nadador,sesionPlan:S.sesionPlan,medio:'Piscina',resumen:r,vueltas:S.extracted?.vueltas||[],bloqueStates:S.bloqueStates||[]};
-  lov(true); setLoad(50,'Guardando en Google Sheets...','Sincronizando con la nube ☁️');
-  const ok=await sheetsSave(reg);
-  lov(false);
-  if(ok){
-    document.getElementById('pg-cargar').innerHTML=
-      '<div class="ok-box"><div class="ok-ico">✅</div><div class="ok-t">Sesión guardada</div><div class="ok-s">'+reg.id+'<br>'+S.nadador+' · '+(r.distancia_m||'?')+'m en '+(r.tiempo_total||'?')+'<br>Ritmo '+(r.ritmo_medio||'?')+'/100m · SWOLF '+(r.swolf_medio||'?')+'<br><br>✅ Guardado en Google Sheets compartido</div></div>'+
-      '<button class="btn" onclick="renderCargar1()">📤 Registrar otra sesión</button>'+
-      '<button class="btn2" onclick="goTab(\'historial\')">📈 Ver historial</button>'+
-      '<button class="btn2" onclick="goTab(\'hoy\')">🏠 Inicio</button>';
-    toast('✅ Guardado en Google Sheets');
-  } else {
-    toast('⚠️ Error al guardar. Verifica conexión.',4000);
+  var r = S.extracted && S.extracted.resumen ? S.extracted.resumen : {};
+  var ev = S.extracted && S.extracted.evaluacion ? S.extracted.evaluacion : {};
+  var plan = getSesion(S.sesionPlan);
+  var reg = {
+    id: genId(S.nadador),
+    fecha: todayStr(),
+    nadador: S.nadador,
+    sesionPlan: S.sesionPlan,
+    medio: 'Piscina',
+    resumen: r,
+    vueltas: S.extracted ? S.extracted.vueltas||[] : [],
+    bloqueStates: S.bloqueStates || [],
+    evaluacion: ev
+  };
+
+  lov(true); setLoad(30, 'Guardando resumen...', 'Escribiendo en Google Sheets');
+  var ok = await sheetsSave(reg);
+
+  if (ok && plan && S.bloqueStates) {
+    setLoad(65, 'Guardando detalle bloques...', 'Hoja de ejercicios');
+    for (var i = 0; i < plan.bloques.length; i++) {
+      var b = plan.bloques[i];
+      var st = S.bloqueStates[i] || {hecho:true, estiloVar:'', nota:''};
+      var det = {
+        action:'detalle', sesion_id:reg.id, fecha:reg.fecha,
+        nadador:reg.nadador, sesion_plan:reg.sesionPlan,
+        bloque_idx:i+1, bloque_tipo:b.tipo, bloque_desc:b.desc,
+        ritmo_obj:b.ritmo||'', hecho:st.hecho,
+        estilo_var:st.estiloVar||'', nota:st.nota||'',
+        meta_f:b.mf, meta_s:b.ms
+      };
+      await fetch('https://orion-proxy.felgonino.workers.dev',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(det)
+      }).catch(function(){});
+    }
   }
+
+  lov(false);
+
+  if (ok) {
+    var waMsg = buildWAMsg(reg, plan, ev);
+    var waUrl = 'https://wa.me/?text=' + encodeURIComponent(waMsg);
+    var d = reg.resumen || {};
+    document.getElementById('pg-cargar').innerHTML =
+      '<div class="ok-box"><div class="ok-ico">&#x2705;</div>' +
+      '<div class="ok-t">Sesi&#xF3;n guardada</div>' +
+      '<div class="ok-s">' + reg.id + '<br>' + reg.nadador +
+      ' &middot; ' + (d.distancia_m||'?') + 'm en ' + (d.tiempo_total||'?') + '<br>' +
+      'Ritmo ' + (d.ritmo_medio||'?') + '/100m &middot; SWOLF ' + (d.swolf_medio||'?') +
+      '</div></div>' +
+      '<a href="' + waUrl + '" target="_blank" style="text-decoration:none;display:block;margin-bottom:8px">' +
+      '<button class="btn tl" style="width:100%">&#x1F4F2; Compartir en WhatsApp</button></a>' +
+      '<button class="btn" onclick="renderCargar1()">&#x1F4E4; Registrar otra sesi&#xF3;n</button>' +
+      '<button class="btn2" onclick="goTab(\'historial\')">&#x1F4C8; Ver historial</button>' +
+      '<button class="btn2" onclick="goTab(\'hoy\')">&#x1F3E0; Inicio</button>';
+    toast('Guardado en Google Sheets');
+  } else {
+    toast('Error al guardar. Verifica conexi&#xF3;n.', 4000);
+  }
+}
+
+function buildWAMsg(reg, plan, ev) {
+  var r = reg.resumen || {};
+  var fecha = '';
+  try { fecha = new Date(reg.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long'}); } catch(e){}
+  var emoji = reg.nadador === 'Felipe' ? '(F)' : '(S)';
+  var lines = [];
+  lines.push('*ORION MASTER* ' + emoji);
+  lines.push(reg.nadador + ' - ' + fecha);
+  lines.push(plan ? plan.nombre : (reg.sesionPlan||'Libre'));
+  lines.push('');
+  lines.push('*Metricas*');
+  lines.push('Distancia: *' + (r.distancia_m||'-') + 'm*');
+  lines.push('Tiempo: *' + (r.tiempo_total||'-') + '*');
+  lines.push('Ritmo: *' + (r.ritmo_medio||'-') + '/100m*');
+  lines.push('FC media: *' + (r.fc_media||'-') + ' ppm*');
+  lines.push('FC max: *' + (r.fc_max||'-') + ' ppm*');
+  lines.push('SWOLF: *' + (r.swolf_medio||'-') + '*');
+  lines.push('TE aerobico: *' + (r.te_aerobico||'-') + '*  Anaerobico: *' + (r.te_anaerobico||'-') + '*');
+  lines.push('Carga: *' + (r.carga_ejercicio||'-') + '*  Calorias: *' + (r.calorias_totales||'-') + '*');
+
+  if (reg.bloqueStates && plan) {
+    var omit = plan.bloques.filter(function(b,i){ return !reg.bloqueStates[i] || !reg.bloqueStates[i].hecho; });
+    var vari = plan.bloques.filter(function(b,i){ return reg.bloqueStates[i] && reg.bloqueStates[i].hecho && (reg.bloqueStates[i].estiloVar||reg.bloqueStates[i].nota); });
+    if (omit.length || vari.length) {
+      lines.push('');
+      lines.push('*Ajustes al plan*');
+      omit.forEach(function(b){ lines.push('x Omitido: ' + b.tipo); });
+      vari.forEach(function(b){
+        var idx = plan.bloques.indexOf(b);
+        var st = reg.bloqueStates[idx];
+        lines.push('~ ' + b.tipo + (st.estiloVar?' > '+st.estiloVar:'') + (st.nota?' | '+st.nota:''));
+      });
+    }
+  }
+
+  if (ev) {
+    if (ev.puntos_positivos && ev.puntos_positivos.length) {
+      lines.push('');
+      lines.push('*Logros*');
+      ev.puntos_positivos.forEach(function(p){ lines.push('+ ' + p); });
+    }
+    if (ev.puntos_mejora && ev.puntos_mejora.length) {
+      lines.push('');
+      lines.push('*A mejorar*');
+      ev.puntos_mejora.forEach(function(p){ lines.push('! ' + p); });
+    }
+    if (ev.para_proxima && ev.para_proxima.length) {
+      lines.push('');
+      lines.push('*Para la proxima*');
+      ev.para_proxima.forEach(function(p){ lines.push('> ' + p); });
+    }
+  }
+
+  lines.push('');
+  lines.push('ID: ' + reg.id + ' | ORION 2026');
+  return lines.join('\n');
 }
 
 // ═══════════════════════════════════════════════════
