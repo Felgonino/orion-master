@@ -198,6 +198,7 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
     <div class="tb-logo">🌊</div>
     <div><div class="tb-t">ORION Master</div><div class="tb-s">Felipe &amp; Sergio · 2026</div></div>
     <div id="sdot" class="sdot" title="Sincronización"></div>
+    <button id="btn-logout" onclick="cerrarSesion()" style="display:none;background:rgba(255,255,255,.12);border:none;color:#fff;padding:6px 10px;border-radius:8px;font-size:14px;cursor:pointer;margin-left:8px" title="Cerrar sesión">⏻</button>
   </div>
   <div class="tabs">
     <button class="tab on" id="tab-hoy"      onclick="goTab('hoy')"><em>📅</em>Hoy</button>
@@ -205,6 +206,7 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
     <button class="tab"   id="tab-cargar"    onclick="goTab('cargar')"><em>📤</em>Cargar</button>
     <button class="tab"   id="tab-compe"     onclick="goTab('compe')"><em>🏆</em>Compet.</button>
     <button class="tab"   id="tab-historial" onclick="goTab('historial')"><em>📈</em>Historial</button>
+    <button class="tab"   id="tab-objetivos" onclick="goTab('objetivos')"><em>🎯</em>Objetivos</button>
     <button class="tab"   id="tab-nadadores" onclick="goTab('nadadores')"><em>👤</em>Equipo</button>
   </div>
   <div class="cnt">
@@ -213,6 +215,7 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
     <div class="pg"    id="pg-cargar"></div>
     <div class="pg"    id="pg-compe"></div>
     <div class="pg"    id="pg-historial"></div>
+    <div class="pg"    id="pg-objetivos"></div>
     <div class="pg"    id="pg-nadadores"></div>
   </div>
 </div>
@@ -458,7 +461,7 @@ function renderLogin() {
     cont.appendChild(btn);
   });
   // hint about default PINs (solo primera vez)
-  document.getElementById('login-hint').textContent = 'PINs iniciales: Felipe 1111 · Sergio 2222 (se pueden cambiar en Nadadores)';
+  document.getElementById('login-hint').textContent = 'Ingresa con tu PIN personal';
 }
 
 function selLoginSwimmer(i) {
@@ -500,13 +503,27 @@ function updatePinDots() {
   }
 }
 
+function cerrarSesion() {
+  USUARIO_ACTUAL = null;
+  loginSel = null;
+  pinBuffer = '';
+  document.getElementById('btn-logout').style.display = 'none';
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('pin-display').style.display = 'none';
+  document.getElementById('pin-pad').style.display = 'none';
+  document.getElementById('login-hint').style.display = 'block';
+  document.getElementById('login-who').textContent = '¿Quién eres?';
+  document.getElementById('login-err').textContent = '';
+  renderLogin();
+}
+
 function checkPin() {
   if (loginSel === null) return;
   const n = NADADORES[loginSel];
   if (pinBuffer === n.pin) {
     USUARIO_ACTUAL = n.nombre;
     document.getElementById('login-screen').classList.add('hidden');
-    // Update topbar
+    document.getElementById('btn-logout').style.display = 'block';
     document.querySelector('.tb-s').textContent = n.emoji + ' ' + n.nombre + ' · 2026';
     goTab('hoy');
   } else {
@@ -600,6 +617,7 @@ function goTab(tab) {
   if(tab==='cargar') renderCargar1();
   if(tab==='compe') renderCompe();
   if(tab==='historial') renderHistorial();
+  if(tab==='objetivos') renderObjetivos();
   if(tab==='nadadores') renderNadadores();
 }
 
@@ -1250,18 +1268,131 @@ function buildWAMsg(reg, plan, ev) {
 // HISTORIAL
 // ═══════════════════════════════════════════════════
 function renderHistorial() {
-  const el=document.getElementById('pg-historial');
-  if(!CACHE.length){
-    el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3)"><div style="font-size:40px;margin-bottom:12px">📭</div><div style="font-size:14px;font-weight:600;margin-bottom:6px">Sin sesiones aún</div><div style="font-size:12px">Carga la primera en la pestaña 📤</div></div><button class="btn2" onclick="sheetsLoad().then(renderHistorial)">🔄 Actualizar desde Sheets</button>';
+  const el = document.getElementById('pg-historial');
+  if (!CACHE.length && !COMPETENCIAS.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3)"><div style="font-size:40px;margin-bottom:12px">📭</div><div style="font-size:14px;font-weight:600;margin-bottom:6px">Sin datos aún</div><div style="font-size:12px">Carga sesiones o competencias primero</div></div><button class="btn2" onclick="sheetsLoad().then(renderHistorial)">🔄 Actualizar</button>';
     return;
   }
-  const sesF=CACHE.filter(r=>r.Nadador==='Felipe').length;
-  const sesS=CACHE.filter(r=>r.Nadador==='Sergio').length;
-  let h='<div class="kpig" style="margin-bottom:14px"><div class="kpi"><div class="kpi-v">'+sesF+'</div><div class="kpi-l">Felipe</div></div><div class="kpi"><div class="kpi-v s">'+sesS+'</div><div class="kpi-l">Sergio</div></div></div>';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="lbl" style="margin:0">'+CACHE.length+' sesiones registradas</div><button onclick="sheetsLoad().then(renderHistorial)" style="background:none;border:none;color:var(--navy);font-size:12px;cursor:pointer;padding:4px 8px">🔄 Actualizar</button></div>';
-  [...CACHE].reverse().forEach(r=>{h+=miniCard(r);});
-  el.innerHTML=h;
+
+  // Selector de nadador
+  var h = '<div class="lbl">Evolución por nadador</div>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px" id="hist-nad-sel">';
+  NADADORES.forEach(function(n, idx){
+    var on = (HIST_NAD === n.nombre || (!HIST_NAD && idx===0)) ? ' on' : '';
+    if (!HIST_NAD && idx===0) HIST_NAD = n.nombre;
+    h += '<button class="estilo-btn'+on+'" onclick="setHistNad(\''+n.nombre+'\')">'+n.emoji+' '+n.nombre+'</button>';
+  });
+  h += '</div>';
+
+  var sesiones = CACHE.filter(function(r){ return r.Nadador === HIST_NAD; })
+    .sort(function(a,b){ return (a.Fecha||'') < (b.Fecha||'') ? -1 : 1; });
+
+  if (!sesiones.length) {
+    h += '<div class="note">Sin sesiones registradas para '+HIST_NAD+'.</div>';
+  } else {
+    // Gráfico 1: Ritmo /100m
+    h += chartCard('Ritmo /100m (menor = mejor)', sesiones, function(r){ return ritmoToSec(r.Ritmo_100m); }, true, 'seg/100m');
+    // Gráfico 2: SWOLF
+    h += chartCard('SWOLF (menor = mejor)', sesiones, function(r){ return parseFloat(r.SWOLF)||null; }, true, 'SWOLF');
+    // Gráfico 3: FC media
+    h += chartCard('FC media', sesiones, function(r){ return parseFloat(r.FC_Media)||null; }, false, 'ppm');
+    // Gráfico 4: Volumen acumulado
+    var acum = 0;
+    var volData = sesiones.map(function(r){ acum += (parseFloat(r.Distancia_m)||0); return {Fecha:r.Fecha, val:acum}; });
+    h += chartCardRaw('Volumen acumulado', volData, false, 'm');
+  }
+
+  // Marcas de competencia por estilo/distancia
+  var compe = COMPETENCIAS.filter(function(c){ return c.Nadador === HIST_NAD; });
+  if (compe.length) {
+    h += '<div class="lbl" style="margin-top:18px">🏆 Evolución de marcas (competencias)</div>';
+    // Group by estilo+distancia
+    var grupos = {};
+    compe.forEach(function(c){
+      var key = c.Distancia+'m '+c.Estilo;
+      if (!grupos[key]) grupos[key] = [];
+      grupos[key].push(c);
+    });
+    Object.keys(grupos).forEach(function(key){
+      var arr = grupos[key].sort(function(a,b){ return (a.Fecha||'')<(b.Fecha||'')?-1:1; });
+      h += '<div class="card" style="margin-bottom:8px"><div class="cb">';
+      h += '<div style="font-size:13px;font-weight:700;margin-bottom:6px">'+key+'</div>';
+      arr.forEach(function(c){
+        h += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--gray2)"><span style="color:var(--text2)">'+(c.Nombre||c.Fecha)+'</span><span style="font-weight:700;color:var(--navy)">'+c.Tiempo+'</span></div>';
+      });
+      h += '</div></div>';
+    });
+  }
+
+  el.innerHTML = h;
 }
+
+var HIST_NAD = null;
+function setHistNad(n) { HIST_NAD = n; renderHistorial(); }
+
+function ritmoToSec(r) {
+  if (!r) return null;
+  var m = String(r).replace(/[^0-9:]/g,'').match(/(\d+):(\d+)/);
+  return m ? parseInt(m[1])*60 + parseInt(m[2]) : null;
+}
+
+function secToRitmo(s) {
+  var m = Math.floor(s/60), sec = Math.round(s-m*60);
+  return m+':'+(sec<10?'0':'')+sec;
+}
+
+function chartCard(titulo, sesiones, getVal, lowerBetter, unidad) {
+  var data = sesiones.map(function(r){ return {Fecha:r.Fecha, val:getVal(r)}; }).filter(function(d){ return d.val !== null && !isNaN(d.val); });
+  return chartCardRaw(titulo, data, lowerBetter, unidad);
+}
+
+function chartCardRaw(titulo, data, lowerBetter, unidad) {
+  if (!data.length) return '';
+  var W = 300, H = 120, pad = 30;
+  var vals = data.map(function(d){ return d.val; });
+  var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+  if (min === max) { min = min * 0.95; max = max * 1.05; }
+  var range = max - min || 1;
+
+  var pts = data.map(function(d, i){
+    var x = pad + (data.length===1 ? (W-2*pad)/2 : i*(W-2*pad)/(data.length-1));
+    var y = pad + (H-2*pad) * (1 - (d.val-min)/range);
+    return {x:x, y:y, val:d.val};
+  });
+
+  var path = pts.map(function(p,i){ return (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1); }).join(' ');
+
+  var svg = '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
+  // grid lines
+  svg += '<line x1="'+pad+'" y1="'+pad+'" x2="'+pad+'" y2="'+(H-pad)+'" stroke="#E5E8E8" stroke-width="1"/>';
+  svg += '<line x1="'+pad+'" y1="'+(H-pad)+'" x2="'+(W-pad)+'" y2="'+(H-pad)+'" stroke="#E5E8E8" stroke-width="1"/>';
+  // area fill
+  var area = path + ' L'+pts[pts.length-1].x.toFixed(1)+','+(H-pad)+' L'+pts[0].x.toFixed(1)+','+(H-pad)+' Z';
+  svg += '<path d="'+area+'" fill="#D6EAF8" opacity="0.5"/>';
+  // line
+  svg += '<path d="'+path+'" fill="none" stroke="#0D2B55" stroke-width="2"/>';
+  // points
+  pts.forEach(function(p){ svg += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3" fill="#0D2B55"/>'; });
+  // min/max labels
+  svg += '<text x="2" y="'+(pad+4)+'" font-size="9" fill="#AAB7B8">'+fmtVal(max,unidad)+'</text>';
+  svg += '<text x="2" y="'+(H-pad)+'" font-size="9" fill="#AAB7B8">'+fmtVal(min,unidad)+'</text>';
+  svg += '</svg>';
+
+  var first = data[0].val, last = data[data.length-1].val;
+  var mejoro = lowerBetter ? (last < first) : (last > first);
+  var trend = data.length > 1 ? (mejoro ? '<span style="color:var(--green)">↗ mejorando</span>' : '<span style="color:var(--orange)">→ revisar</span>') : '';
+
+  return '<div class="card" style="margin-bottom:10px"><div class="cb">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:13px;font-weight:700">'+titulo+'</span><span style="font-size:11px">'+trend+'</span></div>'+
+    svg + '</div></div>';
+}
+
+function fmtVal(v, unidad) {
+  if (unidad === 'seg/100m') return secToRitmo(v);
+  if (unidad === 'm') return Math.round(v);
+  return Math.round(v*10)/10;
+}
+
 
 function miniCard(r) {
   const plan=BLOQUES.flatMap(b=>b.semanas.flatMap(w=>w.sesiones)).find(s=>s.id===r.Sesion_Plan);
@@ -1558,6 +1689,170 @@ async function guardarNadador(i) {
     lov(false); toast('✅ Perfil guardado');
   } catch(e) { lov(false); toast('Guardado local (sin conexión)'); }
   renderNadadores();
+}
+
+// ═══════════════════════════════════════════════════
+// OBJETIVOS — Generador de programas con IA
+// ═══════════════════════════════════════════════════
+const OBJ = { modo:'auto', prueba:'', distancia:'50', estilo:'Libre', fecha:'', semanas:'3', dias:'3' };
+
+function renderObjetivos() {
+  var h = '<div class="lbl">Generar nuevo programa con ORION IA</div>';
+  h += '<div class="note">Define el objetivo y ORION crea el programa completo, basándose en el historial y perfil de los nadadores. Cada programa generado cuesta ~$0.02 USD.</div>';
+
+  h += '<div class="card"><div class="cb">';
+
+  // Modo
+  h += '<div class="lbl">Modo de generación</div>';
+  h += '<div class="r2" style="margin-bottom:14px">';
+  h += '<div class="pill on" id="obj-auto" onclick="objSet(\'modo\',\'auto\')"><em>🤖</em><b>Automático</b><small>ORION arma todo</small></div>';
+  h += '<div class="pill" id="obj-manual" onclick="objSet(\'modo\',\'manual\')"><em>✏️</em><b>Guiado</b><small>Yo defino base</small></div>';
+  h += '</div>';
+
+  // Objetivo
+  h += '<div class="lbl">Prueba objetivo</div>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="obj-est">';
+  ['Libre','Espalda','Pecho','Mariposa','Combinado','Fondo OA'].forEach(function(e){
+    var on = e==='Libre'?' on':'';
+    h += '<button class="estilo-btn'+on+'" id="obj-e-'+e+'" onclick="objSet(\'estilo\',\''+e+'\')">'+e+'</button>';
+  });
+  h += '</div>';
+
+  h += '<div class="lbl">Distancia objetivo (m)</div>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="obj-dist">';
+  ['50','100','200','400','800','1500','3000','5000'].forEach(function(d){
+    var on = d==='50'?' on':'';
+    h += '<button class="estilo-btn'+on+'" id="obj-d-'+d+'" onclick="objSet(\'distancia\',\''+d+'\')">'+d+'m</button>';
+  });
+  h += '</div>';
+
+  h += '<div class="lbl">Fecha de competencia / meta</div>';
+  h += '<input type="date" id="obj-fecha" class="nota-inp" style="margin-bottom:12px">';
+
+  h += '<div class="r2" style="margin-bottom:12px">';
+  h += '<div><div class="lbl">Semanas</div><input type="number" id="obj-sem" class="nota-inp" value="3" min="1" max="12"></div>';
+  h += '<div><div class="lbl">Días/semana</div><input type="number" id="obj-dias" class="nota-inp" value="3" min="1" max="6"></div>';
+  h += '</div>';
+
+  h += '<div id="obj-manual-extra" style="display:none">';
+  h += '<div class="lbl">Indicaciones adicionales (modo guiado)</div>';
+  h += '<textarea id="obj-notas" class="nota-inp" rows="3" style="resize:vertical" placeholder="ej: enfocar en salidas y virajes, incluir trabajo de pateo con aletas, etc."></textarea>';
+  h += '</div>';
+
+  h += '<button class="btn" onclick="generarPrograma()" style="margin-top:8px">🤖 Generar programa con ORION</button>';
+  h += '</div></div>';
+
+  // Programas generados previamente
+  if (PROGRAMAS_GEN.length) {
+    h += '<div class="lbl" style="margin-top:6px">Programas generados</div>';
+    PROGRAMAS_GEN.forEach(function(p, i){
+      h += '<div class="card" style="margin-bottom:8px"><div class="cb">';
+      h += '<div style="font-size:13px;font-weight:700;margin-bottom:4px">'+p.nombre+'</div>';
+      h += '<div style="font-size:11px;color:var(--text3)">'+p.subtitulo+'</div>';
+      h += '<button class="btn2" style="margin-top:8px" onclick="activarProgramaGen('+i+')">▶ Activar este programa</button>';
+      h += '</div></div>';
+    });
+  }
+
+  document.getElementById('pg-objetivos').innerHTML = h;
+  var fEl = document.getElementById('obj-fecha');
+  if (fEl && OBJ.fecha) fEl.value = OBJ.fecha;
+}
+
+var PROGRAMAS_GEN = [];
+
+function objSet(key, val) {
+  OBJ[key] = val;
+  if (key === 'modo') {
+    document.getElementById('obj-auto').className = 'pill'+(val==='auto'?' on':'');
+    document.getElementById('obj-manual').className = 'pill'+(val==='manual'?' on':'');
+    document.getElementById('obj-manual-extra').style.display = val==='manual'?'block':'none';
+  } else if (key === 'estilo') {
+    ['Libre','Espalda','Pecho','Mariposa','Combinado','Fondo OA'].forEach(function(e){
+      var el=document.getElementById('obj-e-'+e); if(el) el.classList.toggle('on', e===val);
+    });
+  } else if (key === 'distancia') {
+    ['50','100','200','400','800','1500','3000','5000'].forEach(function(d){
+      var el=document.getElementById('obj-d-'+d); if(el) el.classList.toggle('on', d===val);
+    });
+  }
+}
+
+async function generarPrograma() {
+  var fecha = document.getElementById('obj-fecha').value;
+  var sem = document.getElementById('obj-sem').value || '3';
+  var dias = document.getElementById('obj-dias').value || '3';
+  var notas = document.getElementById('obj-notas') ? document.getElementById('obj-notas').value : '';
+
+  if (!fecha) { toast('Selecciona la fecha meta'); return; }
+
+  // Build context from swimmers profiles + history
+  var perfilesTxt = NADADORES.map(function(n){
+    var p = n.nombre + ' (' + (n.tipo_nadador||'sin tipo') + '): ';
+    var d = [];
+    if (n.t50_libre) d.push('50L '+n.t50_libre);
+    if (n.t400_libre) d.push('400L '+n.t400_libre);
+    if (n.oa_ritmo) d.push('OA '+n.oa_ritmo+'/100');
+    if (n.fortaleza) d.push('fuerte: '+n.fortaleza);
+    if (n.debilidad) d.push('mejorar: '+n.debilidad);
+    return p + d.join(', ');
+  }).join(' | ');
+
+  // Recent results summary
+  var histTxt = '';
+  NADADORES.forEach(function(n){
+    var ses = CACHE.filter(function(r){ return r.Nadador===n.nombre; }).slice(-3);
+    if (ses.length) {
+      histTxt += n.nombre + ' últimas: ' + ses.map(function(s){ return (s.Distancia_m||'?')+'m '+(s.Ritmo_100m||'?')+'/100'; }).join(', ') + '. ';
+    }
+  });
+
+  lov(true); setLoad(20, 'ORION está diseñando...', 'Analizando perfiles y resultados');
+  var pasos=[[40,'Estructurando semanas...','Distribución de cargas'],[60,'Detallando ejercicios...','Series, ritmos, descansos'],[80,'Personalizando por nadador...','Felipe y Sergio'],[92,'Explicando conceptos...','Notas pedagógicas']];
+  var si=0; var iv=setInterval(function(){if(si<pasos.length){setLoad(pasos[si][0],pasos[si][1],pasos[si][2]);si++;}},2000);
+
+  var prompt = 'Eres ORION, coach experto de natación master. Genera un programa de entrenamiento completo en JSON.\\n\\n' +
+    'OBJETIVO: ' + OBJ.distancia + 'm ' + OBJ.estilo + ', meta ' + fecha + '. ' + sem + ' semanas, ' + dias + ' días/semana, ~60min/sesión.\\n' +
+    'NADADORES: ' + perfilesTxt + '\\n' +
+    'HISTORIAL: ' + (histTxt||'sin datos previos') + '\\n' +
+    (notas ? 'INDICACIONES EXTRA: ' + notas + '\\n' : '') +
+    '\\nReglas: entrena por objetivo no volumen. Incluye calentamiento, bloque principal con ritmos objetivo, y afloje. Diferencia metas Felipe (motor, mejorar eficiencia) y Sergio (técnico, mejorar agresividad). Si introduces un ejercicio o concepto nuevo, explícalo simple en el campo desc.\\n\\n' +
+    'Devuelve SOLO este JSON sin texto adicional ni backticks:\\n' +
+    '{"nombre":"...","subtitulo":"' + OBJ.distancia + 'm ' + OBJ.estilo + '","fechaFin":"' + fecha + '","semanas":[{"id":"S1","nombre":"Semana 1 - ...","sesiones":[{"id":"G1","tipo":"A","nombre":"...","dia":"...","volumen":2000,"intensidad":"🟢 Aeróbico","objetivo":"...","bloques":[{"tipo":"...","desc":"...","mf":"meta Felipe","ms":"meta Sergio","desc2":"descanso","ritmo":"opcional"}]}]}]}';
+
+  try {
+    var resp = await fetch('https://orion-proxy.felgonino.workers.dev', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ messages:[{role:'user', content:prompt}] })
+    });
+    clearInterval(iv); setLoad(100,'Listo','');
+    var data = await resp.json();
+    if (!data.ok || !data.text) throw new Error(data.error||'Sin respuesta');
+    var prog = JSON.parse(data.text);
+    prog.id = 'GEN'+Date.now();
+    prog.color = '#CA6F1E';
+    prog.activo = false;
+    PROGRAMAS_GEN.push(prog);
+    lov(false);
+    toast('✅ Programa generado');
+    renderObjetivos();
+  } catch(e) {
+    clearInterval(iv); lov(false);
+    toast('Error: '+e.message, 4000);
+  }
+}
+
+function activarProgramaGen(i) {
+  var prog = PROGRAMAS_GEN[i];
+  // Add to BLOQUES and activate
+  BLOQUES.forEach(function(b){ b.activo = false; });
+  prog.activo = true;
+  // Avoid duplicates
+  if (!BLOQUES.find(function(b){ return b.id === prog.id; })) {
+    BLOQUES.push(prog);
+  }
+  toast('✅ Programa activado — míralo en Plan');
+  goTab('plan');
 }
 
 // ═══════════════════════════════════════════════════
