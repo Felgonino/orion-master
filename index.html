@@ -426,11 +426,17 @@ const BLOQUES = [
 // PIN por defecto. Felipe=1111, Sergio=2222 (cambiar luego en la app)
 let NADADORES = [
   { nombre:'Felipe', pin:'1111', color:'#0D2B55', emoji:'🔵',
-    ritmo_base:'1:46', mejor_50_libre:'', mejor_50_espalda:'',
-    fc_media:'', experiencia:'', fortaleza:'Motor aeróbico', debilidad:'Eficiencia técnica' },
+    edad:'', categoria:'', anos_exp:'', respiracion:'', brazada_dom:'',
+    estatura:'', envergadura:'',
+    t50_libre:'', t50_espalda:'', t100_libre:'', t400_libre:'', swolf_ref:'',
+    oa_ritmo:'', oa_mejor_dist:'', oa_condiciones:'',
+    fortaleza:'Motor aeróbico', debilidad:'Eficiencia técnica', objetivo:'', tipo_nadador:'', extras:'' },
   { nombre:'Sergio', pin:'2222', color:'#0E6655', emoji:'🟢',
-    ritmo_base:'1:43', mejor_50_libre:'', mejor_50_espalda:'',
-    fc_media:'', experiencia:'', fortaleza:'Eficiencia técnica', debilidad:'Agresividad competitiva' }
+    edad:'', categoria:'', anos_exp:'', respiracion:'', brazada_dom:'',
+    estatura:'', envergadura:'',
+    t50_libre:'', t50_espalda:'', t100_libre:'', t400_libre:'', swolf_ref:'',
+    oa_ritmo:'', oa_mejor_dist:'', oa_condiciones:'',
+    fortaleza:'Eficiencia técnica', debilidad:'Agresividad competitiva', objetivo:'', tipo_nadador:'', extras:'' }
 ];
 
 let USUARIO_ACTUAL = null;
@@ -1407,92 +1413,149 @@ async function guardarCompe() {
 // ═══════════════════════════════════════════════════
 function renderNadadores() {
   var h = '<div class="lbl">Equipo ORION</div>';
-  h += '<div class="note">Agrega nadadores con sus indicadores base. ORION los usa para personalizar los programas.</div>';
+  h += '<div class="note">Cada nadador edita solo su propio perfil. Completa las pruebas de medición para que ORION personalice tus programas.</div>';
 
   NADADORES.forEach(function(n, i){
+    var esMio = (n.nombre === USUARIO_ACTUAL);
     h += '<div class="card" style="margin-bottom:10px;border-left:4px solid '+n.color+'"><div class="cb">';
     h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">';
     h += '<span style="font-size:20px">'+n.emoji+'</span>';
-    h += '<span style="font-size:15px;font-weight:700;flex:1">'+n.nombre+'</span>';
-    h += '<button onclick="editarNadador('+i+')" style="background:none;border:none;color:var(--navy);font-size:12px;cursor:pointer">✏️ Editar</button>';
+    h += '<span style="font-size:15px;font-weight:700;flex:1">'+n.nombre+(esMio?' (tú)':'')+'</span>';
+    if (esMio) h += '<button onclick="editarNadador('+i+')" style="background:none;border:none;color:var(--navy);font-size:12px;cursor:pointer">✏️ Editar</button>';
     h += '</div>';
     h += '<div style="font-size:12px;color:var(--text2);line-height:1.7">';
-    if(n.ritmo_base) h += '🏊 Ritmo base: <b>'+n.ritmo_base+'/100m</b><br>';
-    if(n.mejor_50_libre) h += '⚡ Mejor 50 libre: <b>'+n.mejor_50_libre+'</b><br>';
-    if(n.mejor_50_espalda) h += '⚡ Mejor 50 espalda: <b>'+n.mejor_50_espalda+'</b><br>';
-    if(n.fc_media) h += '❤️ FC media: <b>'+n.fc_media+' ppm</b><br>';
-    if(n.experiencia) h += '📅 Experiencia: <b>'+n.experiencia+'</b><br>';
-    if(n.fortaleza) h += '💪 Fortaleza: '+n.fortaleza+'<br>';
+    var datos = [];
+    if(n.edad) datos.push('🎂 '+n.edad+' años');
+    if(n.categoria) datos.push('🏅 '+n.categoria);
+    if(n.anos_exp) datos.push('📅 '+n.anos_exp+' exp');
+    if(datos.length) h += datos.join(' · ')+'<br>';
+    if(n.tipo_nadador) h += '🏊 Tipo: <b>'+n.tipo_nadador+'</b><br>';
+    var tests = [];
+    if(n.t50_libre) tests.push('50L: '+n.t50_libre);
+    if(n.t50_espalda) tests.push('50E: '+n.t50_espalda);
+    if(n.t100_libre) tests.push('100L: '+n.t100_libre);
+    if(n.t400_libre) tests.push('400L: '+n.t400_libre);
+    if(tests.length) h += '⚡ '+tests.join(' · ')+'<br>';
+    if(n.oa_ritmo) h += '🌊 OA ritmo: '+n.oa_ritmo+'/100m<br>';
+    if(n.fortaleza) h += '💪 '+n.fortaleza+'<br>';
     if(n.debilidad) h += '🎯 A mejorar: '+n.debilidad;
+    if(!datos.length && !tests.length && !n.fortaleza) h += '<i style="color:var(--text3)">Perfil sin completar</i>';
     h += '</div></div></div>';
   });
 
-  h += '<button class="btn" onclick="nuevoNadador()" style="margin-top:6px">➕ Agregar nadador</button>';
+  // Solo puede crear nuevo si quiere (cualquiera puede agregar a alguien nuevo)
+  h += '<button class="btn" onclick="nuevoNadador()" style="margin-top:6px">➕ Agregar nadador nuevo</button>';
   document.getElementById('pg-nadadores').innerHTML = h;
 }
 
 function nuevoNadador() { editarNadador(-1); }
 
 function editarNadador(i) {
-  const n = i >= 0 ? NADADORES[i] : { nombre:'', pin:'', color:'#CA6F1E', emoji:'🟠', ritmo_base:'', mejor_50_libre:'', mejor_50_espalda:'', fc_media:'', experiencia:'', fortaleza:'', debilidad:'' };
-  const titulo = i >= 0 ? 'Editar '+n.nombre : 'Nuevo nadador';
+  // Permiso: solo puede editar el suyo (salvo crear nuevo)
+  if (i >= 0 && NADADORES[i].nombre !== USUARIO_ACTUAL) {
+    toast('Solo puedes editar tu propio perfil');
+    return;
+  }
+  var n = i >= 0 ? NADADORES[i] : { nombre:'', pin:'', color:'#CA6F1E', emoji:'🟠',
+    edad:'', categoria:'', anos_exp:'', respiracion:'', brazada_dom:'',
+    estatura:'', envergadura:'', t50_libre:'', t50_espalda:'', t100_libre:'',
+    t400_libre:'', swolf_ref:'', oa_ritmo:'', oa_mejor_dist:'', oa_condiciones:'',
+    fortaleza:'', debilidad:'', objetivo:'', tipo_nadador:'', extras:'' };
+  var titulo = i >= 0 ? 'Editar '+n.nombre : 'Nuevo nadador';
 
   var h = '<div class="lbl">'+titulo+'</div>';
-  h += '<div class="card"><div class="cb">';
-  h += inputField('en-nombre','Nombre', n.nombre, 'text');
-  h += inputField('en-pin','PIN (4 dígitos)', n.pin, 'text');
-  h += inputField('en-ritmo','Ritmo base /100m', n.ritmo_base, 'text', 'ej: 1:45');
-  h += inputField('en-l50','Mejor 50 libre', n.mejor_50_libre, 'text', 'ej: 0:32.5');
-  h += inputField('en-e50','Mejor 50 espalda', n.mejor_50_espalda, 'text', 'ej: 0:38.0');
-  h += inputField('en-fc','FC media típica', n.fc_media, 'text', 'ej: 140');
-  h += inputField('en-exp','Experiencia', n.experiencia, 'text', 'ej: 5 años');
-  h += inputField('en-fort','Fortaleza principal', n.fortaleza, 'text');
-  h += inputField('en-deb','A mejorar', n.debilidad, 'text');
-  h += '<button class="btn" onclick="guardarNadador('+i+')" style="margin-top:6px">💾 Guardar</button>';
-  h += '<button class="btn2" onclick="renderNadadores()">← Cancelar</button>';
+
+  // CAPA 1 — Base
+  h += '<div class="card"><div class="cb"><div class="lbl" style="color:var(--navy)">1 · Identificación</div>';
+  h += inp('en-nombre','Nombre', n.nombre);
+  if (i < 0) h += inp('en-pin','PIN (4 dígitos)', n.pin);
+  h += inp('en-edad','Edad', n.edad, 'ej: 38');
+  h += inp('en-cat','Categoría master', n.categoria, 'ej: M35-39');
+  h += inp('en-exp','Años de experiencia', n.anos_exp, 'ej: 5');
+  h += inp('en-resp','Lado de respiración', n.respiracion, 'ej: bilateral / derecha');
+  h += inp('en-brz','Brazada dominante', n.brazada_dom, 'ej: libre / espalda');
   h += '</div></div>';
+
+  // CAPA 2 — Antropometría
+  h += '<div class="card"><div class="cb"><div class="lbl" style="color:var(--teal)">2 · Antropometría</div>';
+  h += inp('en-est','Estatura (cm)', n.estatura, 'ej: 178');
+  h += inp('en-env','Envergadura (cm)', n.envergadura, 'ej: 182');
+  h += '</div></div>';
+
+  // CAPA 3 — Tests piscina + OA
+  h += '<div class="card"><div class="cb"><div class="lbl" style="color:var(--orange)">3 · Pruebas de medición — Piscina</div>';
+  h += inp('en-t50l','50m Libre (máx)', n.t50_libre, 'ej: 0:32.5');
+  h += inp('en-t50e','50m Espalda (máx)', n.t50_espalda, 'ej: 0:38.0');
+  h += inp('en-t100l','100m Libre', n.t100_libre, 'ej: 1:18.0');
+  h += inp('en-t400l','400m Libre (umbral)', n.t400_libre, 'ej: 6:30.0');
+  h += inp('en-swolf','SWOLF de referencia', n.swolf_ref, 'ej: 33');
+  h += '<div class="lbl" style="color:var(--azul);margin-top:12px">Aguas abiertas</div>';
+  h += inp('en-oar','Ritmo sostenido /100m', n.oa_ritmo, 'ej: 1:43');
+  h += inp('en-oad','Mejor distancia completada', n.oa_mejor_dist, 'ej: 3000m');
+  h += inp('en-oac','Experiencia condiciones', n.oa_condiciones, 'ej: frío 12°C, oleaje');
+  h += '</div></div>';
+
+  // CAPA 4 — Cualitativo
+  h += '<div class="card"><div class="cb"><div class="lbl" style="color:var(--purple)">4 · Perfil cualitativo</div>';
+  h += inp('en-tipo','Tipo de nadador', n.tipo_nadador, 'velocista / fondista / mixto');
+  h += inp('en-fort','Fortaleza principal', n.fortaleza);
+  h += inp('en-deb','A mejorar', n.debilidad);
+  h += inp('en-obj','Objetivo personal', n.objetivo, 'ej: bajar de 14min en 800');
+  h += '<div class="lbl" style="margin-top:8px">Notas / mediciones extra (libre)</div>';
+  h += '<textarea id="en-extra" class="nota-inp" rows="3" style="resize:vertical" placeholder="Cualquier otra medición o dato relevante">'+(n.extras||'')+'</textarea>';
+  h += '</div></div>';
+
+  h += '<button class="btn" onclick="guardarNadador('+i+')" style="margin-top:6px">💾 Guardar perfil</button>';
+  h += '<button class="btn2" onclick="renderNadadores()">← Cancelar</button>';
   document.getElementById('pg-nadadores').innerHTML = h;
+  window.scrollTo(0,0);
 }
 
-function inputField(id, label, val, type, ph) {
-  return '<div class="lbl" style="margin-top:8px">'+label+'</div>' +
-    '<input type="'+type+'" id="'+id+'" class="nota-inp" value="'+(val||'').replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'">';
+function inp(id, label, val, ph) {
+  return '<div class="lbl" style="margin-top:8px;text-transform:none;letter-spacing:0;color:var(--text2)">'+label+'</div>' +
+    '<input type="text" id="'+id+'" class="nota-inp" value="'+(val||'').replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'">';
 }
 
 async function guardarNadador(i) {
-  const nombre = document.getElementById('en-nombre').value.trim();
-  const pin = document.getElementById('en-pin').value.trim();
+  var nombre = document.getElementById('en-nombre').value.trim();
   if (!nombre) { toast('Ingresa el nombre'); return; }
-  if (pin.length !== 4 || isNaN(pin)) { toast('El PIN debe ser 4 dígitos'); return; }
 
-  const colores = ['#0D2B55','#0E6655','#CA6F1E','#6C3483','#C0392B','#1A5276'];
-  const emojis = ['🔵','🟢','🟠','🟣','🔴','🔷'];
+  var pin;
+  if (i >= 0) { pin = NADADORES[i].pin; }
+  else {
+    pin = document.getElementById('en-pin').value.trim();
+    if (pin.length !== 4 || isNaN(pin)) { toast('El PIN debe ser 4 dígitos'); return; }
+  }
 
-  const nad = {
+  var colores = ['#0D2B55','#0E6655','#CA6F1E','#6C3483','#C0392B','#1A5276'];
+  var emojis = ['🔵','🟢','🟠','🟣','🔴','🔷'];
+
+  function gv(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+
+  var nad = {
     nombre: nombre, pin: pin,
     color: i>=0 ? NADADORES[i].color : colores[NADADORES.length % colores.length],
     emoji: i>=0 ? NADADORES[i].emoji : emojis[NADADORES.length % emojis.length],
-    ritmo_base: document.getElementById('en-ritmo').value.trim(),
-    mejor_50_libre: document.getElementById('en-l50').value.trim(),
-    mejor_50_espalda: document.getElementById('en-e50').value.trim(),
-    fc_media: document.getElementById('en-fc').value.trim(),
-    experiencia: document.getElementById('en-exp').value.trim(),
-    fortaleza: document.getElementById('en-fort').value.trim(),
-    debilidad: document.getElementById('en-deb').value.trim()
+    edad: gv('en-edad'), categoria: gv('en-cat'), anos_exp: gv('en-exp'),
+    respiracion: gv('en-resp'), brazada_dom: gv('en-brz'),
+    estatura: gv('en-est'), envergadura: gv('en-env'),
+    t50_libre: gv('en-t50l'), t50_espalda: gv('en-t50e'), t100_libre: gv('en-t100l'),
+    t400_libre: gv('en-t400l'), swolf_ref: gv('en-swolf'),
+    oa_ritmo: gv('en-oar'), oa_mejor_dist: gv('en-oad'), oa_condiciones: gv('en-oac'),
+    tipo_nadador: gv('en-tipo'), fortaleza: gv('en-fort'), debilidad: gv('en-deb'),
+    objetivo: gv('en-obj'), extras: gv('en-extra')
   };
 
   if (i >= 0) NADADORES[i] = nad;
   else NADADORES.push(nad);
 
-  // Guardar en Sheets
-  lov(true); setLoad(50, 'Guardando nadador...', '');
+  lov(true); setLoad(50, 'Guardando perfil...', '');
   try {
     await fetch('https://orion-proxy.felgonino.workers.dev', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ action:'nadadores', nadadores: NADADORES })
     });
-    lov(false);
-    toast('✅ Nadador guardado');
+    lov(false); toast('✅ Perfil guardado');
   } catch(e) { lov(false); toast('Guardado local (sin conexión)'); }
   renderNadadores();
 }
