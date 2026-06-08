@@ -1276,6 +1276,8 @@ function buildWAMsg(reg, plan, ev) {
 // ═══════════════════════════════════════════════════
 // HISTORIAL
 // ═══════════════════════════════════════════════════
+var HIST_NAD = null;
+function setHistNad(n) { HIST_NAD = n; renderHistorial(); }
 function renderHistorial() {
   const el = document.getElementById('pg-historial');
   if (!CACHE.length && !COMPETENCIAS.length) {
