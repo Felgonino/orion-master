@@ -590,7 +590,7 @@ async function sheetsLoad() {
   try {
     const rc=await fetch('https://orion-proxy.felgonino.workers.dev?tipo=competencias&t='+Date.now());
     const jc=await rc.json();
-    if(jc.ok&&jc.data){ COMPETENCIAS=jc.data.filter(x=>x.Nadador); }
+    if(jc.ok&&jc.data){ COMPETENCIAS=jc.data.filter(function(x){ return x.Nadador && x.Estilo && x.Tiempo; }); }
   } catch(e){}
 }
 
@@ -1182,6 +1182,15 @@ async function guardar() {
     }
   }
 
+  // Guardar vueltas Garmin (hoja separada)
+  if (ok && reg.vueltas && reg.vueltas.length) {
+    setLoad(75, 'Guardando vueltas Garmin...', 'Detalle de intervalos');
+    await fetch('https://orion-proxy.felgonino.workers.dev',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ action:'vueltas', sesion_id:reg.id, fecha:reg.fecha, nadador:reg.nadador, vueltas:reg.vueltas })
+    }).catch(function(){});
+  }
+
   lov(false);
 
   if (ok) {
@@ -1274,39 +1283,59 @@ function renderHistorial() {
     return;
   }
 
-  // Selector de nadador
   var h = '<div class="lbl">Evolución por nadador</div>';
   h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px" id="hist-nad-sel">';
   NADADORES.forEach(function(n, idx){
-    var on = (HIST_NAD === n.nombre || (!HIST_NAD && idx===0)) ? ' on' : '';
     if (!HIST_NAD && idx===0) HIST_NAD = n.nombre;
+    var on = (HIST_NAD === n.nombre) ? ' on' : '';
     h += '<button class="estilo-btn'+on+'" onclick="setHistNad(\''+n.nombre+'\')">'+n.emoji+' '+n.nombre+'</button>';
   });
   h += '</div>';
 
   var sesiones = CACHE.filter(function(r){ return r.Nadador === HIST_NAD; })
-    .sort(function(a,b){ return (a.Fecha||'') < (b.Fecha||'') ? -1 : 1; });
+    .sort(function(a,b){ return (a.Fecha||'') < (b.Fecha||'') ? 1 : -1; }); // recientes primero
 
   if (!sesiones.length) {
     h += '<div class="note">Sin sesiones registradas para '+HIST_NAD+'.</div>';
   } else {
-    // Gráfico 1: Ritmo /100m
-    h += chartCard('Ritmo /100m (menor = mejor)', sesiones, function(r){ return ritmoToSec(r.Ritmo_100m); }, true, 'seg/100m');
-    // Gráfico 2: SWOLF
-    h += chartCard('SWOLF (menor = mejor)', sesiones, function(r){ return parseFloat(r.SWOLF)||null; }, true, 'SWOLF');
-    // Gráfico 3: FC media
-    h += chartCard('FC media', sesiones, function(r){ return parseFloat(r.FC_Media)||null; }, false, 'ppm');
-    // Gráfico 4: Volumen acumulado
-    var acum = 0;
-    var volData = sesiones.map(function(r){ acum += (parseFloat(r.Distancia_m)||0); return {Fecha:r.Fecha, val:acum}; });
-    h += chartCardRaw('Volumen acumulado', volData, false, 'm');
+    // KPIs resumen
+    var totalDist = sesiones.reduce(function(s,r){ return s+(parseFloat(r.Distancia_m)||0); },0);
+    var ritmos = sesiones.map(function(r){ return ritmoToSec(r.Ritmo_100m); }).filter(function(v){ return v; });
+    var mejorRitmo = ritmos.length ? secToRitmo(Math.min.apply(null,ritmos)) : '—';
+    var swolfs = sesiones.map(function(r){ return parseFloat(r.SWOLF); }).filter(function(v){ return !isNaN(v); });
+    var mejorSwolf = swolfs.length ? Math.min.apply(null,swolfs) : '—';
+
+    h += '<div class="r3" style="margin-bottom:14px">';
+    h += '<div class="kpi" style="text-align:center"><div class="kpi-v" style="font-size:18px">'+sesiones.length+'</div><div class="kpi-l">sesiones</div></div>';
+    h += '<div class="kpi" style="text-align:center"><div class="kpi-v" style="font-size:18px">'+mejorRitmo+'</div><div class="kpi-l">mejor ritmo</div></div>';
+    h += '<div class="kpi" style="text-align:center"><div class="kpi-v" style="font-size:18px">'+mejorSwolf+'</div><div class="kpi-l">mejor SWOLF</div></div>';
+    h += '</div>';
+    h += '<div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:14px">Volumen total: <b>'+(totalDist/1000).toFixed(1)+' km</b></div>';
+
+    // Tabla de evolución
+    h += '<div class="lbl">Historial de sesiones</div>';
+    h += '<div class="card"><div style="overflow-x:auto"><table class="vtbl"><thead><tr>';
+    h += '<th>Fecha</th><th>Dist</th><th>Ritmo</th><th>SWOLF</th><th>FC</th></tr></thead><tbody>';
+    sesiones.forEach(function(r){
+      var fecha = r.Fecha ? formatShortDate(r.Fecha) : '—';
+      h += '<tr><td>'+fecha+'</td><td>'+(r.Distancia_m||'—')+'m</td><td>'+(r.Ritmo_100m||'—')+'</td><td>'+(r.SWOLF||'—')+'</td><td>'+(r.FC_Media||'—')+'</td></tr>';
+    });
+    h += '</tbody></table></div></div>';
+
+    // Mini tendencia textual
+    if (ritmos.length >= 2) {
+      var primero = ritmos[ritmos.length-1], ultimo = ritmos[0];
+      var dif = primero - ultimo;
+      var trend = dif > 0 ? '↗ Mejorando '+Math.abs(Math.round(dif))+'s/100m' : (dif < 0 ? '↘ '+Math.abs(Math.round(dif))+'s más lento' : '→ Estable');
+      var col = dif > 0 ? 'var(--green)' : (dif < 0 ? 'var(--orange)' : 'var(--text2)');
+      h += '<div style="text-align:center;font-size:13px;font-weight:600;color:'+col+';margin-top:10px">Ritmo: '+trend+'</div>';
+    }
   }
 
-  // Marcas de competencia por estilo/distancia
-  var compe = COMPETENCIAS.filter(function(c){ return c.Nadador === HIST_NAD; });
+  // Competencias del nadador
+  var compe = COMPETENCIAS.filter(function(c){ return c.Nadador === HIST_NAD && c.Tiempo; });
   if (compe.length) {
-    h += '<div class="lbl" style="margin-top:18px">🏆 Evolución de marcas (competencias)</div>';
-    // Group by estilo+distancia
+    h += '<div class="lbl" style="margin-top:18px">🏆 Marcas de competencia</div>';
     var grupos = {};
     compe.forEach(function(c){
       var key = c.Distancia+'m '+c.Estilo;
@@ -1314,11 +1343,11 @@ function renderHistorial() {
       grupos[key].push(c);
     });
     Object.keys(grupos).forEach(function(key){
-      var arr = grupos[key].sort(function(a,b){ return (a.Fecha||'')<(b.Fecha||'')?-1:1; });
+      var arr = grupos[key].sort(function(a,b){ return (a.Fecha||'')<(b.Fecha||'')?1:-1; });
       h += '<div class="card" style="margin-bottom:8px"><div class="cb">';
       h += '<div style="font-size:13px;font-weight:700;margin-bottom:6px">'+key+'</div>';
       arr.forEach(function(c){
-        h += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--gray2)"><span style="color:var(--text2)">'+(c.Nombre||c.Fecha)+'</span><span style="font-weight:700;color:var(--navy)">'+c.Tiempo+'</span></div>';
+        h += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--gray2)"><span style="color:var(--text2)">'+(c.Nombre||formatShortDate(c.Fecha))+'</span><span style="font-weight:700;color:var(--navy)">'+c.Tiempo+'</span></div>';
       });
       h += '</div></div>';
     });
@@ -1327,8 +1356,13 @@ function renderHistorial() {
   el.innerHTML = h;
 }
 
-var HIST_NAD = null;
-function setHistNad(n) { HIST_NAD = n; renderHistorial(); }
+function formatShortDate(f) {
+  try {
+    var d = new Date(f + 'T12:00:00');
+    if (isNaN(d)) return f;
+    return d.toLocaleDateString('es-CL', {day:'2-digit', month:'short'});
+  } catch(e) { return f; }
+}
 
 function ritmoToSec(r) {
   if (!r) return null;
@@ -1341,57 +1375,6 @@ function secToRitmo(s) {
   return m+':'+(sec<10?'0':'')+sec;
 }
 
-function chartCard(titulo, sesiones, getVal, lowerBetter, unidad) {
-  var data = sesiones.map(function(r){ return {Fecha:r.Fecha, val:getVal(r)}; }).filter(function(d){ return d.val !== null && !isNaN(d.val); });
-  return chartCardRaw(titulo, data, lowerBetter, unidad);
-}
-
-function chartCardRaw(titulo, data, lowerBetter, unidad) {
-  if (!data.length) return '';
-  var W = 300, H = 120, pad = 30;
-  var vals = data.map(function(d){ return d.val; });
-  var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
-  if (min === max) { min = min * 0.95; max = max * 1.05; }
-  var range = max - min || 1;
-
-  var pts = data.map(function(d, i){
-    var x = pad + (data.length===1 ? (W-2*pad)/2 : i*(W-2*pad)/(data.length-1));
-    var y = pad + (H-2*pad) * (1 - (d.val-min)/range);
-    return {x:x, y:y, val:d.val};
-  });
-
-  var path = pts.map(function(p,i){ return (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1); }).join(' ');
-
-  var svg = '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
-  // grid lines
-  svg += '<line x1="'+pad+'" y1="'+pad+'" x2="'+pad+'" y2="'+(H-pad)+'" stroke="#E5E8E8" stroke-width="1"/>';
-  svg += '<line x1="'+pad+'" y1="'+(H-pad)+'" x2="'+(W-pad)+'" y2="'+(H-pad)+'" stroke="#E5E8E8" stroke-width="1"/>';
-  // area fill
-  var area = path + ' L'+pts[pts.length-1].x.toFixed(1)+','+(H-pad)+' L'+pts[0].x.toFixed(1)+','+(H-pad)+' Z';
-  svg += '<path d="'+area+'" fill="#D6EAF8" opacity="0.5"/>';
-  // line
-  svg += '<path d="'+path+'" fill="none" stroke="#0D2B55" stroke-width="2"/>';
-  // points
-  pts.forEach(function(p){ svg += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3" fill="#0D2B55"/>'; });
-  // min/max labels
-  svg += '<text x="2" y="'+(pad+4)+'" font-size="9" fill="#AAB7B8">'+fmtVal(max,unidad)+'</text>';
-  svg += '<text x="2" y="'+(H-pad)+'" font-size="9" fill="#AAB7B8">'+fmtVal(min,unidad)+'</text>';
-  svg += '</svg>';
-
-  var first = data[0].val, last = data[data.length-1].val;
-  var mejoro = lowerBetter ? (last < first) : (last > first);
-  var trend = data.length > 1 ? (mejoro ? '<span style="color:var(--green)">↗ mejorando</span>' : '<span style="color:var(--orange)">→ revisar</span>') : '';
-
-  return '<div class="card" style="margin-bottom:10px"><div class="cb">'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:13px;font-weight:700">'+titulo+'</span><span style="font-size:11px">'+trend+'</span></div>'+
-    svg + '</div></div>';
-}
-
-function fmtVal(v, unidad) {
-  if (unidad === 'seg/100m') return secToRitmo(v);
-  if (unidad === 'm') return Math.round(v);
-  return Math.round(v*10)/10;
-}
 
 
 function miniCard(r) {
