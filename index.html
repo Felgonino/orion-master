@@ -28,8 +28,9 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
 .sdot.ok{background:#2ECC71}.sdot.err{background:var(--red)}.sdot.load{background:#F39C12;animation:bk .8s infinite}
 @keyframes bk{0%,100%{opacity:1}50%{opacity:.3}}
 /* tabs */
-.tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
-.tab{flex:1;padding:10px 4px 8px;text-align:center;font-size:11px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent}
+.tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;min-width:60px;padding:10px 8px 8px;text-align:center;font-size:11px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap}
 .tab.on{color:var(--navy);border-bottom-color:var(--navy)}
 .tab em{display:block;font-size:17px;font-style:normal;margin-bottom:1px}
 /* content */
@@ -207,6 +208,7 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
     <button class="tab"   id="tab-compe"     onclick="goTab('compe')"><em>🏆</em>Compet.</button>
     <button class="tab"   id="tab-historial" onclick="goTab('historial')"><em>📈</em>Historial</button>
     <button class="tab"   id="tab-objetivos" onclick="goTab('objetivos')"><em>🎯</em>Objetivos</button>
+    <button class="tab"   id="tab-glosario"  onclick="goTab('glosario')"><em>📖</em>Glosario</button>
     <button class="tab"   id="tab-nadadores" onclick="goTab('nadadores')"><em>👤</em>Equipo</button>
   </div>
   <div class="cnt">
@@ -216,6 +218,7 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
     <div class="pg"    id="pg-compe"></div>
     <div class="pg"    id="pg-historial"></div>
     <div class="pg"    id="pg-objetivos"></div>
+    <div class="pg"    id="pg-glosario"></div>
     <div class="pg"    id="pg-nadadores"></div>
   </div>
 </div>
@@ -543,6 +546,22 @@ let COMPETENCIAS = [];
 let cacheOk = false;
 
 // ═══════════════════════════════════════════════════
+// GLOSARIO de términos técnicos
+// ═══════════════════════════════════════════════════
+// Términos base. ORION agrega nuevos automáticamente al generar programas.
+let GLOSARIO = [
+  { termino:'DPS', definicion:'Distancia por brazada (Distance Per Stroke). Mide cuántos metros avanzas en cada brazada.', ejecucion:'Cuenta tus brazadas por largo: menos brazadas a la misma velocidad = mejor DPS. Se mejora con técnica y deslizamiento, no con fuerza.' },
+  { termino:'SWOLF', definicion:'Índice de eficiencia de nado: suma del tiempo en segundos de un largo más el número de brazadas de ese largo.', ejecucion:'Un SWOLF menor indica nado más eficiente. Ej: 30s + 15 brazadas = SWOLF 45. Busca bajarlo sin perder velocidad.' },
+  { termino:'Pull', definicion:'Set de solo brazos, usando pull-buoy entre las piernas para aislar el tren superior.', ejecucion:'Coloca el pull-buoy entre los muslos, no patees, enfócate en la tracción y el agarre del agua.' },
+  { termino:'Drill', definicion:'Ejercicio técnico que aísla un componente específico de la brazada para perfeccionarlo.', ejecucion:'Se nada lento y con foco en la técnica, no en la velocidad. Ej: nado con un solo brazo, punta de flecha, etc.' },
+  { termino:'Tiempo de salida', definicion:'Cada cuánto tiempo inicias la siguiente repetición, incluyendo el nado y el descanso.', ejecucion:'Ej: "4×100 @2:00" significa salir cada 2 minutos. Si nadas el 100 en 1:40, descansas 20s antes del siguiente.' },
+  { termino:'Combinado / IM', definicion:'Estilo combinado individual: mariposa, espalda, pecho y libre en ese orden.', ejecucion:'En 100m combinado: 25 mariposa + 25 espalda + 25 pecho + 25 libre. Cuida las transiciones entre estilos.' },
+  { termino:'Umbral', definicion:'Intensidad de esfuerzo sostenible justo antes de acumular fatiga (umbral anaeróbico).', ejecucion:'Ritmo exigente pero mantenible por varios minutos. Base para mejorar resistencia de velocidad.' },
+  { termino:'Aletas', definicion:'Implemento de pies que aumenta la propulsión y la velocidad, trabajando fuerza de pateo.', ejecucion:'Útil para sets de pateo y para nadar más rápido de lo habitual y sentir mejor posición corporal.' }
+];
+
+
+// ═══════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════
 function getBloqueActivo() { return BLOQUES.find(b=>b.activo)||BLOQUES[0]; }
@@ -558,6 +577,71 @@ function genId(nad) {
 }
 function scClass(tipo){ return {A:'ta',B:'tb2',C:'tc'}[tipo]||''; }
 function blColor(id){ const b=BLOQUES.find(x=>x.id===id); return b?b.color:'var(--navy)'; }
+
+// ═══════════════════════════════════════════════════
+// MODELO ESTRUCTURADO DE BLOQUES + cálculo de distancias
+// ═══════════════════════════════════════════════════
+// Un bloque puede tener "series": [{reps, dist, estilo, implemento, salida, descanso}]
+// La distancia del bloque = suma de reps*dist de todas las series.
+// Si no tiene series (bloque antiguo con solo desc), se intenta extraer de la desc.
+
+function calcDistBloque(b) {
+  // Si tiene estructura de series, suma exacta
+  if (b.series && b.series.length) {
+    return b.series.reduce(function(t, s){
+      var reps = parseInt(s.reps) || 1;
+      var dist = parseInt(s.dist) || 0;
+      return t + reps * dist;
+    }, 0);
+  }
+  // Si tiene dist_total explícita
+  if (b.dist_total) return parseInt(b.dist_total) || 0;
+  // Fallback: intentar extraer de la descripción (bloques antiguos)
+  return extraerDistDesc(b.desc || '');
+}
+
+function extraerDistDesc(desc) {
+  if (!desc) return 0;
+  var total = 0;
+  // Patrón "N x M" (ej: 4x50, 3 x 400, 2×100)
+  var re1 = /(\d+)\s*[x×]\s*(\d+)/gi;
+  var m;
+  var matched = false;
+  while ((m = re1.exec(desc)) !== null) {
+    total += parseInt(m[1]) * parseInt(m[2]);
+    matched = true;
+  }
+  // Patrón distancia simple "200m", "400 m" (solo si no hubo NxM ya contando ese número)
+  if (!matched) {
+    var re2 = /(\d+)\s*m(?:ts|etros)?\b/gi;
+    while ((m = re2.exec(desc)) !== null) {
+      total += parseInt(m[1]);
+    }
+  }
+  return total;
+}
+
+function calcDistSesion(sesion) {
+  if (!sesion || !sesion.bloques) return 0;
+  return sesion.bloques.reduce(function(t, b){ return t + calcDistBloque(b); }, 0);
+}
+
+// Formatea la estructura de un bloque a texto legible
+function fmtEstructura(b) {
+  if (b.series && b.series.length) {
+    return b.series.map(function(s){
+      var txt = (s.reps && s.reps > 1 ? s.reps + '×' : '') + s.dist + 'm';
+      if (s.estilo) txt += ' ' + s.estilo;
+      if (s.implemento) txt += ' (' + s.implemento + ')';
+      var tiempos = [];
+      if (s.salida) tiempos.push('salida ' + s.salida);
+      if (s.descanso) tiempos.push('desc ' + s.descanso);
+      if (tiempos.length) txt += ' · ' + tiempos.join(', ');
+      return txt;
+    }).join('  +  ');
+  }
+  return b.desc || '';
+}
 function toast(msg,ms=2500){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),ms); }
 function setLoad(pct,msg,sub){ document.getElementById('lo-f').style.width=pct+'%'; document.getElementById('lo-m').textContent=msg; document.getElementById('lo-s').textContent=sub||''; }
 function lov(show){ document.getElementById('lov').classList[show?'add':'remove']('on'); }
@@ -618,6 +702,7 @@ function goTab(tab) {
   if(tab==='compe') renderCompe();
   if(tab==='historial') renderHistorial();
   if(tab==='objetivos') renderObjetivos();
+  if(tab==='glosario') renderGlosario();
   if(tab==='nadadores') renderNadadores();
 }
 
@@ -708,16 +793,21 @@ function renderPlan() {
       const comp=completadas(s.id);
       const done=comp.length>=2;
       const isComp=s.intensidad.includes('🏆');
+      const distTotal=calcDistSesion(s);
       h+='<div class="sc '+scClass(s.tipo)+' '+(done?'done':'')+'" '+(isComp?'style="border-left-color:#F1C40F"':'')+' >';
-      h+='<div class="sc-h" onclick="toggleSC(\'sb-'+s.id+'\')"><div style="flex:1"><h4>'+s.nombre+' '+(done?'✅':'')+'</h4><div class="sc-d">'+s.dia+(s.volumen?' · ~'+s.volumen+'m':'')+' · '+s.intensidad+'</div></div><span style="font-size:11px;color:var(--text3)">▼</span></div>';
+      h+='<div class="sc-h" onclick="toggleSC(\'sb-'+s.id+'\')"><div style="flex:1"><h4>'+s.nombre+' '+(done?'✅':'')+'</h4><div class="sc-d">'+s.dia+(distTotal?' · '+distTotal+'m':'')+' · '+s.intensidad+'</div></div><span style="font-size:11px;color:var(--text3)">▼</span></div>';
       h+='<div class="sc-b" id="sb-'+s.id+'">';
       h+='<p style="font-size:12px;color:var(--text2);margin-bottom:10px">'+s.objetivo+'</p>';
       s.bloques.forEach(b=>{
-        h+='<div class="blq"><div class="blq-t">'+b.tipo+(b.ritmo?' · 🎯 '+b.ritmo:'')+(b.desc2!=='—'?' · ⏸ '+b.desc2:'')+'</div>';
-        h+='<div class="blq-d">'+b.desc+'</div>';
+        const distB=calcDistBloque(b);
+        h+='<div class="blq"><div class="blq-t">'+b.tipo+(distB?' · '+distB+'m':'')+(b.ritmo?' · 🎯 '+b.ritmo:'')+'</div>';
+        h+='<div class="blq-d">'+fmtEstructura(b)+'</div>';
+        if(b.descanso_bloque) h+='<div style="font-size:11px;color:var(--text3);margin-top:3px">⏸ Descanso: '+b.descanso_bloque+'</div>';
+        else if(b.desc2 && b.desc2!=='—') h+='<div style="font-size:11px;color:var(--text3);margin-top:3px">⏸ '+b.desc2+'</div>';
         h+='<div class="blq-f">🔵 Felipe: '+b.mf+'</div>';
         h+='<div class="blq-s">🟢 Sergio: '+b.ms+'</div></div>';
       });
+      if(distTotal) h+='<div style="text-align:right;font-size:12px;font-weight:700;color:var(--navy);margin-top:8px">Distancia total: '+distTotal+'m</div>';
       comp.forEach(c=>{h+='<div style="background:var(--green-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px">✅ <b>'+c.Nadador+'</b>: '+(c.Distancia_m||'?')+'m · '+(c.Ritmo_100m||'?')+'/100m · SWOLF '+(c.SWOLF||'?')+'</div>';});
       if(!isComp) h+='<button class="btn" style="margin-top:10px" onclick="iniciarDesde(\''+s.id+'\')">📤 Cargar resultado</button>';
       h+='</div></div>';
@@ -1369,7 +1459,12 @@ function formatShortDate(f) {
 function ritmoToSec(r) {
   if (!r) return null;
   var m = String(r).replace(/[^0-9:]/g,'').match(/(\d+):(\d+)/);
-  return m ? parseInt(m[1])*60 + parseInt(m[2]) : null;
+  if (!m) return null;
+  var min = parseInt(m[1]), sec = parseInt(m[2]);
+  // Un ritmo /100m válido está entre 0:40 y 4:00. Descartar valores fuera de rango (tiempos totales mal interpretados)
+  var total = min*60 + sec;
+  if (total < 30 || total > 300) return null;
+  return total;
 }
 
 function secToRitmo(s) {
@@ -1677,6 +1772,98 @@ async function guardarNadador(i) {
 }
 
 // ═══════════════════════════════════════════════════
+// GLOSARIO — vista
+// ═══════════════════════════════════════════════════
+function renderGlosario() {
+  var terminos = [].concat(GLOSARIO).sort(function(a,b){
+    return a.termino.toLowerCase() < b.termino.toLowerCase() ? -1 : 1;
+  });
+
+  var h = '<div class="lbl">Glosario de términos técnicos</div>';
+  h += '<div class="note">Definiciones y ejecución de los términos usados en los entrenamientos. ORION agrega nuevos automáticamente al generar programas.</div>';
+
+  // Buscador simple
+  h += '<input type="text" id="glos-buscar" class="nota-inp" placeholder="🔍 Buscar término..." oninput="filtrarGlosario(this.value)" style="margin-bottom:14px">';
+
+  h += '<div id="glos-lista">';
+  terminos.forEach(function(t){
+    h += '<div class="card glos-item" data-term="'+(t.termino||'').toLowerCase()+'" style="margin-bottom:8px"><div class="cb">';
+    h += '<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px">'+t.termino+'</div>';
+    h += '<div style="font-size:12px;color:var(--text);line-height:1.5;margin-bottom:6px">'+t.definicion+'</div>';
+    if (t.ejecucion) {
+      h += '<div style="font-size:12px;color:var(--text2);line-height:1.5;background:var(--gray);border-radius:8px;padding:8px 10px"><b>Cómo se ejecuta:</b> '+t.ejecucion+'</div>';
+    }
+    h += '</div></div>';
+  });
+  h += '</div>';
+
+  // Agregar término manual
+  h += '<button class="btn2" onclick="nuevoTermino()" style="margin-top:6px">➕ Agregar término manualmente</button>';
+
+  document.getElementById('pg-glosario').innerHTML = h;
+}
+
+function filtrarGlosario(q) {
+  q = (q||'').toLowerCase().trim();
+  document.querySelectorAll('.glos-item').forEach(function(el){
+    var term = el.getAttribute('data-term') || '';
+    var txt = el.textContent.toLowerCase();
+    el.style.display = (!q || term.indexOf(q) >= 0 || txt.indexOf(q) >= 0) ? '' : 'none';
+  });
+}
+
+function nuevoTermino() {
+  var h = '<div class="lbl">Nuevo término</div><div class="card"><div class="cb">';
+  h += '<div class="lbl" style="text-transform:none;letter-spacing:0;color:var(--text2)">Término</div>';
+  h += '<input type="text" id="gt-term" class="nota-inp" placeholder="ej: Negative split">';
+  h += '<div class="lbl" style="margin-top:8px;text-transform:none;letter-spacing:0;color:var(--text2)">Definición</div>';
+  h += '<textarea id="gt-def" class="nota-inp" rows="2" style="resize:vertical"></textarea>';
+  h += '<div class="lbl" style="margin-top:8px;text-transform:none;letter-spacing:0;color:var(--text2)">Cómo se ejecuta</div>';
+  h += '<textarea id="gt-ejec" class="nota-inp" rows="2" style="resize:vertical"></textarea>';
+  h += '<button class="btn" style="margin-top:8px" onclick="guardarTermino()">💾 Guardar término</button>';
+  h += '<button class="btn2" onclick="renderGlosario()">← Cancelar</button>';
+  h += '</div></div>';
+  document.getElementById('pg-glosario').innerHTML = h;
+}
+
+async function guardarTermino() {
+  var term = document.getElementById('gt-term').value.trim();
+  var def = document.getElementById('gt-def').value.trim();
+  var ejec = document.getElementById('gt-ejec').value.trim();
+  if (!term || !def) { toast('Completa término y definición'); return; }
+  // Evitar duplicados
+  if (GLOSARIO.find(function(g){ return g.termino.toLowerCase() === term.toLowerCase(); })) {
+    toast('Ese término ya existe'); return;
+  }
+  GLOSARIO.push({ termino:term, definicion:def, ejecucion:ejec });
+  await guardarGlosarioRemoto();
+  toast('✅ Término agregado');
+  renderGlosario();
+}
+
+// Agrega términos nuevos detectados (desde generador) sin duplicar
+function agregarTerminosGlosario(nuevos) {
+  if (!nuevos || !nuevos.length) return false;
+  var agregados = 0;
+  nuevos.forEach(function(n){
+    if (!n.termino || !n.definicion) return;
+    var existe = GLOSARIO.find(function(g){ return g.termino.toLowerCase() === n.termino.toLowerCase(); });
+    if (!existe) { GLOSARIO.push(n); agregados++; }
+  });
+  if (agregados > 0) { guardarGlosarioRemoto(); return true; }
+  return false;
+}
+
+async function guardarGlosarioRemoto() {
+  try {
+    await fetch('https://orion-proxy.felgonino.workers.dev', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'glosario', glosario: GLOSARIO })
+    });
+  } catch(e) { /* queda local */ }
+}
+
+// ═══════════════════════════════════════════════════
 // OBJETIVOS — Generador de programas con IA
 // ═══════════════════════════════════════════════════
 const OBJ = { modo:'auto', prueba:'', distancia:'50', estilo:'Libre', fecha:'', semanas:'3', dias:'3' };
@@ -1801,25 +1988,41 @@ async function generarPrograma() {
     'NADADORES: ' + perfilesTxt + '\\n' +
     'HISTORIAL: ' + (histTxt||'sin datos previos') + '\\n' +
     (notas ? 'INDICACIONES EXTRA: ' + notas + '\\n' : '') +
-    '\\nReglas: entrena por objetivo no volumen. Incluye calentamiento, bloque principal con ritmos objetivo, y afloje. Diferencia metas Felipe (motor, mejorar eficiencia) y Sergio (técnico, mejorar agresividad). Si introduces un ejercicio o concepto nuevo, explícalo simple en el campo desc.\\n\\n' +
+    '\\nReglas: entrena por objetivo no volumen. Cada sesión: calentamiento, bloque(s) principal(es) con ritmos objetivo, y afloje. Diferencia metas Felipe (motor, mejorar eficiencia) y Sergio (técnico, mejorar agresividad).\\n' +
+    'CRÍTICO: cada bloque DEBE describir su estructura en el campo "series" como lista de tramos. Cada serie tiene: reps (número de repeticiones), dist (metros de cada repetición), estilo, implemento (vacío si ninguno), salida (tiempo de salida ej "2:00" o vacío), descanso (ej "20seg" o vacío). NO inventes distancias totales: se calcularán sumando reps*dist. Incluye también "descanso_bloque" (descanso o recuperación tras el bloque).\\n' +
+    'GLOSARIO: si usas algún término técnico (drill, pull, negative split, etc.), agrégalo en "glosario_nuevos" con definicion y ejecucion explicadas simple. Solo términos realmente técnicos.\\n\\n' +
     'Devuelve SOLO este JSON sin texto adicional ni backticks:\\n' +
-    '{"nombre":"...","subtitulo":"' + OBJ.distancia + 'm ' + OBJ.estilo + '","fechaFin":"' + fecha + '","semanas":[{"id":"S1","nombre":"Semana 1 - ...","sesiones":[{"id":"G1","tipo":"A","nombre":"...","dia":"...","volumen":2000,"intensidad":"🟢 Aeróbico","objetivo":"...","bloques":[{"tipo":"...","desc":"...","mf":"meta Felipe","ms":"meta Sergio","desc2":"descanso","ritmo":"opcional"}]}]}]}';
+    '{"nombre":"...","subtitulo":"' + OBJ.distancia + 'm ' + OBJ.estilo + '","fechaFin":"' + fecha + '",' +
+    '"glosario_nuevos":[{"termino":"...","definicion":"...","ejecucion":"..."}],' +
+    '"semanas":[{"id":"S1","nombre":"Semana 1 - ...","sesiones":[{"id":"G1","tipo":"A","nombre":"...","dia":"...","intensidad":"🟢 Aeróbico","objetivo":"...",' +
+    '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"30seg","mf":"meta Felipe","ms":"meta Sergio","ritmo":""}]}]}]}';
 
   try {
     var resp = await fetch('https://orion-proxy.felgonino.workers.dev', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ messages:[{role:'user', content:prompt}] })
     });
-    clearInterval(iv); setLoad(100,'Listo','');
+    clearInterval(iv); setLoad(95,'Validando distancias...','Sumatoria por bloque');
     var data = await resp.json();
     if (!data.ok || !data.text) throw new Error(data.error||'Sin respuesta');
     var prog = JSON.parse(data.text);
     prog.id = 'GEN'+Date.now();
     prog.color = '#CA6F1E';
     prog.activo = false;
+
+    // VALIDACIÓN: calcular distancia de cada sesión por código (no confiar en la IA)
+    (prog.semanas||[]).forEach(function(w){
+      (w.sesiones||[]).forEach(function(s){
+        s.volumen = calcDistSesion(s); // sobrescribe con la suma real
+      });
+    });
+
+    // Alimentar glosario con términos nuevos
+    var glosAdd = agregarTerminosGlosario(prog.glosario_nuevos||[]);
+
     PROGRAMAS_GEN.push(prog);
     lov(false);
-    toast('✅ Programa generado');
+    toast(glosAdd ? '✅ Programa generado (glosario actualizado)' : '✅ Programa generado');
     renderObjetivos();
   } catch(e) {
     clearInterval(iv); lov(false);
@@ -1863,6 +2066,19 @@ async function cargarNadadores() {
       NADADORES = j.nadadores;
     }
   } catch(e) { /* usa los por defecto */ }
+  // Cargar glosario
+  try {
+    const rg = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=glosario&t='+Date.now());
+    const jg = await rg.json();
+    if (jg.ok && jg.glosario && jg.glosario.length) {
+      // Fusionar con los base sin duplicar
+      jg.glosario.forEach(function(g){
+        if (!GLOSARIO.find(function(x){ return x.termino.toLowerCase() === (g.termino||'').toLowerCase(); })) {
+          GLOSARIO.push(g);
+        }
+      });
+    }
+  } catch(e) { /* usa los base */ }
 }
 
 initApp();
