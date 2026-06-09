@@ -249,13 +249,13 @@ const BLOQUES = [
             fecha:'2026-06-02', dia:'Lun 2 Jun', volumen:2600, intensidad:'🟢 Aeróbico',
             objetivo:'Activar espalda · Introducir combinado',
             bloques:[
-              {tipo:'Entrada',      desc:'200m libre suave',                                                                    mf:'Activar, respiración',           ms:'Activar, respiración',            desc2:'—'},
-              {tipo:'Pull+resp',    desc:'200m pull con respiración 3/5/5/7 x 25m',                                             mf:'Control respiratorio',           ms:'Control respiratorio',            desc2:'—'},
-              {tipo:'Drill IM',     desc:'300m: 50 libre + 25 drill espalda en orden · foco entrada mano espalda',              mf:'Técnica entrada brazada esp',     ms:'Posición cadera espalda',         desc2:'15seg'},
-              {tipo:'Mixto',        desc:'400m: 100 libre + 100 esp + 100 libre + 100 pecho (suave)',                           mf:'Sentir los 4 estilos',           ms:'Sentir los 4 estilos',            desc2:'20seg'},
-              {tipo:'Principal',    desc:'3x: [50 esp @65seg · 50 suave libre · 2x50 ritmo · 100 suave · 3x50 ritmo · 150 suave] · Series 1+3 espalda · Serie 2 libre', mf:'Técnica brazada en la fatiga', ms:'Agresividad en esp impares', desc2:'@tabla', ritmo:'1:45-1:55/100'},
-              {tipo:'Pateo',        desc:'200m con aletas · 2x100 pateo @2:50 · 2x100 libre 80% @1:50',                        mf:'Pateo espalda 6 tiempos',        ms:'Potencia pateo espalda',          desc2:'@tabla'},
-              {tipo:'Afloje',       desc:'200m libre suave',                                                                    mf:'Relajar',                        ms:'Relajar',                         desc2:'—'},
+              {tipo:'Entrada',      desc:'200m libre suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Activar, respiración', ms:'Activar, respiración', descanso_bloque:'—'},
+              {tipo:'Pull+resp',    desc:'200m pull con respiración 3/5/5/7 x 25m', series:[{reps:1,dist:200,estilo:'Libre',implemento:'Pull-buoy'}], mf:'Control respiratorio', ms:'Control respiratorio', descanso_bloque:'20seg'},
+              {tipo:'Drill IM',     desc:'4×75 (50 libre + 25 drill espalda) · foco entrada mano espalda', series:[{reps:4,dist:75,estilo:'Combinado',descanso:'15seg'}], mf:'Técnica entrada brazada esp', ms:'Posición cadera espalda', descanso_bloque:'15seg'},
+              {tipo:'Mixto',        desc:'400m: 100 libre + 100 esp + 100 libre + 100 pecho (suave)', series:[{reps:4,dist:100,estilo:'Combinado'}], mf:'Sentir los 4 estilos', ms:'Sentir los 4 estilos', descanso_bloque:'20seg'},
+              {tipo:'Principal',    desc:'3×[50 esp + 50 libre + 2×50 ritmo + 100 + 3×50 ritmo + 150]', series:[{reps:3,dist:50,estilo:'Espalda'},{reps:3,dist:50,estilo:'Libre'},{reps:6,dist:50,estilo:'Espalda'},{reps:3,dist:100,estilo:'Libre'},{reps:9,dist:50,estilo:'Espalda'},{reps:3,dist:150,estilo:'Libre'}], mf:'Técnica brazada en la fatiga', ms:'Agresividad en esp impares', descanso_bloque:'@tabla', ritmo:'1:45-1:55/100'},
+              {tipo:'Pateo',        desc:'2×100 pateo @2:50 + 2×100 libre 80% @1:50 (con aletas)', series:[{reps:2,dist:100,estilo:'Libre',implemento:'Aletas',salida:'2:50'},{reps:2,dist:100,estilo:'Libre',implemento:'Aletas',salida:'1:50'}], mf:'Pateo espalda 6 tiempos', ms:'Potencia pateo espalda', descanso_bloque:'@tabla'},
+              {tipo:'Afloje',       desc:'200m libre suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
             ]
           },
           {
@@ -263,12 +263,12 @@ const BLOQUES = [
             fecha:'2026-06-04', dia:'Mié 4 Jun', volumen:2200, intensidad:'🔴 Velocidad',
             objetivo:'Velocidad corta · Salidas y subacuático libre',
             bloques:[
-              {tipo:'Entrada',      desc:'400m progresivo (200 suave + 4x50 acelerando)',                                       mf:'Último 50 a ritmo carrera',      ms:'Último 50 máximo',                desc2:'—'},
-              {tipo:'Salidas',      desc:'6x25 desde el borde · foco reacción + subacuático 7-10m · desc 45seg',               mf:'Subacuático limpio',             ms:'Máxima potencia salida',          desc2:'45seg'},
-              {tipo:'Principal',    desc:'8x50 libre: pares ritmo 200 / impares sprint · desc 30seg',                          mf:'Pares técnica · Impares potencia', ms:'Impares: atacar desde la pared', desc2:'30seg', ritmo:'1:20-1:35/100'},
-              {tipo:'Resistencia',  desc:'4x100 libre @1:50 · foco últimos 25m · desc 30seg',                                  mf:'No bajar ritmo al final',        ms:'Últimos 25m más rápido',          desc2:'30seg', ritmo:'1:40-1:48/100'},
-              {tipo:'Pateo',        desc:'4x50 pateo libre con tabla @1:20',                                                    mf:'6 tiempos, cadera alta',         ms:'Potencia + cadera alta',          desc2:'20seg'},
-              {tipo:'Afloje',       desc:'200m suave técnica libre',                                                            mf:'Relajar hombros',                ms:'Relajar hombros',                 desc2:'—'},
+              {tipo:'Entrada',      desc:'400m progresivo (200 suave + 4×50 acelerando)', series:[{reps:1,dist:200,estilo:'Libre'},{reps:4,dist:50,estilo:'Libre'}], mf:'Último 50 a ritmo carrera', ms:'Último 50 máximo', descanso_bloque:'—'},
+              {tipo:'Salidas',      desc:'6×25 desde el borde · subacuático 7-10m', series:[{reps:6,dist:25,estilo:'Libre',descanso:'45seg'}], mf:'Subacuático limpio', ms:'Máxima potencia salida', descanso_bloque:'45seg'},
+              {tipo:'Principal',    desc:'8×50 libre: pares ritmo 200 / impares sprint', series:[{reps:8,dist:50,estilo:'Libre',descanso:'30seg'}], mf:'Pares técnica · Impares potencia', ms:'Impares: atacar desde la pared', descanso_bloque:'30seg', ritmo:'1:20-1:35/100'},
+              {tipo:'Resistencia',  desc:'4×100 libre @1:50 · foco últimos 25m', series:[{reps:4,dist:100,estilo:'Libre',salida:'1:50'}], mf:'No bajar ritmo al final', ms:'Últimos 25m más rápido', descanso_bloque:'30seg', ritmo:'1:40-1:48/100'},
+              {tipo:'Pateo',        desc:'4×50 pateo libre con tabla @1:20', series:[{reps:4,dist:50,estilo:'Libre',implemento:'Tabla',salida:'1:20'}], mf:'6 tiempos, cadera alta', ms:'Potencia + cadera alta', descanso_bloque:'20seg'},
+              {tipo:'Afloje',       desc:'200m suave técnica libre', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Relajar hombros', ms:'Relajar hombros', descanso_bloque:'—'},
             ]
           },
           {
@@ -276,12 +276,12 @@ const BLOQUES = [
             fecha:'2026-06-06', dia:'Vie 6 Jun', volumen:2400, intensidad:'🟡 Umbral',
             objetivo:'Técnica de transiciones · Ritmo 100 combinado',
             bloques:[
-              {tipo:'Entrada',      desc:'300m libre suave + 4x25 drill por estilo (esp/libre) · desc 15seg',                  mf:'Activar espalda y libre',        ms:'Activar espalda y libre',         desc2:'15seg'},
-              {tipo:'Transiciones', desc:'8x25 alternando esp → libre al toque de pared · foco viraje · desc 20seg',           mf:'Sin perder ritmo en viraje',     ms:'Acelerar salida del viraje',      desc2:'20seg'},
-              {tipo:'Principal',    desc:'4x100 combinado (25esp+25lib+25pecho+25lib) @2:30 · desc 45seg',                     mf:'Constancia en los 4 segmentos', ms:'Cierre en el último libre',        desc2:'45seg', ritmo:'1:45-1:55/100'},
-              {tipo:'Series',       desc:'6x50 alternando esp/libre @1:20 · desc 20seg',                                       mf:'Técnica brazada esp bajo fatiga', ms:'Velocidad en el libre',          desc2:'20seg', ritmo:'1:15-1:30/100'},
-              {tipo:'Pateo',        desc:'200m aletas + 4x25 pateo esp a fondo · desc 30seg',                                  mf:'6 tiempos espalda',              ms:'Potencia pateo espalda',          desc2:'30seg'},
-              {tipo:'Afloje',       desc:'200m suave mixto',                                                                    mf:'Relajar',                        ms:'Relajar',                         desc2:'—'},
+              {tipo:'Entrada',      desc:'300m libre + 4×25 drill por estilo (esp/libre)', series:[{reps:1,dist:300,estilo:'Libre'},{reps:4,dist:25,estilo:'Combinado',descanso:'15seg'}], mf:'Activar espalda y libre', ms:'Activar espalda y libre', descanso_bloque:'15seg'},
+              {tipo:'Transiciones', desc:'8×25 alternando esp → libre al toque · foco viraje', series:[{reps:8,dist:25,estilo:'Combinado',descanso:'20seg'}], mf:'Sin perder ritmo en viraje', ms:'Acelerar salida del viraje', descanso_bloque:'20seg'},
+              {tipo:'Principal',    desc:'4×100 combinado (25esp+25lib+25pecho+25lib) @2:30', series:[{reps:4,dist:100,estilo:'Combinado',salida:'2:30'}], mf:'Constancia en los 4 segmentos', ms:'Cierre en el último libre', descanso_bloque:'45seg', ritmo:'1:45-1:55/100'},
+              {tipo:'Series',       desc:'6×50 alternando esp/libre @1:20', series:[{reps:6,dist:50,estilo:'Combinado',salida:'1:20'}], mf:'Técnica brazada esp bajo fatiga', ms:'Velocidad en el libre', descanso_bloque:'20seg', ritmo:'1:15-1:30/100'},
+              {tipo:'Pateo',        desc:'200m aletas + 4×25 pateo esp a fondo', series:[{reps:1,dist:200,estilo:'Libre',implemento:'Aletas'},{reps:4,dist:25,estilo:'Espalda',descanso:'30seg'}], mf:'6 tiempos espalda', ms:'Potencia pateo espalda', descanso_bloque:'30seg'},
+              {tipo:'Afloje',       desc:'200m suave mixto', series:[{reps:1,dist:200,estilo:'Combinado'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
             ]
           },
         ]
@@ -294,11 +294,11 @@ const BLOQUES = [
             fecha:'2026-06-07', dia:'Sesión de prueba', volumen:2300, intensidad:'🟡 Mixto',
             objetivo:'Sesión de prueba para validar carga de datos',
             bloques:[
-              {tipo:'Calentamiento', desc:'200m libre suave',                                                          mf:'Activar',                  ms:'Activar',                  desc2:'—'},
-              {tipo:'Pull',          desc:'4×50 pull respirando cada 5 brazadas',                                       mf:'Control respiratorio',     ms:'Control respiratorio',     desc2:'—'},
-              {tipo:'Set 1',         desc:'300m: 4×75 combinado (25 pateo + 25 drill + 25 estilo completo)',            mf:'Técnica por estilo',       ms:'Técnica por estilo',       desc2:'—'},
-              {tipo:'Set 2',         desc:'1200m estilo en orden de combinado con aletas: 4×(100m @2:25 + 2×50m @1:15 + 4×25 @40seg saliendo)', mf:'Sostener ritmo con aletas', ms:'Velocidad en los 25', desc2:'@tabla', ritmo:'2:25/100'},
-              {tipo:'Soltura',       desc:'150m suave',                                                                  mf:'Relajar',                  ms:'Relajar',                  desc2:'—'},
+              {tipo:'Calentamiento', desc:'200m libre suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Activar', ms:'Activar', descanso_bloque:'—'},
+              {tipo:'Pull', desc:'4×50 pull respirando cada 5 brazadas', series:[{reps:4,dist:50,estilo:'Libre',implemento:'Pull-buoy',descanso:'15seg'}], mf:'Control respiratorio', ms:'Control respiratorio', descanso_bloque:'20seg'},
+              {tipo:'Set 1', desc:'4×75 combinado (25 pateo + 25 drill + 25 estilo completo)', series:[{reps:4,dist:75,estilo:'Combinado',descanso:'15seg'}], mf:'Técnica por estilo', ms:'Técnica por estilo', descanso_bloque:'30seg'},
+              {tipo:'Set 2', desc:'4×(100 @2:25 + 2×50 @1:15 + 4×25 @40seg) combinado con aletas', series:[{reps:4,dist:100,estilo:'Combinado',implemento:'Aletas',salida:'2:25'},{reps:8,dist:50,estilo:'Combinado',implemento:'Aletas',salida:'1:15'},{reps:16,dist:25,estilo:'Combinado',implemento:'Aletas',salida:'40seg'}], mf:'Sostener ritmo con aletas', ms:'Velocidad en los 25', descanso_bloque:'@tabla', ritmo:'2:25/100'},
+              {tipo:'Soltura', desc:'150m suave', series:[{reps:1,dist:150,estilo:'Libre'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
             ]
           },
         ]
@@ -311,12 +311,12 @@ const BLOQUES = [
             fecha:'2026-06-09', dia:'Mar 9 Jun', volumen:2000, intensidad:'🔴 Velocidad',
             objetivo:'Velocidad máxima 50m · Técnica bajo fatiga',
             bloques:[
-              {tipo:'Entrada',      desc:'400m: 200 libre + 4x50 prog (últimos 2 a ritmo carrera)',                            mf:'Activar SNC',                    ms:'Activar SNC',                     desc2:'—'},
-              {tipo:'Salidas esp',  desc:'6x25 espalda desde bloque · posición hidrodinámica · desc 45seg',                    mf:'Cabeza alineada',                ms:'Máxima potencia + alineación',    desc2:'45seg'},
-              {tipo:'Sprint esp',   desc:'6x50 espalda progresivos: 1-2 técnica / 3-4 ritmo / 5-6 máximo · desc 40seg',       mf:'Progresión clara',               ms:'5-6 sin reserva',                 desc2:'40seg', ritmo:'1:25-1:40/100'},
-              {tipo:'Sprint lib',   desc:'4x50 libre sprint máximo @45seg',                                                    mf:'Mantener técnica en el sprint',  ms:'Atacar primeros 15m',             desc2:'45seg', ritmo:'<1:20/100'},
-              {tipo:'Recuperación', desc:'2x200 combinado suave @4:00 · recuperación activa · desc 60seg',                    mf:'Soltar y recuperar',             ms:'Soltar y recuperar',              desc2:'60seg'},
-              {tipo:'Afloje',       desc:'200m suave',                                                                          mf:'Relajar',                        ms:'Relajar',                         desc2:'—'},
+              {tipo:'Entrada',      desc:'200 libre + 4×50 progresivo (últimos 2 a ritmo carrera)', series:[{reps:1,dist:200,estilo:'Libre'},{reps:4,dist:50,estilo:'Libre'}], mf:'Activar SNC', ms:'Activar SNC', descanso_bloque:'—'},
+              {tipo:'Salidas esp',  desc:'6×25 espalda desde bloque · posición hidrodinámica', series:[{reps:6,dist:25,estilo:'Espalda',descanso:'45seg'}], mf:'Cabeza alineada', ms:'Máxima potencia + alineación', descanso_bloque:'45seg'},
+              {tipo:'Sprint esp',   desc:'6×50 espalda progresivos: 1-2 técnica / 3-4 ritmo / 5-6 máximo', series:[{reps:6,dist:50,estilo:'Espalda',descanso:'40seg'}], mf:'Progresión clara', ms:'5-6 sin reserva', descanso_bloque:'40seg', ritmo:'1:25-1:40/100'},
+              {tipo:'Sprint lib',   desc:'4×50 libre sprint máximo @45seg', series:[{reps:4,dist:50,estilo:'Libre',salida:'45seg'}], mf:'Mantener técnica en el sprint', ms:'Atacar primeros 15m', descanso_bloque:'45seg', ritmo:'<1:20/100'},
+              {tipo:'Recuperación', desc:'2×200 combinado suave @4:00', series:[{reps:2,dist:200,estilo:'Combinado',salida:'4:00'}], mf:'Soltar y recuperar', ms:'Soltar y recuperar', descanso_bloque:'60seg'},
+              {tipo:'Afloje',       desc:'200m suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
             ]
           },
           {
@@ -324,11 +324,11 @@ const BLOQUES = [
             fecha:'2026-06-11', dia:'Jue 11 Jun', volumen:1800, intensidad:'🔴 Test',
             objetivo:'🏁 Test oficial de referencia previo a competencia',
             bloques:[
-              {tipo:'Entrada',      desc:'500m: 200 suave + 6x50 activación progresiva',                                       mf:'Bien activado antes del test',   ms:'Bien activado antes del test',    desc2:'—'},
-              {tipo:'Test 50 lib',  desc:'1x50m libre a fondo · salida desde bloque · desc 5min',                              mf:'Registrar marca de referencia',  ms:'Registrar marca de referencia',   desc2:'5min'},
-              {tipo:'Test 50 esp',  desc:'1x50m espalda a fondo · salida desde bloque · desc 5min',                            mf:'Registrar marca de referencia',  ms:'Registrar marca de referencia',   desc2:'5min'},
-              {tipo:'Test 100 comb',desc:'1x100m combinado a fondo (25esp+25lib+25pecho+25lib) · desc 8min',                   mf:'Registrar marca de referencia',  ms:'Registrar marca de referencia',   desc2:'8min'},
-              {tipo:'Afloje',       desc:'400m suave mixto · estirar hombros y espalda',                                       mf:'Recuperación completa',          ms:'Recuperación completa',           desc2:'—'},
+              {tipo:'Entrada',      desc:'200 suave + 6×50 activación progresiva', series:[{reps:1,dist:200,estilo:'Libre'},{reps:6,dist:50,estilo:'Libre'}], mf:'Bien activado antes del test', ms:'Bien activado antes del test', descanso_bloque:'—'},
+              {tipo:'Test 50 lib',  desc:'1×50m libre a fondo · salida desde bloque', series:[{reps:1,dist:50,estilo:'Libre'}], mf:'Registrar marca de referencia', ms:'Registrar marca de referencia', descanso_bloque:'5min'},
+              {tipo:'Test 50 esp',  desc:'1×50m espalda a fondo · salida desde bloque', series:[{reps:1,dist:50,estilo:'Espalda'}], mf:'Registrar marca de referencia', ms:'Registrar marca de referencia', descanso_bloque:'5min'},
+              {tipo:'Test 100 comb',desc:'1×100m combinado a fondo (25esp+25lib+25pecho+25lib)', series:[{reps:1,dist:100,estilo:'Combinado'}], mf:'Registrar marca de referencia', ms:'Registrar marca de referencia', descanso_bloque:'8min'},
+              {tipo:'Afloje',       desc:'400m suave mixto · estirar hombros y espalda', series:[{reps:1,dist:400,estilo:'Combinado'}], mf:'Recuperación completa', ms:'Recuperación completa', descanso_bloque:'—'},
             ]
           },
           {
@@ -336,12 +336,12 @@ const BLOQUES = [
             fecha:'2026-06-13', dia:'Sáb 13 Jun', volumen:2300, intensidad:'🟡 Umbral',
             objetivo:'Consolidar técnica · Resistencia de velocidad',
             bloques:[
-              {tipo:'Entrada',      desc:'300m libre + 200m pull respiración 3/5/5/7',                                         mf:'Control respiratorio',           ms:'Control respiratorio',            desc2:'—'},
-              {tipo:'Drill',        desc:'6x50 drill alternado esp/libre · foco entrada mano y rolido · desc 15seg',           mf:'DPS en espalda',                 ms:'Posición cadera espalda',         desc2:'15seg'},
-              {tipo:'Principal',    desc:'3x [100 esp + 100 libre] @2:00 c/u · desc 30seg entre 100s · desc 60seg entre series', mf:'No bajar ritmo en el libre', ms:'Libre más rápido que el esp',     desc2:'30/60seg', ritmo:'1:35-1:50/100'},
-              {tipo:'Velocidad',    desc:'6x25 sprint alternando esp/libre · máximo · desc 30seg',                             mf:'Técnica limpia en el sprint',    ms:'Sin reserva',                     desc2:'30seg'},
-              {tipo:'Pateo',        desc:'200m aletas · 4x25 pateo esp máximo @45seg',                                         mf:'Potencia pateo',                 ms:'Potencia pateo',                  desc2:'45seg'},
-              {tipo:'Afloje',       desc:'200m suave',                                                                          mf:'Relajar',                        ms:'Relajar',                         desc2:'—'},
+              {tipo:'Entrada',      desc:'300m libre + 200m pull respiración 3/5/5/7', series:[{reps:1,dist:300,estilo:'Libre'},{reps:1,dist:200,estilo:'Libre',implemento:'Pull-buoy'}], mf:'Control respiratorio', ms:'Control respiratorio', descanso_bloque:'—'},
+              {tipo:'Drill',        desc:'6×50 drill alternado esp/libre · foco entrada mano y rolido', series:[{reps:6,dist:50,estilo:'Combinado',descanso:'15seg'}], mf:'DPS en espalda', ms:'Posición cadera espalda', descanso_bloque:'15seg'},
+              {tipo:'Principal',    desc:'3×[100 esp + 100 libre] @2:00', series:[{reps:3,dist:100,estilo:'Espalda',salida:'2:00'},{reps:3,dist:100,estilo:'Libre',salida:'2:00'}], mf:'No bajar ritmo en el libre', ms:'Libre más rápido que el esp', descanso_bloque:'60seg', ritmo:'1:35-1:50/100'},
+              {tipo:'Velocidad',    desc:'6×25 sprint alternando esp/libre · máximo', series:[{reps:6,dist:25,estilo:'Combinado',descanso:'30seg'}], mf:'Técnica limpia en el sprint', ms:'Sin reserva', descanso_bloque:'30seg'},
+              {tipo:'Pateo',        desc:'200m aletas + 4×25 pateo esp máximo @45seg', series:[{reps:1,dist:200,estilo:'Libre',implemento:'Aletas'},{reps:4,dist:25,estilo:'Espalda',salida:'45seg'}], mf:'Potencia pateo', ms:'Potencia pateo', descanso_bloque:'45seg'},
+              {tipo:'Afloje',       desc:'200m suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
             ]
           },
         ]
@@ -354,11 +354,11 @@ const BLOQUES = [
             fecha:'2026-06-16', dia:'Mar 16 Jun', volumen:1800, intensidad:'🟡 Activación',
             objetivo:'Mantener velocidad · No acumular fatiga',
             bloques:[
-              {tipo:'Entrada',      desc:'400m progresivo suave',                                                               mf:'Activar sin forzar',             ms:'Activar sin forzar',              desc2:'—'},
-              {tipo:'Técnica',      desc:'6x50 drill esp+libre alternado · calidad máxima sin esfuerzo · desc 20seg',          mf:'Técnica pura',                   ms:'Técnica pura',                    desc2:'20seg'},
-              {tipo:'Velocidad',    desc:'4x50 progresivo: 1 suave → 4 máximo · desc 45seg',                                   mf:'Sensación de carrera',           ms:'Sensación de carrera',            desc2:'45seg', ritmo:'progresivo hasta máximo'},
-              {tipo:'Combinado',    desc:'2x100 combinado al 85% · foco transiciones limpias · desc 3min',                     mf:'Transiciones sin perder ritmo',  ms:'Transiciones + cierre libre',     desc2:'3min'},
-              {tipo:'Afloje',       desc:'400m suave mixto',                                                                    mf:'Fresco para el jueves',          ms:'Fresco para el jueves',           desc2:'—'},
+              {tipo:'Entrada',      desc:'400m progresivo suave', series:[{reps:1,dist:400,estilo:'Libre'}], mf:'Activar sin forzar', ms:'Activar sin forzar', descanso_bloque:'—'},
+              {tipo:'Técnica',      desc:'6×50 drill esp+libre alternado · calidad máxima', series:[{reps:6,dist:50,estilo:'Combinado',descanso:'20seg'}], mf:'Técnica pura', ms:'Técnica pura', descanso_bloque:'20seg'},
+              {tipo:'Velocidad',    desc:'4×50 progresivo: 1 suave → 4 máximo', series:[{reps:4,dist:50,estilo:'Libre',descanso:'45seg'}], mf:'Sensación de carrera', ms:'Sensación de carrera', descanso_bloque:'45seg', ritmo:'progresivo hasta máximo'},
+              {tipo:'Combinado',    desc:'2×100 combinado al 85% · transiciones limpias', series:[{reps:2,dist:100,estilo:'Combinado',descanso:'3min'}], mf:'Transiciones sin perder ritmo', ms:'Transiciones + cierre libre', descanso_bloque:'3min'},
+              {tipo:'Afloje',       desc:'400m suave mixto', series:[{reps:1,dist:400,estilo:'Combinado'}], mf:'Fresco para el jueves', ms:'Fresco para el jueves', descanso_bloque:'—'},
             ]
           },
           {
@@ -366,10 +366,10 @@ const BLOQUES = [
             fecha:'2026-06-18', dia:'Jue 18 Jun', volumen:1200, intensidad:'⚡ Pre-comp',
             objetivo:'Última activación antes del 20 Jun',
             bloques:[
-              {tipo:'Entrada',      desc:'300m suave libre',                                                                    mf:'Activar suave',                  ms:'Activar suave',                   desc2:'—'},
-              {tipo:'Activación',   desc:'4x50: 1 suave / 2 ritmo / 3 fuerte / 4 máximo · desc 45seg',                        mf:'Sentir la velocidad',            ms:'Sentir la velocidad',             desc2:'45seg'},
-              {tipo:'Sprints',      desc:'3x25 máximo esp + 3x25 máximo libre · desc 1min',                                    mf:'Explosividad pura',              ms:'Explosividad pura',               desc2:'1min'},
-              {tipo:'Afloje',       desc:'300m suave · estirar bien',                                                           mf:'Llegar descansado al viernes',   ms:'Llegar descansado al viernes',    desc2:'—'},
+              {tipo:'Entrada',      desc:'300m suave libre', series:[{reps:1,dist:300,estilo:'Libre'}], mf:'Activar suave', ms:'Activar suave', descanso_bloque:'—'},
+              {tipo:'Activación',   desc:'4×50: 1 suave / 2 ritmo / 3 fuerte / 4 máximo', series:[{reps:4,dist:50,estilo:'Libre',descanso:'45seg'}], mf:'Sentir la velocidad', ms:'Sentir la velocidad', descanso_bloque:'45seg'},
+              {tipo:'Sprints',      desc:'3×25 máximo esp + 3×25 máximo libre', series:[{reps:3,dist:25,estilo:'Espalda',descanso:'1min'},{reps:3,dist:25,estilo:'Libre',descanso:'1min'}], mf:'Explosividad pura', ms:'Explosividad pura', descanso_bloque:'1min'},
+              {tipo:'Afloje',       desc:'300m suave · estirar bien', series:[{reps:1,dist:300,estilo:'Libre'}], mf:'Llegar descansado al viernes', ms:'Llegar descansado al viernes', descanso_bloque:'—'},
             ]
           },
           {
@@ -401,11 +401,11 @@ const BLOQUES = [
             fecha:'2026-07-01', dia:'Mié 1 Jul', volumen:2200, intensidad:'🟢 Aeróbico',
             objetivo:'Establecer ritmo base 1500m · Economía de nado',
             bloques:[
-              {tipo:'Entrada',      desc:'400m continuo suave',                                                                 mf:'<1:55/100',                      ms:'<1:50/100',                       desc2:'—'},
-              {tipo:'Técnica',      desc:'4x50 foco rolido + entrada de mano · desc 15seg',                                    mf:'Máximo DPS, <26 braz/largo',     ms:'Posición cadera, entrada limpia', desc2:'15seg'},
-              {tipo:'Principal',    desc:'3x400 ritmo objetivo 1500m · desc 45seg',                                            mf:'Eficiencia, <26 braz/largo',     ms:'Cierre: últimos 100m más rápido', desc2:'45seg', ritmo:'1:45-1:50/100'},
-              {tipo:'Velocidad',    desc:'6x50 fuerte controlado · desc 20seg',                                                mf:'Sostener técnica bajo fatiga',   ms:'Practicar aceleración',           desc2:'20seg', ritmo:'1:35-1:42/100'},
-              {tipo:'Vuelta calma', desc:'200m continuo suave',                                                                 mf:'Relajado',                       ms:'Relajado',                        desc2:'—'},
+              {tipo:'Entrada',      desc:'400m continuo suave', series:[{reps:1,dist:400,estilo:'Libre'}], mf:'<1:55/100', ms:'<1:50/100', descanso_bloque:'—'},
+              {tipo:'Técnica',      desc:'4×50 foco rolido + entrada de mano', series:[{reps:4,dist:50,estilo:'Libre',descanso:'15seg'}], mf:'Máximo DPS, <26 braz/largo', ms:'Posición cadera, entrada limpia', descanso_bloque:'15seg'},
+              {tipo:'Principal',    desc:'3×400 ritmo objetivo 1500m', series:[{reps:3,dist:400,estilo:'Libre',descanso:'45seg'}], mf:'Eficiencia, <26 braz/largo', ms:'Cierre: últimos 100m más rápido', descanso_bloque:'45seg', ritmo:'1:45-1:50/100'},
+              {tipo:'Velocidad',    desc:'6×50 fuerte controlado', series:[{reps:6,dist:50,estilo:'Libre',descanso:'20seg'}], mf:'Sostener técnica bajo fatiga', ms:'Practicar aceleración', descanso_bloque:'20seg', ritmo:'1:35-1:42/100'},
+              {tipo:'Vuelta calma', desc:'200m continuo suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Relajado', ms:'Relajado', descanso_bloque:'—'},
             ]
           },
           {
@@ -413,11 +413,11 @@ const BLOQUES = [
             fecha:'2026-07-03', dia:'Vie 3 Jul', volumen:2500, intensidad:'🟡 Umbral',
             objetivo:'Sensación de ritmo 800m · Contar brazadas',
             bloques:[
-              {tipo:'Entrada',      desc:'300m + 4x50 progresivo · último a ritmo carrera · desc 15seg',                       mf:'<1:55/100',                      ms:'<1:50/100',                       desc2:'15seg'},
-              {tipo:'Activación',   desc:'4x25 sprints técnicos · foco salida y subacuático · desc 30seg',                    mf:'Explosividad limpia',            ms:'Velocidad máxima',                desc2:'30seg'},
-              {tipo:'Principal',    desc:'3x400 ritmo objetivo 800m · desc 45seg',                                             mf:'Constancia',                     ms:'Cierre fuerte',                   desc2:'45seg', ritmo:'1:40-1:48/100'},
-              {tipo:'Umbral',       desc:'4x200 ritmo medio-fuerte · desc 30seg',                                              mf:'Sostener técnica',               ms:'Mantener agresividad',            desc2:'30seg', ritmo:'1:42-1:48/100'},
-              {tipo:'Vuelta calma', desc:'150m suave, soltar hombros y piernas',                                               mf:'Relajado',                       ms:'Relajado',                        desc2:'—'},
+              {tipo:'Entrada',      desc:'300m + 4×50 progresivo · último a ritmo carrera', series:[{reps:1,dist:300,estilo:'Libre'},{reps:4,dist:50,estilo:'Libre',descanso:'15seg'}], mf:'<1:55/100', ms:'<1:50/100', descanso_bloque:'15seg'},
+              {tipo:'Activación',   desc:'4×25 sprints técnicos · foco salida y subacuático', series:[{reps:4,dist:25,estilo:'Libre',descanso:'30seg'}], mf:'Explosividad limpia', ms:'Velocidad máxima', descanso_bloque:'30seg'},
+              {tipo:'Principal',    desc:'3×400 ritmo objetivo 800m', series:[{reps:3,dist:400,estilo:'Libre',descanso:'45seg'}], mf:'Constancia', ms:'Cierre fuerte', descanso_bloque:'45seg', ritmo:'1:40-1:48/100'},
+              {tipo:'Umbral',       desc:'4×200 ritmo medio-fuerte', series:[{reps:4,dist:200,estilo:'Libre',descanso:'30seg'}], mf:'Sostener técnica', ms:'Mantener agresividad', descanso_bloque:'30seg', ritmo:'1:42-1:48/100'},
+              {tipo:'Vuelta calma', desc:'150m suave, soltar hombros y piernas', series:[{reps:1,dist:150,estilo:'Libre'}], mf:'Relajado', ms:'Relajado', descanso_bloque:'—'},
             ]
           },
         ]
@@ -586,7 +586,7 @@ function blColor(id){ const b=BLOQUES.find(x=>x.id===id); return b?b.color:'var(
 // Si no tiene series (bloque antiguo con solo desc), se intenta extraer de la desc.
 
 function calcDistBloque(b) {
-  // Si tiene estructura de series, suma exacta
+  // Solo cálculo EXACTO desde estructura. Nunca adivinar del texto.
   if (b.series && b.series.length) {
     return b.series.reduce(function(t, s){
       var reps = parseInt(s.reps) || 1;
@@ -594,36 +594,24 @@ function calcDistBloque(b) {
       return t + reps * dist;
     }, 0);
   }
-  // Si tiene dist_total explícita
-  if (b.dist_total) return parseInt(b.dist_total) || 0;
-  // Fallback: intentar extraer de la descripción (bloques antiguos)
-  return extraerDistDesc(b.desc || '');
-}
-
-function extraerDistDesc(desc) {
-  if (!desc) return 0;
-  var total = 0;
-  // Patrón "N x M" (ej: 4x50, 3 x 400, 2×100)
-  var re1 = /(\d+)\s*[x×]\s*(\d+)/gi;
-  var m;
-  var matched = false;
-  while ((m = re1.exec(desc)) !== null) {
-    total += parseInt(m[1]) * parseInt(m[2]);
-    matched = true;
-  }
-  // Patrón distancia simple "200m", "400 m" (solo si no hubo NxM ya contando ese número)
-  if (!matched) {
-    var re2 = /(\d+)\s*m(?:ts|etros)?\b/gi;
-    while ((m = re2.exec(desc)) !== null) {
-      total += parseInt(m[1]);
-    }
-  }
-  return total;
+  if (b.dist_total != null && b.dist_total !== '') return parseInt(b.dist_total) || 0;
+  // Sin estructura: distancia desconocida (null), no se adivina
+  return null;
 }
 
 function calcDistSesion(sesion) {
-  if (!sesion || !sesion.bloques) return 0;
-  return sesion.bloques.reduce(function(t, b){ return t + calcDistBloque(b); }, 0);
+  if (!sesion || !sesion.bloques) return null;
+  var total = 0;
+  var hayDato = false;
+  var completo = true;
+  sesion.bloques.forEach(function(b){
+    var d = calcDistBloque(b);
+    if (d === null) { completo = false; }
+    else { total += d; hayDato = true; }
+  });
+  if (!hayDato) return null;
+  // total parcial si algún bloque no tiene dato; marcamos con flag
+  return { total: total, completo: completo };
 }
 
 // Formatea la estructura de un bloque a texto legible
@@ -793,21 +781,22 @@ function renderPlan() {
       const comp=completadas(s.id);
       const done=comp.length>=2;
       const isComp=s.intensidad.includes('🏆');
-      const distTotal=calcDistSesion(s);
+      const distInfo=calcDistSesion(s);
+      const distLabel = distInfo ? (' · '+distInfo.total+'m'+(distInfo.completo?'':'+')) : '';
       h+='<div class="sc '+scClass(s.tipo)+' '+(done?'done':'')+'" '+(isComp?'style="border-left-color:#F1C40F"':'')+' >';
-      h+='<div class="sc-h" onclick="toggleSC(\'sb-'+s.id+'\')"><div style="flex:1"><h4>'+s.nombre+' '+(done?'✅':'')+'</h4><div class="sc-d">'+s.dia+(distTotal?' · '+distTotal+'m':'')+' · '+s.intensidad+'</div></div><span style="font-size:11px;color:var(--text3)">▼</span></div>';
+      h+='<div class="sc-h" onclick="toggleSC(\'sb-'+s.id+'\')"><div style="flex:1"><h4>'+s.nombre+' '+(done?'✅':'')+'</h4><div class="sc-d">'+s.dia+distLabel+' · '+s.intensidad+'</div></div><span style="font-size:11px;color:var(--text3)">▼</span></div>';
       h+='<div class="sc-b" id="sb-'+s.id+'">';
       h+='<p style="font-size:12px;color:var(--text2);margin-bottom:10px">'+s.objetivo+'</p>';
       s.bloques.forEach(b=>{
         const distB=calcDistBloque(b);
-        h+='<div class="blq"><div class="blq-t">'+b.tipo+(distB?' · '+distB+'m':'')+(b.ritmo?' · 🎯 '+b.ritmo:'')+'</div>';
+        h+='<div class="blq"><div class="blq-t">'+b.tipo+(distB!=null?' · '+distB+'m':'')+(b.ritmo?' · 🎯 '+b.ritmo:'')+'</div>';
         h+='<div class="blq-d">'+fmtEstructura(b)+'</div>';
         if(b.descanso_bloque) h+='<div style="font-size:11px;color:var(--text3);margin-top:3px">⏸ Descanso: '+b.descanso_bloque+'</div>';
         else if(b.desc2 && b.desc2!=='—') h+='<div style="font-size:11px;color:var(--text3);margin-top:3px">⏸ '+b.desc2+'</div>';
         h+='<div class="blq-f">🔵 Felipe: '+b.mf+'</div>';
         h+='<div class="blq-s">🟢 Sergio: '+b.ms+'</div></div>';
       });
-      if(distTotal) h+='<div style="text-align:right;font-size:12px;font-weight:700;color:var(--navy);margin-top:8px">Distancia total: '+distTotal+'m</div>';
+      if(distInfo) h+='<div style="text-align:right;font-size:12px;font-weight:700;color:var(--navy);margin-top:8px">Distancia total: '+distInfo.total+'m'+(distInfo.completo?'':' (parcial)')+'</div>';
       comp.forEach(c=>{h+='<div style="background:var(--green-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px">✅ <b>'+c.Nadador+'</b>: '+(c.Distancia_m||'?')+'m · '+(c.Ritmo_100m||'?')+'/100m · SWOLF '+(c.SWOLF||'?')+'</div>';});
       if(!isComp) h+='<button class="btn" style="margin-top:10px" onclick="iniciarDesde(\''+s.id+'\')">📤 Cargar resultado</button>';
       h+='</div></div>';
@@ -2015,7 +2004,8 @@ async function generarPrograma() {
     // VALIDACIÓN: calcular distancia de cada sesión por código (no confiar en la IA)
     (prog.semanas||[]).forEach(function(w){
       (w.sesiones||[]).forEach(function(s){
-        s.volumen = calcDistSesion(s); // sobrescribe con la suma real
+        var di = calcDistSesion(s);
+        s.volumen = di ? di.total : 0; // sobrescribe con la suma real exacta
       });
     });
 
