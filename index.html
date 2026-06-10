@@ -817,7 +817,7 @@ function toggleSC(id) { document.getElementById(id)?.classList.toggle('open'); }
 // CARGAR — STEP 1
 // ═══════════════════════════════════════════════════
 function renderCargar1() {
-  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null;
+  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null; S.libreBloques=null; S.libreNombre=null;
   const sesiones=getAllSesiones().filter(s=>!s.intensidad.includes('🏆'));
   let h='<div class="lbl">1 · Nadador</div>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">';
@@ -875,9 +875,94 @@ function checkCont() { const b=document.getElementById('btn-cont'); if(b) b.disa
 // ═══════════════════════════════════════════════════
 // CARGAR — STEP 2: Checklist de bloques
 // ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// ENTRENAMIENTO LIBRE — constructor de bloques simple
+// ═══════════════════════════════════════════════════
+function renderLibreBuilder() {
+  // Init estructura libre si no existe
+  if (!S.libreBloques) {
+    S.libreBloques = [
+      { tipo:'Calentamiento', dist:'', nota:'' },
+      { tipo:'Principal', dist:'', nota:'' },
+      { tipo:'Afloje', dist:'', nota:'' }
+    ];
+  }
+  if (!S.libreNombre) S.libreNombre = 'Entrenamiento libre';
+
+  const bx = S.nadador==='Felipe'
+    ? '<span class="bx bf">Felipe</span>'
+    : '<span class="bx bs">Sergio</span>';
+
+  let h = '<div class="card" style="margin-bottom:12px"><div class="cb">'
+    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">' + bx + '<span class="itag">🔓 Sesión libre</span></div>'
+    + '<p style="font-size:12px;color:var(--text2)">Arma tu entrenamiento bloque por bloque. La distancia total se calcula sola.</p>'
+    + '</div></div>';
+
+  // Nombre de la sesión
+  h += '<div class="lbl">Nombre del entrenamiento</div>';
+  h += '<input type="text" id="libre-nombre" class="nota-inp" value="' + (S.libreNombre||'').replace(/"/g,'&quot;') + '" placeholder="ej: Fondo aeróbico libre" oninput="S.libreNombre=this.value" style="margin-bottom:14px">';
+
+  h += '<div class="lbl">Bloques</div>';
+  h += '<div id="libre-list">';
+  S.libreBloques.forEach(function(b, i){
+    h += renderLibreBloque(b, i);
+  });
+  h += '</div>';
+
+  h += '<button class="btn2" onclick="addLibreBloque()" style="margin-bottom:12px">➕ Agregar bloque</button>';
+
+  // Total
+  h += '<div id="libre-total" style="background:var(--azul-l);border-radius:8px;padding:12px;margin-bottom:12px;text-align:center;font-size:14px;font-weight:700;color:var(--navy)">' + calcLibreTotalLabel() + '</div>';
+
+  h += '<button class="btn" onclick="renderCargar3()">Continuar → Fotos Garmin (opcional)</button>';
+  h += '<button class="btn2" onclick="renderCargar1()">← Volver</button>';
+
+  document.getElementById('pg-cargar').innerHTML = h;
+}
+
+function renderLibreBloque(b, i) {
+  var h = '<div class="card" style="margin-bottom:8px"><div class="cb">';
+  h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+  h += '<input type="text" class="nota-inp" value="' + (b.tipo||'').replace(/"/g,'&quot;') + '" placeholder="Nombre del bloque" oninput="setLibre(' + i + ',\'tipo\',this.value)" style="flex:1;margin:0">';
+  h += '<button onclick="rmLibreBloque(' + i + ')" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;padding:0 4px">✕</button>';
+  h += '</div>';
+  h += '<div class="r2" style="gap:8px">';
+  h += '<div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Distancia (m)</div><input type="number" class="nota-inp" value="' + (b.dist||'') + '" placeholder="ej: 400" oninput="setLibre(' + i + ',\'dist\',this.value)"></div>';
+  h += '<div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Nota</div><input type="text" class="nota-inp" value="' + (b.nota||'').replace(/"/g,'&quot;') + '" placeholder="ej: 4x100 aletas" oninput="setLibre(' + i + ',\'nota\',this.value)"></div>';
+  h += '</div></div></div>';
+  return h;
+}
+
+function setLibre(i, campo, val) {
+  S.libreBloques[i][campo] = val;
+  if (campo === 'dist') {
+    document.getElementById('libre-total').textContent = calcLibreTotalLabel();
+  }
+}
+
+function addLibreBloque() {
+  S.libreBloques.push({ tipo:'', dist:'', nota:'' });
+  renderLibreBuilder();
+}
+
+function rmLibreBloque(i) {
+  S.libreBloques.splice(i, 1);
+  renderLibreBuilder();
+}
+
+function calcLibreTotal() {
+  if (!S.libreBloques) return 0;
+  return S.libreBloques.reduce(function(t, b){ return t + (parseInt(b.dist) || 0); }, 0);
+}
+
+function calcLibreTotalLabel() {
+  var t = calcLibreTotal();
+  return t > 0 ? 'Distancia total: ' + t + 'm' : 'Distancia total: — (ingresa metros por bloque)';
+}
+
 function renderCargar2() {
   const plan = getSesion(S.sesionPlan);
-  if (!plan) { renderCargar3(); return; }
+  if (!plan) { renderLibreBuilder(); return; }
 
   // Init bloque states: {hecho, estilo_variacion, nota}
   S.bloqueStates = plan.bloques.map(b => ({
@@ -1024,21 +1109,36 @@ function renderCargar3() {
     }
   }
 
+  // Resumen del entrenamiento libre
+  let resumenLibre = '';
+  const esLibre = !plan && S.libreBloques;
+  if (esLibre) {
+    var totalL = calcLibreTotal();
+    resumenLibre = '<div style="background:var(--azul-l);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--navy)">';
+    resumenLibre += '<div style="font-weight:700;margin-bottom:6px">🔓 ' + (S.libreNombre||'Entrenamiento libre') + ' — ' + totalL + 'm</div>';
+    S.libreBloques.forEach(function(b){
+      if (b.tipo || b.dist) resumenLibre += '<div>• ' + (b.tipo||'Bloque') + (b.dist?': '+b.dist+'m':'') + (b.nota?' ('+b.nota+')':'') + '</div>';
+    });
+    resumenLibre += '</div>';
+  }
+
   document.getElementById('pg-cargar').innerHTML =
     '<div class="card" style="margin-bottom:12px"><div class="cb">'
-    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">' + bx + '<span class="itag">' + nombre + '</span></div>'
-    + '<p style="font-size:12px;color:var(--text2)">Ahora sube las pantallas de Garmin Connect.</p>'
+    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">' + bx + '<span class="itag">' + (esLibre ? (S.libreNombre||'Sesión libre') : nombre) + '</span></div>'
+    + '<p style="font-size:12px;color:var(--text2)">' + (esLibre ? 'Sube fotos para análisis IA, o guarda directamente sin fotos.' : 'Ahora sube las pantallas de Garmin Connect.') + '</p>'
     + '</div></div>'
     + resumenBloques
+    + resumenLibre
     + '<div class="note">📱 Garmin Connect → actividad → <b>Estadísticas</b> (2 pantallas con scroll) → <b>Vueltas</b> (todas las pantallas)</div>'
-    + '<div class="lbl">Fotos de Garmin Connect</div>'
+    + '<div class="lbl">Fotos de Garmin Connect' + (esLibre ? ' (opcional)' : '') + '</div>'
     + '<div class="upz" onclick="document.getElementById(\'fi\').click()">'
     + '<input type="file" id="fi" accept="image/*" multiple onchange="addFotos(this.files)">'
     + '<em>📸</em><p>Toca para agregar fotos</p><span>Estadísticas (2) + Vueltas (2-3) = 4 a 5 fotos</span></div>'
     + '<div id="thumbs" class="thumbs"></div>'
     + '<div style="margin-top:14px">'
     + '<button class="btn" id="btn-analizar" onclick="analizarFotos()" disabled>🧠 Analizar con IA</button>'
-    + '<button class="btn2" onclick="renderCargar2()">← Ajustar bloques</button>'
+    + (esLibre ? '<button class="btn2" onclick="guardarLibreSinFotos()">💾 Guardar sin fotos</button>' : '')
+    + '<button class="btn2" onclick="renderCargar2()">← ' + (esLibre ? 'Editar bloques' : 'Ajustar bloques') + '</button>'
     + '</div>';
 }
 
@@ -1261,6 +1361,24 @@ async function guardar() {
     }
   }
 
+  // Guardar bloques de entrenamiento libre (estructura manual)
+  if (ok && !plan && S.libreBloques) {
+    setLoad(65, 'Guardando bloques libres...', 'Hoja de ejercicios');
+    for (var li = 0; li < S.libreBloques.length; li++) {
+      var lb = S.libreBloques[li];
+      if (!lb.tipo && !lb.dist) continue;
+      await fetch('https://orion-proxy.felgonino.workers.dev',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          action:'detalle', sesion_id:reg.id, fecha:reg.fecha,
+          nadador:reg.nadador, sesion_plan:S.libreNombre||'Libre',
+          bloque_idx:li+1, bloque_tipo:lb.tipo||'Bloque', bloque_desc:(lb.dist?lb.dist+'m':'')+(lb.nota?' '+lb.nota:''),
+          ritmo_obj:'', hecho:true, estilo_var:'', nota:lb.nota||'', meta_f:'', meta_s:''
+        })
+      }).catch(function(){});
+    }
+  }
+
   // Guardar vueltas Garmin (hoja separada)
   if (ok && reg.vueltas && reg.vueltas.length) {
     setLoad(75, 'Guardando vueltas Garmin...', 'Detalle de intervalos');
@@ -1291,6 +1409,56 @@ async function guardar() {
     toast('Guardado en Google Sheets');
   } else {
     toast('Error al guardar. Verifica conexi&#xF3;n.', 4000);
+  }
+}
+
+async function guardarLibreSinFotos() {
+  var totalL = calcLibreTotal();
+  var reg = {
+    id: genId(S.nadador),
+    fecha: todayStr(),
+    nadador: S.nadador,
+    sesionPlan: S.libreNombre || 'Libre',
+    medio: 'Piscina',
+    resumen: { distancia_m: totalL || '' },
+    vueltas: [],
+    bloqueStates: [],
+    evaluacion: {}
+  };
+
+  lov(true); setLoad(40, 'Guardando entrenamiento...', 'Escribiendo en Google Sheets');
+  var ok = await sheetsSave(reg);
+
+  if (ok && S.libreBloques) {
+    setLoad(70, 'Guardando bloques...', 'Hoja de ejercicios');
+    for (var li = 0; li < S.libreBloques.length; li++) {
+      var lb = S.libreBloques[li];
+      if (!lb.tipo && !lb.dist) continue;
+      await fetch('https://orion-proxy.felgonino.workers.dev',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          action:'detalle', sesion_id:reg.id, fecha:reg.fecha,
+          nadador:reg.nadador, sesion_plan:S.libreNombre||'Libre',
+          bloque_idx:li+1, bloque_tipo:lb.tipo||'Bloque', bloque_desc:(lb.dist?lb.dist+'m':'')+(lb.nota?' '+lb.nota:''),
+          ritmo_obj:'', hecho:true, estilo_var:'', nota:lb.nota||'', meta_f:'', meta_s:''
+        })
+      }).catch(function(){});
+    }
+  }
+
+  lov(false);
+  if (ok) {
+    document.getElementById('pg-cargar').innerHTML =
+      '<div class="ok-box"><div class="ok-ico">&#x2705;</div>' +
+      '<div class="ok-t">Entrenamiento guardado</div>' +
+      '<div class="ok-s">' + reg.id + '<br>' + reg.nadador + ' &middot; ' + (S.libreNombre||'Libre') + '<br>' + totalL + 'm</div></div>' +
+      '<button class="btn" onclick="renderCargar1()">&#x1F4E4; Registrar otra sesi&#xF3;n</button>' +
+      '<button class="btn2" onclick="goTab(\'historial\')">&#x1F4C8; Ver historial</button>' +
+      '<button class="btn2" onclick="goTab(\'hoy\')">&#x1F3E0; Inicio</button>';
+    toast('Guardado en Google Sheets');
+    S.libreBloques = null; S.libreNombre = null;
+  } else {
+    toast('Error al guardar. Verifica conexión.', 4000);
   }
 }
 
@@ -1372,6 +1540,12 @@ function renderHistorial() {
     h += '<button class="estilo-btn'+on+'" onclick="setHistNad(\''+n.nombre+'\')">'+n.emoji+' '+n.nombre+'</button>';
   });
   h += '</div>';
+
+  // Banner prominente del nadador seleccionado
+  var nadObj = NADADORES.find(function(n){ return n.nombre === HIST_NAD; }) || {emoji:'🏊', color:'var(--navy)'};
+  h += '<div style="background:'+(nadObj.color||'var(--navy)')+';border-radius:10px;padding:12px 16px;margin-bottom:14px;color:#fff;display:flex;align-items:center;gap:10px">';
+  h += '<span style="font-size:22px">'+(nadObj.emoji||'🏊')+'</span>';
+  h += '<div><div style="font-size:15px;font-weight:700">'+HIST_NAD+'</div><div style="font-size:11px;opacity:.8">Historial individual</div></div></div>';
 
   var sesiones = CACHE.filter(function(r){ return r.Nadador === HIST_NAD; })
     .sort(function(a,b){ return (a.Fecha||'') < (b.Fecha||'') ? 1 : -1; }); // recientes primero
