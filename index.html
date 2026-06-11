@@ -2355,25 +2355,18 @@ async function generarPrograma() {
   // Volume reference: 1hr session = ~2000-2800m depending on intensity
   var volMin = parseInt(dias) >= 3 ? 2000 : 1800;
   var prompt =
-    'Eres ORION, coach experto natacion master. Genera programa de entrenamiento COMPLETO en JSON. ' +
-    'PRUEBAS OBJETIVO: '+pruebasTxt+'. Competencia: '+fecha+'. '+sem+' semanas, '+dias+' dias/semana. ' +
-    'VOLUMEN POR SESION: cada sesion debe totalizar entre 2000 y 2800m (sesion de ~60min en piscina). ' +
-    'CRITICO VOLUMEN: si la suma de reps*dist de todos los bloques no alcanza 1800m, agrega mas series. ' +
-    'NADADORES: '+perfilesTxt+'. ' +
-    'HISTORIAL: '+(histTxt||'sin datos')+'. ' +
-    (notas?'INSTRUCCIONES EXTRA: '+notas+'. ':'')+
-    'FILOSOFIA: entrena por objetivo no por volumen. Cada sesion tiene un mini-objetivo especifico que construye hacia la competencia. ' +
-    'Felipe mejora eficiencia y DPS. Sergio mejora agresividad y cierre. ' +
-    'ESTRUCTURA SESION: calentamiento (~400m) + bloques principales (1200-1800m) + afloje (~200m). ' +
-    'Bloques principales incluyen: tecnica, velocidad especifica, resistencia especifica segun semana. ' +
-    'CAMPO rationale OBLIGATORIO en cada sesion: explicar en 2-3 frases como esta sesion sirve al objetivo general y que mini-objetivo tiene. ' +
-    'CRITICO BLOQUES: campo series obligatorio: [{reps:N,dist:M,estilo:"...",implemento:"",salida:"",descanso:""}]. descanso_bloque obligatorio. NO calcules dist total. ' +
-    'Terminos nuevos en glosario_nuevos: [{termino,definicion,ejecucion}]. ' +
-    'Responde SOLO JSON valido sin backticks, sin texto extra: ' +
-    '{"nombre":"Plan...","subtitulo":"'+pruebasTxt+'","fechaFin":"'+fecha+'","glosario_nuevos":[],' +
-    '"semanas":[{"id":"S1","nombre":"Semana 1 - nombre descriptivo","sesiones":[{"id":"G1","tipo":"A","nombre":"...","dia":"Lun ...","intensidad":"Aerobico","objetivo":"mini-objetivo especifico",' +
-    '"rationale":"2-3 frases explicando como esta sesion conecta con el objetivo general y que capacidad desarrolla",' +
-    '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":400,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"meta Felipe","ms":"meta Sergio","ritmo":""}]}]}]}';
+    'Coach natacion master. Genera programa JSON EXACTO para: '+pruebasTxt+'. Competencia: '+fecha+'. '+sem+' semanas, '+dias+' sesiones/semana, 60min c/u, 2000-2500m/sesion. ' +
+    'Nadadores: '+perfilesTxt+'. Historial: '+(histTxt||'ninguno')+'. ' +
+    (notas?notas+'. ':'')+
+    'Felipe: mejorar DPS y eficiencia. Sergio: mejorar agresividad y cierre. ' +
+    'Cada sesion: calentamiento 300-400m + principal 1400-1800m + afloje 200m. ' +
+    'JSON sin texto extra:\n' +
+    '{"nombre":"...","subtitulo":"'+pruebasTxt+'","fechaFin":"'+fecha+'","glosario_nuevos":[{"termino":"...","definicion":"...","ejecucion":"..."}],' +
+    '"semanas":[{"id":"S1","nombre":"Sem 1","sesiones":[' +
+    '{"id":"G1","tipo":"A","nombre":"...","dia":"...","intensidad":"Aerobico","objetivo":"...","rationale":"como conecta con el objetivo",' +
+    '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":300,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"...","ms":"...","ritmo":""},' +
+    '{"tipo":"Principal","series":[{"reps":4,"dist":200,"estilo":"Libre","implemento":"","salida":"2:00","descanso":""}],"descanso_bloque":"30seg","mf":"...","ms":"...","ritmo":"1:45/100"},' +
+    '{"tipo":"Afloje","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"...","ms":"...","ritmo":""}]}]}]}';
 
   try {
     var resp = await fetch('https://orion-proxy.felgonino.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
