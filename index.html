@@ -1137,7 +1137,7 @@ function renderCargar3() {
     + '<div id="thumbs" class="thumbs"></div>'
     + '<div style="margin-top:14px">'
     + '<button class="btn" id="btn-analizar" onclick="analizarFotos()" disabled>🧠 Analizar con IA</button>'
-    + (esLibre ? '<button class="btn2" onclick="guardarLibreSinFotos()">💾 Guardar sin fotos</button>' : '')
+    + (esLibre ? '<button class="btn2" onclick="guardarLibreSinFotos()">💾 Guardar sin fotos</button>' : '<button class="btn2" onclick="guardarPendiente()">⏳ Guardar como pendiente (cargar fotos después)</button>')
     + '<button class="btn2" onclick="renderCargar2()">← ' + (esLibre ? 'Editar bloques' : 'Ajustar bloques') + '</button>'
     + '</div>';
 }
@@ -1409,6 +1409,54 @@ async function guardar() {
     toast('Guardado en Google Sheets');
   } else {
     toast('Error al guardar. Verifica conexi&#xF3;n.', 4000);
+  }
+}
+
+async function guardarPendiente() {
+  var plan = getSesion(S.sesionPlan);
+  var reg = {
+    id: genId(S.nadador),
+    fecha: todayStr(),
+    nadador: S.nadador,
+    sesionPlan: S.sesionPlan,
+    medio: 'Piscina',
+    resumen: { distancia_m: '', pendiente: true },
+    vueltas: [],
+    bloqueStates: S.bloqueStates || [],
+    evaluacion: {},
+    pendiente: true
+  };
+
+  lov(true); setLoad(40, 'Guardando sesión...', 'Sin resultados Garmin aún');
+  var ok = await sheetsSave(reg);
+
+  // Guardar detalle de bloques
+  if (ok && plan && S.bloqueStates) {
+    setLoad(70, 'Guardando bloques...', '');
+    for (var i=0; i<plan.bloques.length; i++) {
+      var b=plan.bloques[i], st=S.bloqueStates[i]||{hecho:true,estiloVar:'',nota:''};
+      await fetch('https://orion-proxy.felgonino.workers.dev',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'detalle',sesion_id:reg.id,fecha:reg.fecha,nadador:reg.nadador,sesion_plan:reg.sesionPlan,bloque_idx:i+1,bloque_tipo:b.tipo,bloque_desc:b.desc||fmtEstructura(b),ritmo_obj:b.ritmo||'',hecho:st.hecho,estilo_var:st.estiloVar||'',nota:st.nota||'',meta_f:b.mf,meta_s:b.ms})
+      }).catch(function(){});
+    }
+  }
+
+  lov(false);
+  if (ok) {
+    // Add to local cache as pending
+    CACHE.push({ID:reg.id,Fecha:reg.fecha,Nadador:reg.nadador,Sesion_Plan:reg.sesionPlan,Distancia_m:'',Ritmo_100m:'',SWOLF:'',FC_Media:'',Pendiente:'SI'});
+    document.getElementById('pg-cargar').innerHTML =
+      '<div class="ok-box"><div class="ok-ico">⏳</div>' +
+      '<div class="ok-t">Sesión guardada como pendiente</div>' +
+      '<div class="ok-s">' + (plan?plan.nombre:reg.sesionPlan) + '<br>' + reg.nadador + ' · ' + reg.fecha + '<br><br>' +
+      'Los resultados Garmin se pueden cargar después desde la pestaña <b>Cargar</b>.</div></div>' +
+      '<button class="btn" onclick="renderCargar1()">📤 Registrar otra sesión</button>' +
+      '<button class="btn2" onclick="goTab(\'plan\')">📋 Ver plan</button>' +
+      '<button class="btn2" onclick="goTab(\'hoy\')">🏠 Inicio</button>';
+    toast('Sesión guardada como pendiente');
+  } else {
+    toast('Error al guardar. Verifica conexión.', 4000);
   }
 }
 
@@ -2031,88 +2079,84 @@ async function guardarGlosarioRemoto() {
 // ═══════════════════════════════════════════════════
 // OBJETIVOS — Generador de programas con IA
 // ═══════════════════════════════════════════════════
-const OBJ = { modo:'auto', prueba:'', distancia:'50', estilo:'Libre', fecha:'', semanas:'3', dias:'3' };
+const OBJ = { modo:'auto', pruebas:[{estilo:'Libre', dist:'50'}], fecha:'', semanas:'3', dias:'3', notas:'' };
 
 function renderObjetivos() {
   var h = '<div class="lbl">Generar nuevo programa con ORION IA</div>';
-  h += '<div class="note">Define el objetivo y ORION crea el programa completo, basándose en el historial y perfil de los nadadores. Cada programa generado cuesta ~$0.02 USD.</div>';
-
+  h += '<div class="note">Define las pruebas objetivo y ORION arma un plan que trabaja todas en conjunto. ~$0.02 USD por programa generado.</div>';
   h += '<div class="card"><div class="cb">';
-
-  // Modo
-  h += '<div class="lbl">Modo de generación</div>';
-  h += '<div class="r2" style="margin-bottom:14px">';
+  h += '<div class="lbl">Modo</div><div class="r2" style="margin-bottom:14px">';
   h += '<div class="pill on" id="obj-auto" onclick="objSet(\'modo\',\'auto\')"><em>🤖</em><b>Automático</b><small>ORION arma todo</small></div>';
   h += '<div class="pill" id="obj-manual" onclick="objSet(\'modo\',\'manual\')"><em>✏️</em><b>Guiado</b><small>Yo defino base</small></div>';
   h += '</div>';
-
-  // Objetivo
-  h += '<div class="lbl">Prueba objetivo</div>';
-  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="obj-est">';
-  ['Libre','Espalda','Pecho','Mariposa','Combinado','Fondo OA'].forEach(function(e){
-    var on = e==='Libre'?' on':'';
-    h += '<button class="estilo-btn'+on+'" id="obj-e-'+e+'" onclick="objSet(\'estilo\',\''+e+'\')">'+e+'</button>';
-  });
+  h += '<div class="lbl">Pruebas objetivo <span style="font-weight:400;color:var(--text3)">(una o más)</span></div>';
+  h += '<div id="obj-pruebas-list" style="margin-bottom:10px">';
+  OBJ.pruebas.forEach(function(p,i){ h += renderObjetivoPrueba(p,i); });
   h += '</div>';
-
-  h += '<div class="lbl">Distancia objetivo (m)</div>';
-  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="obj-dist">';
-  ['50','100','200','400','800','1500','3000','5000'].forEach(function(d){
-    var on = d==='50'?' on':'';
-    h += '<button class="estilo-btn'+on+'" id="obj-d-'+d+'" onclick="objSet(\'distancia\',\''+d+'\')">'+d+'m</button>';
-  });
-  h += '</div>';
-
-  h += '<div class="lbl">Fecha de competencia / meta</div>';
+  h += '<button class="btn2" onclick="addPrueba()" style="margin-bottom:14px">➕ Agregar prueba</button>';
+  h += '<div class="lbl">Fecha de competencia</div>';
   h += '<input type="date" id="obj-fecha" class="nota-inp" style="margin-bottom:12px">';
-
   h += '<div class="r2" style="margin-bottom:12px">';
-  h += '<div><div class="lbl">Semanas</div><input type="number" id="obj-sem" class="nota-inp" value="3" min="1" max="12"></div>';
-  h += '<div><div class="lbl">Días/semana</div><input type="number" id="obj-dias" class="nota-inp" value="3" min="1" max="6"></div>';
+  h += '<div><div class="lbl">Semanas</div><input type="number" id="obj-sem" class="nota-inp" value="'+(OBJ.semanas||3)+'" min="1" max="12"></div>';
+  h += '<div><div class="lbl">Días/semana</div><input type="number" id="obj-dias" class="nota-inp" value="'+(OBJ.dias||3)+'" min="1" max="6"></div>';
   h += '</div>';
-
-  h += '<div id="obj-manual-extra" style="display:none">';
-  h += '<div class="lbl">Indicaciones adicionales (modo guiado)</div>';
-  h += '<textarea id="obj-notas" class="nota-inp" rows="3" style="resize:vertical" placeholder="ej: enfocar en salidas y virajes, incluir trabajo de pateo con aletas, etc."></textarea>';
+  h += '<div id="obj-manual-extra" style="display:'+(OBJ.modo==='manual'?'block':'none')+'">';
+  h += '<div class="lbl">Indicaciones adicionales</div>';
+  h += '<textarea id="obj-notas" class="nota-inp" rows="3" style="resize:vertical" placeholder="ej: enfocar en salidas, incluir pateo con aletas...">'+(OBJ.notas||'')+'</textarea>';
   h += '</div>';
-
   h += '<button class="btn" onclick="generarPrograma()" style="margin-top:8px">🤖 Generar programa con ORION</button>';
   h += '</div></div>';
-
-  // Programas generados previamente
   if (PROGRAMAS_GEN.length) {
     h += '<div class="lbl" style="margin-top:6px">Programas generados</div>';
-    PROGRAMAS_GEN.forEach(function(p, i){
+    PROGRAMAS_GEN.forEach(function(p,i){
       h += '<div class="card" style="margin-bottom:8px"><div class="cb">';
       h += '<div style="font-size:13px;font-weight:700;margin-bottom:4px">'+p.nombre+'</div>';
-      h += '<div style="font-size:11px;color:var(--text3)">'+p.subtitulo+'</div>';
-      h += '<button class="btn2" style="margin-top:8px" onclick="activarProgramaGen('+i+')">▶ Activar este programa</button>';
+      h += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+p.subtitulo+'</div>';
+      h += '<button class="btn2" onclick="activarProgramaGen('+i+')">▶ Activar en Plan</button>';
       h += '</div></div>';
     });
   }
-
   document.getElementById('pg-objetivos').innerHTML = h;
-  var fEl = document.getElementById('obj-fecha');
-  if (fEl && OBJ.fecha) fEl.value = OBJ.fecha;
+  if (OBJ.fecha) { var fEl=document.getElementById('obj-fecha'); if(fEl) fEl.value=OBJ.fecha; }
+}
+
+function renderObjetivoPrueba(p, i) {
+  var estilos = ['Libre','Espalda','Pecho','Mariposa','Combinado','Fondo OA'];
+  var distancias = ['50','100','200','400','800','1500','3000','5000'];
+  var h = '<div class="card" style="margin-bottom:8px;border-left:3px solid var(--navy)"><div class="cb">';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+  h += '<span style="font-size:12px;font-weight:700;color:var(--navy)">Prueba '+(i+1)+'</span>';
+  if(i>0) h += '<button onclick="rmPrueba('+i+')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px">✕</button>';
+  h += '</div>';
+  h += '<div class="lbl" style="margin-top:0">Estilo</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">';
+  estilos.forEach(function(e){ h += "<button class='estilo-btn"+(p.estilo===e?" on":"")+"' onclick='setPrueba("+i+",\"estilo\",\""+e+"\")'>"+e+"</button>"; });
+  h += '</div><div class="lbl">Distancia</div><div style="display:flex;flex-wrap:wrap;gap:5px">';
+  distancias.forEach(function(d){ h += "<button class='estilo-btn"+(p.dist===d?" on":"")+"' onclick='setPrueba("+i+",\"dist\",\""+d+"\")'>"+d+"m</button>"; });
+  h += '</div></div></div>';
+  return h;
 }
 
 var PROGRAMAS_GEN = [];
 
-function objSet(key, val) {
-  OBJ[key] = val;
-  if (key === 'modo') {
-    document.getElementById('obj-auto').className = 'pill'+(val==='auto'?' on':'');
-    document.getElementById('obj-manual').className = 'pill'+(val==='manual'?' on':'');
-    document.getElementById('obj-manual-extra').style.display = val==='manual'?'block':'none';
-  } else if (key === 'estilo') {
-    ['Libre','Espalda','Pecho','Mariposa','Combinado','Fondo OA'].forEach(function(e){
-      var el=document.getElementById('obj-e-'+e); if(el) el.classList.toggle('on', e===val);
-    });
-  } else if (key === 'distancia') {
-    ['50','100','200','400','800','1500','3000','5000'].forEach(function(d){
-      var el=document.getElementById('obj-d-'+d); if(el) el.classList.toggle('on', d===val);
-    });
+function objSet(key,val) {
+  OBJ[key]=val;
+  if(key==='modo'){
+    document.getElementById('obj-auto').className='pill'+(val==='auto'?' on':'');
+    document.getElementById('obj-manual').className='pill'+(val==='manual'?' on':'');
+    document.getElementById('obj-manual-extra').style.display=val==='manual'?'block':'none';
   }
+}
+function addPrueba(){
+  OBJ.pruebas.push({estilo:'Libre',dist:'50'});
+  OBJ.semanas=document.getElementById('obj-sem')?.value||OBJ.semanas;
+  OBJ.dias=document.getElementById('obj-dias')?.value||OBJ.dias;
+  OBJ.fecha=document.getElementById('obj-fecha')?.value||OBJ.fecha;
+  renderObjetivos();
+}
+function rmPrueba(i){ OBJ.pruebas.splice(i,1); renderObjetivos(); }
+function setPrueba(i,campo,val){
+  OBJ.pruebas[i][campo]=val;
+  document.getElementById('obj-pruebas-list').innerHTML=OBJ.pruebas.map(function(p,idx){return renderObjetivoPrueba(p,idx);}).join('');
 }
 
 async function generarPrograma() {
@@ -2120,94 +2164,68 @@ async function generarPrograma() {
   var sem = document.getElementById('obj-sem').value || '3';
   var dias = document.getElementById('obj-dias').value || '3';
   var notas = document.getElementById('obj-notas') ? document.getElementById('obj-notas').value : '';
-
-  if (!fecha) { toast('Selecciona la fecha meta'); return; }
-
-  // Build context from swimmers profiles + history
+  OBJ.fecha=fecha; OBJ.semanas=sem; OBJ.dias=dias; OBJ.notas=notas;
+  if(!fecha){toast('Selecciona la fecha de competencia');return;}
+  if(!OBJ.pruebas.length){toast('Agrega al menos una prueba');return;}
+  var pruebasTxt = OBJ.pruebas.map(function(p){return p.dist+'m '+p.estilo;}).join(', ');
   var perfilesTxt = NADADORES.map(function(n){
-    var p = n.nombre + ' (' + (n.tipo_nadador||'sin tipo') + '): ';
-    var d = [];
-    if (n.t50_libre) d.push('50L '+n.t50_libre);
-    if (n.t400_libre) d.push('400L '+n.t400_libre);
-    if (n.oa_ritmo) d.push('OA '+n.oa_ritmo+'/100');
-    if (n.fortaleza) d.push('fuerte: '+n.fortaleza);
-    if (n.debilidad) d.push('mejorar: '+n.debilidad);
-    return p + d.join(', ');
+    var d=[];
+    if(n.t50_libre) d.push('50L '+n.t50_libre);
+    if(n.t400_libre) d.push('400L '+n.t400_libre);
+    if(n.fortaleza) d.push('fortaleza: '+n.fortaleza);
+    if(n.debilidad) d.push('mejorar: '+n.debilidad);
+    return n.nombre+' ('+(n.tipo_nadador||'sin tipo')+'): '+d.join(', ');
   }).join(' | ');
-
-  // Recent results summary
-  var histTxt = '';
+  var histTxt='';
   NADADORES.forEach(function(n){
-    var ses = CACHE.filter(function(r){ return r.Nadador===n.nombre; }).slice(-3);
-    if (ses.length) {
-      histTxt += n.nombre + ' últimas: ' + ses.map(function(s){ return (s.Distancia_m||'?')+'m '+(s.Ritmo_100m||'?')+'/100'; }).join(', ') + '. ';
-    }
+    var ses=CACHE.filter(function(r){return r.Nadador===n.nombre;}).slice(-3);
+    if(ses.length) histTxt+=n.nombre+': '+ses.map(function(s){return (s.Distancia_m||'?')+'m '+(s.Ritmo_100m||'?');}).join(', ')+'. ';
   });
-
-  lov(true); setLoad(20, 'ORION está diseñando...', 'Analizando perfiles y resultados');
-  var pasos=[[40,'Estructurando semanas...','Distribución de cargas'],[60,'Detallando ejercicios...','Series, ritmos, descansos'],[80,'Personalizando por nadador...','Felipe y Sergio'],[92,'Explicando conceptos...','Notas pedagógicas']];
+  lov(true); setLoad(15,'ORION analizando...','Perfiles y resultados');
+  var pasos=[[30,'Estructurando semanas...','Cargas'],[55,'Detallando ejercicios...','Series y ritmos'],[75,'Personalizando...','Por nadador'],[88,'Validando distancias...','Sumatoria exacta']];
   var si=0; var iv=setInterval(function(){if(si<pasos.length){setLoad(pasos[si][0],pasos[si][1],pasos[si][2]);si++;}},2000);
-
-  var prompt = 'Eres ORION, coach experto de natación master. Genera un programa de entrenamiento completo en JSON.\\n\\n' +
-    'OBJETIVO: ' + OBJ.distancia + 'm ' + OBJ.estilo + ', meta ' + fecha + '. ' + sem + ' semanas, ' + dias + ' días/semana, ~60min/sesión.\\n' +
-    'NADADORES: ' + perfilesTxt + '\\n' +
-    'HISTORIAL: ' + (histTxt||'sin datos previos') + '\\n' +
-    (notas ? 'INDICACIONES EXTRA: ' + notas + '\\n' : '') +
-    '\\nReglas: entrena por objetivo no volumen. Cada sesión: calentamiento, bloque(s) principal(es) con ritmos objetivo, y afloje. Diferencia metas Felipe (motor, mejorar eficiencia) y Sergio (técnico, mejorar agresividad).\\n' +
-    'CRÍTICO: cada bloque DEBE describir su estructura en el campo "series" como lista de tramos. Cada serie tiene: reps (número de repeticiones), dist (metros de cada repetición), estilo, implemento (vacío si ninguno), salida (tiempo de salida ej "2:00" o vacío), descanso (ej "20seg" o vacío). NO inventes distancias totales: se calcularán sumando reps*dist. Incluye también "descanso_bloque" (descanso o recuperación tras el bloque).\\n' +
-    'GLOSARIO: si usas algún término técnico (drill, pull, negative split, etc.), agrégalo en "glosario_nuevos" con definicion y ejecucion explicadas simple. Solo términos realmente técnicos.\\n\\n' +
-    'Devuelve SOLO este JSON sin texto adicional ni backticks:\\n' +
-    '{"nombre":"...","subtitulo":"' + OBJ.distancia + 'm ' + OBJ.estilo + '","fechaFin":"' + fecha + '",' +
-    '"glosario_nuevos":[{"termino":"...","definicion":"...","ejecucion":"..."}],' +
-    '"semanas":[{"id":"S1","nombre":"Semana 1 - ...","sesiones":[{"id":"G1","tipo":"A","nombre":"...","dia":"...","intensidad":"🟢 Aeróbico","objetivo":"...",' +
-    '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"30seg","mf":"meta Felipe","ms":"meta Sergio","ritmo":""}]}]}]}';
-
+  var prompt =
+    'Eres ORION, coach experto natacion master. Genera programa entrenamiento JSON estricto. ' +
+    'PRUEBAS: '+pruebasTxt+'. Fecha: '+fecha+'. '+sem+' semanas, '+dias+' dias/semana, ~60min. ' +
+    'NADADORES: '+perfilesTxt+'. ' +
+    'HISTORIAL: '+(histTxt||'sin datos')+'. ' +
+    (notas?'INSTRUCCIONES: '+notas+'. ':'')+
+    'REGLAS: objetivo no volumen. Felipe mejora eficiencia. Sergio mejora agresividad. ' +
+    'CRITICO: campo series obligatorio en cada bloque: [{reps,dist,estilo,implemento,salida,descanso}]. descanso_bloque obligatorio. NO calcules dist total. ' +
+    'Terminos nuevos en glosario_nuevos [{termino,definicion,ejecucion}]. ' +
+    'Responde SOLO JSON valido sin backticks: ' +
+    '{"nombre":"Plan...","subtitulo":"'+pruebasTxt+'","fechaFin":"'+fecha+'","glosario_nuevos":[],' +
+    '"semanas":[{"id":"S1","nombre":"Semana 1","sesiones":[{"id":"G1","tipo":"A","nombre":"...","dia":"Lun...","intensidad":"Aerobico","objetivo":"...",' +
+    '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"","ms":"","ritmo":""}]}]}]}';
   try {
-    var resp = await fetch('https://orion-proxy.felgonino.workers.dev', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ messages:[{role:'user', content:prompt}] })
-    });
-    clearInterval(iv); setLoad(95,'Validando distancias...','Sumatoria por bloque');
+    var resp = await fetch('https://orion-proxy.felgonino.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
+    clearInterval(iv); setLoad(92,'Procesando...','');
     var data = await resp.json();
-    if (!data.ok || !data.text) throw new Error(data.error||'Sin respuesta');
-    var prog = JSON.parse(data.text);
-    prog.id = 'GEN'+Date.now();
-    prog.color = '#CA6F1E';
-    prog.activo = false;
-
-    // VALIDACIÓN: calcular distancia de cada sesión por código (no confiar en la IA)
-    (prog.semanas||[]).forEach(function(w){
-      (w.sesiones||[]).forEach(function(s){
-        var di = calcDistSesion(s);
-        s.volumen = di ? di.total : 0; // sobrescribe con la suma real exacta
-      });
-    });
-
-    // Alimentar glosario con términos nuevos
-    var glosAdd = agregarTerminosGlosario(prog.glosario_nuevos||[]);
-
+    if(!data.ok||!data.text) throw new Error(data.error||'Sin respuesta');
+    var raw=data.text.trim();
+    var s=raw.indexOf('{'), e2=raw.lastIndexOf('}');
+    if(s<0||e2<0) throw new Error('Respuesta no es JSON valido');
+    var prog=JSON.parse(raw.substring(s,e2+1));
+    prog.id='GEN'+Date.now(); prog.color='#CA6F1E'; prog.activo=false;
+    (prog.semanas||[]).forEach(function(w){(w.sesiones||[]).forEach(function(ss){var di=calcDistSesion(ss);ss.volumen=di?di.total:0;});});
+    var glosAdd=agregarTerminosGlosario(prog.glosario_nuevos||[]);
     PROGRAMAS_GEN.push(prog);
     lov(false);
-    toast(glosAdd ? '✅ Programa generado (glosario actualizado)' : '✅ Programa generado');
+    toast(glosAdd?'Programa generado (glosario actualizado)':'Programa generado');
     renderObjetivos();
-  } catch(e) {
-    clearInterval(iv); lov(false);
-    toast('Error: '+e.message, 4000);
-  }
+  } catch(e){ clearInterval(iv); lov(false); toast('Error: '+e.message,5000); }
 }
 
 function activarProgramaGen(i) {
-  var prog = PROGRAMAS_GEN[i];
-  // Add to BLOQUES and activate
-  BLOQUES.forEach(function(b){ b.activo = false; });
-  prog.activo = true;
-  // Avoid duplicates
-  if (!BLOQUES.find(function(b){ return b.id === prog.id; })) {
-    BLOQUES.push(prog);
-  }
-  toast('✅ Programa activado — míralo en Plan');
+  var prog=PROGRAMAS_GEN[i];
+  BLOQUES.forEach(function(b){b.activo=false;});
+  prog.activo=true;
+  if(!BLOQUES.find(function(b){return b.id===prog.id;})) BLOQUES.push(prog);
+  toast('Programa activado en Plan');
   goTab('plan');
 }
+
+
 
 // ═══════════════════════════════════════════════════
 // INIT
