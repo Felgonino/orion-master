@@ -655,7 +655,13 @@ async function sheetsLoad() {
     const r=await fetch('https://orion-proxy.felgonino.workers.dev'+'?t='+Date.now(),{signal:ctrl.signal,cache:'no-cache'});
     clearTimeout(t);
     const j=await r.json();
-    if(j.ok&&j.data){ CACHE=j.data.filter(x=>x.ID&&x.ID!=='ID'); cacheOk=true; syncDot('ok'); }
+    if(j.ok&&j.data){ 
+      CACHE=j.data.filter(x=>x.ID&&x.ID!=='ID'&&x.Nadador); 
+      cacheOk=true; 
+      syncDot('ok'); 
+      // Preselect historial to current user if logged in
+      if(USUARIO_ACTUAL && !HIST_NAD) HIST_NAD = USUARIO_ACTUAL;
+    }
     else syncDot('err');
   } catch(e){ clearTimeout(t); syncDot('err'); }
   // Cargar competencias
@@ -1146,6 +1152,7 @@ function renderCargar2() {
   h += '✅ Todos los bloques marcados como realizados</div>';
 
   h += '<button class="btn" onclick="renderCargar3()">Continuar → Subir fotos Garmin</button>';
+  h += '<button class="btn2" onclick="renderCargarPendiente()">⏳ Guardar plan — cargar fotos después</button>';
   h += '<button class="btn2" onclick="renderCargar1()">← Volver</button>';
 
   document.getElementById('pg-cargar').innerHTML = h;
@@ -1321,30 +1328,62 @@ async function analizarFotos() {
     const imgs=[];
     for(const f of S.files){ const d=await b64(f); imgs.push({type:'image',source:{type:'base64',media_type:f.type||'image/jpeg',data:d}}); }
     const plan=getSesion(S.sesionPlan);
-    // Build context including what was actually done
-  let ctx = 'Sesión libre.';
+    // Build rich context: plan + bloques + perfil del nadador + historial reciente
+  let ctx = 'Sesion libre sin plan especifico.';
   if (plan) {
     const states = S.bloqueStates || plan.bloques.map(()=>({hecho:true,estiloVar:'',nota:''}));
     const bloqueInfo = plan.bloques.map((b,i) => {
       const st = states[i];
       if (!st.hecho) return b.tipo + ': OMITIDO';
-      let info = b.tipo + ': realizado';
-      if (st.estiloVar) info += ' (estilo cambiado a ' + st.estiloVar + ')';
-      if (st.nota) info += ' (nota: ' + st.nota + ')';
-      if (b.ritmo) info += ' · objetivo ritmo ' + b.ritmo;
+      let info = b.tipo + ' — ' + fmtEstructura(b);
+      const distB = calcDistBloque(b);
+      if (distB) info += ' (' + distB + 'm)';
+      if (b.ritmo) info += ' objetivo: ' + b.ritmo;
+      if (st.estiloVar) info += ' [estilo cambiado a ' + st.estiloVar + ']';
+      if (st.nota) info += ' [nota: ' + st.nota + ']';
+      if (b.mf && S.nadador==='Felipe') info += ' | meta Felipe: ' + b.mf;
+      if (b.ms && S.nadador==='Sergio') info += ' | meta Sergio: ' + b.ms;
       return info;
     });
     const omitidos = plan.bloques.filter((b,i)=>!(states[i]?.hecho)).map(b=>b.tipo);
-    ctx = 'Sesion: "'+plan.nombre+'" ('+plan.dia+'). '
-      + 'Bloques realizados: ' + bloqueInfo.join(' | ') + '. '
-      + (omitidos.length ? 'BLOQUES OMITIDOS: ' + omitidos.join(', ') + '. ' : '')
-      + 'Vol planificado: ~' + plan.volumen + 'm (puede ser menor por omisiones).';
+    const distInfo = calcDistSesion({bloques: plan.bloques.filter((b,i)=>states[i]?.hecho!==false)});
+    ctx = 'SESION: "' + plan.nombre + '" (' + plan.dia + '). ' +
+      'OBJETIVO DE LA SESION: ' + plan.objetivo + '. ' +
+      (plan.rationale ? 'CONTEXTO PEDAGOGICO: ' + plan.rationale + '. ' : '') +
+      'VOLUMEN PLANIFICADO: ' + (distInfo ? distInfo.total + 'm' : '~' + (plan.volumen||'?') + 'm') + '. ' +
+      'BLOQUES REALIZADOS: ' + bloqueInfo.join(' | ') + '. ' +
+      (omitidos.length ? 'BLOQUES OMITIDOS: ' + omitidos.join(', ') + '. ' : '');
   }
-    const prompt='Eres analista experto en natación del proyecto ORION Master.\nAnaliza estas pantallas de Garmin Connect (Estadísticas y Vueltas, piscina).\nContexto: '+ctx+'\nNadador: '+S.nadador+'\n\nDevuelve SOLO JSON válido sin texto adicional ni backticks:\n{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[{"intervalo":1,"tiempo":null,"distancia_m":null,"ritmo":null}],"evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"para_proxima":[]}}';
-    // Add timeout of 55 seconds
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 55000);
-    
+
+  // Swimmer profile context
+  const nadObj = NADADORES.find(n=>n.nombre===S.nadador) || {};
+  const perfil = [
+    nadObj.tipo_nadador ? 'Tipo: ' + nadObj.tipo_nadador : '',
+    nadObj.fortaleza ? 'Fortaleza: ' + nadObj.fortaleza : '',
+    nadObj.debilidad ? 'A mejorar: ' + nadObj.debilidad : '',
+    nadObj.t50_libre ? '50L ref: ' + nadObj.t50_libre : '',
+    nadObj.t400_libre ? '400L ref: ' + nadObj.t400_libre : '',
+    nadObj.swolf_ref ? 'SWOLF ref: ' + nadObj.swolf_ref : ''
+  ].filter(Boolean).join('. ');
+
+  // Recent history for comparison
+  const histReciente = CACHE.filter(r=>r.Nadador===S.nadador&&r.Ritmo_100m).slice(-3)
+    .map(r=>'Sesión '+formatShortDate(r.Fecha||'')+': '+r.Distancia_m+'m '+r.Ritmo_100m+'/100m SWOLF '+r.SWOLF).join(' | ');
+
+  const prompt='Eres ORION Master, coach experto en natacion master. Analiza este entrenamiento con rigor tecnico.\n' +
+    'NADADOR: ' + S.nadador + '. ' + (perfil ? 'PERFIL: ' + perfil + '.' : '') + '\n' +
+    'CONTEXTO ENTRENAMIENTO:\n' + ctx + '\n' +
+    (histReciente ? 'HISTORIAL RECIENTE (comparacion): ' + histReciente + '\n' : '') +
+    '\nAnaliza las pantallas de Garmin Connect adjuntas y extrae TODOS los datos disponibles.\n' +
+    'Luego genera una evaluacion ESPECIFICA para este nadador y esta sesion:\n' +
+    '- puntos_positivos: logros concretos vs los objetivos de cada bloque (no genericos)\n' +
+    '- puntos_mejora: aspectos especificos a corregir basados en los datos reales\n' +
+    '- para_proxima: indicaciones tecnicas precisas para la proxima sesion\n' +
+    'Si hay bloques omitidos, considera eso en el analisis.\n' +
+    'Compara con el historial reciente si esta disponible.\n\n' +
+    'Devuelve SOLO JSON valido sin backticks:\n' +
+    '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[{"intervalo":1,"tiempo":null,"distancia_m":null,"ritmo":null}],"evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"para_proxima":[]}}';
+
     const resp=await fetch('https://orion-proxy.felgonino.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
