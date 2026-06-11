@@ -745,6 +745,22 @@ function renderHoy() {
     });
   }
 
+  // Pendientes de resultados
+  var pendientes2 = CACHE.filter(function(r){ return r.Pendiente==='SI' || r.Pendiente===true; });
+  if (pendientes2.length) {
+    h += '<div class="lbl" style="margin-top:4px;color:var(--orange)">⏳ Pendientes de resultados</div>';
+    pendientes2.forEach(function(r){
+      var planN = getSesion(r.Sesion_Plan);
+      var emoji = r.Nadador==='Felipe'?'🔵':'🟢';
+      h += '<div class="card" style="margin-bottom:8px;border-left:4px solid var(--orange)"><div class="cb">';
+      h += '<div style="display:flex;align-items:center;gap:8px"><span class="bx bw">'+emoji+' '+r.Nadador+'</span>';
+      h += '<span style="font-size:12px;flex:1;font-weight:600">'+(planN?planN.nombre:r.Sesion_Plan)+'</span>';
+      h += '<span style="font-size:11px;color:var(--text3)">'+(r.Fecha?formatShortDate(r.Fecha):'')+'</span></div>';
+      h += '<button class="btn tl" style="margin-top:8px;padding:10px" onclick="retomarPendiente(this.dataset.id)" data-id="'+r.Sesion_Plan+'">📸 Cargar fotos Garmin</button>';
+      h += '</div></div>';
+    });
+  }
+
   // Últimas
   if(ultimas.length) {
     h+='<div class="lbl" style="margin-top:4px">Últimas sesiones</div>';
@@ -780,13 +796,15 @@ function renderPlan() {
     sem.sesiones.forEach(s=>{
       const comp=completadas(s.id);
       const done=comp.length>=2;
+      const hasPending=comp.some(function(r){return r.Pendiente==='SI'||r.Pendiente===true;});
       const isComp=s.intensidad.includes('🏆');
       const distInfo=calcDistSesion(s);
       const distLabel = distInfo ? (' · '+distInfo.total+'m'+(distInfo.completo?'':'+')) : '';
-      h+='<div class="sc '+scClass(s.tipo)+' '+(done?'done':'')+'" '+(isComp?'style="border-left-color:#F1C40F"':'')+' >';
+      h+='<div class="sc '+scClass(s.tipo)+' '+(done?'done':'')+'" style="'+(isComp?'border-left-color:#F1C40F':hasPending?'border-left-color:var(--orange)':'')+'">';
       h+='<div class="sc-h" onclick="toggleSC(\'sb-'+s.id+'\')"><div style="flex:1"><h4>'+s.nombre+' '+(done?'✅':'')+'</h4><div class="sc-d">'+s.dia+distLabel+' · '+s.intensidad+'</div></div><span style="font-size:11px;color:var(--text3)">▼</span></div>';
       h+='<div class="sc-b" id="sb-'+s.id+'">';
-      h+='<p style="font-size:12px;color:var(--text2);margin-bottom:10px">'+s.objetivo+'</p>';
+      h+='<p style="font-size:12px;color:var(--text2);margin-bottom:6px">'+s.objetivo+'</p>';
+      if(s.rationale) h+='<div style="background:var(--gold);border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:#7D6608;line-height:1.5"><b>¿Por qué esta sesión?</b> '+s.rationale+'</div>';
       s.bloques.forEach(b=>{
         const distB=calcDistBloque(b);
         h+='<div class="blq"><div class="blq-t">'+b.tipo+(distB!=null?' · '+distB+'m':'')+(b.ritmo?' · 🎯 '+b.ritmo:'')+'</div>';
@@ -797,7 +815,13 @@ function renderPlan() {
         h+='<div class="blq-s">🟢 Sergio: '+b.ms+'</div></div>';
       });
       if(distInfo) h+='<div style="text-align:right;font-size:12px;font-weight:700;color:var(--navy);margin-top:8px">Distancia total: '+distInfo.total+'m'+(distInfo.completo?'':' (parcial)')+'</div>';
-      comp.forEach(c=>{h+='<div style="background:var(--green-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px">✅ <b>'+c.Nadador+'</b>: '+(c.Distancia_m||'?')+'m · '+(c.Ritmo_100m||'?')+'/100m · SWOLF '+(c.SWOLF||'?')+'</div>';});
+      comp.forEach(function(c){
+        if(c.Pendiente==='SI'||c.Pendiente===true){
+          h+='<div style="background:var(--orange-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px;display:flex;align-items:center;justify-content:space-between">⏳ <b>'+c.Nadador+'</b>: plan guardado, sin resultados Garmin · <button onclick="retomarPendiente(\''+s.id+'\')" style="background:none;border:none;color:var(--orange);font-size:11px;font-weight:700;cursor:pointer">📸 Cargar fotos</button></div>';
+        } else {
+          h+='<div style="background:var(--green-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px">✅ <b>'+c.Nadador+'</b>: '+(c.Distancia_m||'?')+'m · '+(c.Ritmo_100m||'?')+'/100m · SWOLF '+(c.SWOLF||'?')+'</div>';
+        }
+      });
       if(!isComp) h+='<button class="btn" style="margin-top:10px" onclick="iniciarDesde(\''+s.id+'\')">📤 Cargar resultado</button>';
       h+='</div></div>';
     });
@@ -834,7 +858,8 @@ function renderCargar1() {
     h+='<div id="sel-'+s.id+'" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0"></div></div></div>';
   });
   h+='<div class="sc" id="sc2-LIBRE" onclick="selSes(\'LIBRE\')" style="cursor:pointer;margin-bottom:16px"><div class="sc-h"><div style="flex:1"><h4>🔓 Sesión libre / no planificada</h4><div class="sc-d">Fuera del plan</div></div><div id="sel-LIBRE" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0"></div></div></div>';
-  h+='<button class="btn" id="btn-cont" onclick="renderCargar2()" disabled>Continuar → Subir fotos Garmin</button>';
+  h+='<button class="btn" id="btn-cont" onclick="renderCargar2()" disabled>📸 Continuar → Subir fotos Garmin</button>';
+  h+='<button class="btn2" id="btn-pendiente" onclick="renderCargarPendiente()" style="display:none">⏳ Guardar sin fotos — completar resultados después</button>';
   document.getElementById('pg-cargar').innerHTML=h;
   if(USUARIO_ACTUAL) selNad(USUARIO_ACTUAL);
 }
@@ -866,11 +891,115 @@ function selSes(id) {
   checkCont();
 }
 
-function checkCont() { const b=document.getElementById('btn-cont'); if(b) b.disabled=!(S.nadador&&S.sesionPlan); }
+function checkCont() {
+  const b=document.getElementById('btn-cont');
+  const p=document.getElementById('btn-pendiente');
+  const ok=!!(S.nadador&&S.sesionPlan);
+  if(b) b.disabled=!ok;
+  if(p) p.style.display=ok?'block':'none';
+}
 
 // ═══════════════════════════════════════════════════
 // CARGAR — STEP 2
 // ═══════════════════════════════════════════════════
+
+
+// ═══════════════════════════════════════════════════
+// FLUJO PENDIENTE — guardar plan sin fotos, retomar después
+// ═══════════════════════════════════════════════════
+function renderCargarPendiente() {
+  var plan = getSesion(S.sesionPlan);
+  var nombre = plan ? plan.nombre : S.sesionPlan;
+  var bx = S.nadador==='Felipe' ? '<span class="bx bf">Felipe</span>' : '<span class="bx bs">Sergio</span>';
+
+  // Build bloque summary
+  var bloqResumen = '';
+  if (plan && S.bloqueStates) {
+    var hechos = plan.bloques.filter(function(b,i){ return S.bloqueStates[i]&&S.bloqueStates[i].hecho; });
+    var omitidos = plan.bloques.filter(function(b,i){ return !S.bloqueStates[i]||!S.bloqueStates[i].hecho; });
+    var distP = calcDistSesion({bloques: hechos});
+    bloqResumen = '<div style="background:var(--azul-l);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--navy)">';
+    bloqResumen += '<b>Bloques realizados: '+hechos.length+'/'+plan.bloques.length+'</b>';
+    if (distP) bloqResumen += ' · ~'+distP.total+'m';
+    if (omitidos.length) bloqResumen += '<br><span style="color:var(--red)">Omitidos: '+omitidos.map(function(b){return b.tipo;}).join(', ')+'</span>';
+    bloqResumen += '</div>';
+  }
+
+  var h = '<div class="card" style="margin-bottom:12px"><div class="cb">';
+  h += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">'+bx+'<span class="itag">'+nombre+'</span></div>';
+  h += '<p style="font-size:12px;color:var(--text2)">El plan quedará guardado. Cuando tengas las fotos de Garmin, lo retomas desde la pantalla <b>Hoy</b> o <b>Plan</b>.</p>';
+  h += '</div></div>';
+  h += bloqResumen;
+  h += '<button class="btn" onclick="ejecutarGuardarPendiente()">⏳ Confirmar — guardar como pendiente</button>';
+  h += '<button class="btn2" onclick="renderCargar3()">📸 Mejor subo las fotos ahora</button>';
+  h += '<button class="btn2" onclick="renderCargar1()">← Volver</button>';
+  document.getElementById('pg-cargar').innerHTML = h;
+}
+
+async function ejecutarGuardarPendiente() {
+  var plan = getSesion(S.sesionPlan);
+  var distInfo = plan ? calcDistSesion({bloques: plan.bloques.filter(function(b,i){ return !S.bloqueStates||!S.bloqueStates[i]||S.bloqueStates[i].hecho; })}) : null;
+
+  var reg = {
+    id: genId(S.nadador),
+    fecha: todayStr(),
+    nadador: S.nadador,
+    sesionPlan: S.sesionPlan,
+    medio: 'Piscina',
+    resumen: { distancia_m:'', pendiente:true },
+    vueltas: [],
+    bloqueStates: S.bloqueStates||[],
+    evaluacion: {},
+    pendiente: true
+  };
+
+  lov(true); setLoad(40,'Guardando plan...','');
+  var ok = await sheetsSave(reg);
+
+  if (ok && plan && S.bloqueStates) {
+    setLoad(70,'Guardando bloques...','');
+    for (var i=0; i<plan.bloques.length; i++) {
+      var b=plan.bloques[i], st=S.bloqueStates[i]||{hecho:true,estiloVar:'',nota:''};
+      await fetch('https://orion-proxy.felgonino.workers.dev',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'detalle',sesion_id:reg.id,fecha:reg.fecha,nadador:reg.nadador,sesion_plan:reg.sesionPlan,bloque_idx:i+1,bloque_tipo:b.tipo,bloque_desc:b.desc||fmtEstructura(b),ritmo_obj:b.ritmo||'',hecho:st.hecho,estilo_var:st.estiloVar||'',nota:st.nota||'',meta_f:b.mf,meta_s:b.ms})
+      }).catch(function(){});
+    }
+  }
+
+  lov(false);
+  if (ok) {
+    // Add to local cache as pending so Hoy shows it
+    CACHE.push({ID:reg.id,Fecha:reg.fecha,Nadador:reg.nadador,Sesion_Plan:reg.sesionPlan,Distancia_m:'',Ritmo_100m:'',SWOLF:'',FC_Media:'',Pendiente:'SI',_pendReg:reg});
+    document.getElementById('pg-cargar').innerHTML =
+      '<div class="ok-box"><div class="ok-ico">⏳</div>' +
+      '<div class="ok-t">Plan guardado como pendiente</div>' +
+      '<div class="ok-s">'+(plan?plan.nombre:reg.sesionPlan)+'<br>'+reg.nadador+' · '+reg.fecha+'<br><br>' +
+      'Aparece en <b>Hoy</b> y <b>Plan</b> para cargar fotos cuando quieras.</div></div>' +
+      '<button class="btn" onclick="renderCargar1()">📤 Registrar otra sesión</button>' +
+      '<button class="btn2" onclick="goTab(\'hoy\')">🏠 Inicio</button>';
+    toast('Plan guardado — retoma los resultados cuando quieras');
+    // Refresh Hoy
+    renderHoy();
+  } else {
+    toast('Error al guardar. Verifica conexión.', 4000);
+  }
+}
+
+// Retomar sesión pendiente desde Hoy o Plan
+function retomarPendiente(sesionPlanId) {
+  S.sesionPlan = sesionPlanId;
+  S.files = [];
+  S.extracted = null;
+  goTab('cargar');
+  setTimeout(function(){
+    // Pre-select user and go straight to photos
+    if (USUARIO_ACTUAL) {
+      S.nadador = USUARIO_ACTUAL;
+    }
+    renderCargar3();
+  }, 100);
+}
 
 // ═══════════════════════════════════════════════════
 // CARGAR — STEP 2: Checklist de bloques
@@ -2184,19 +2313,29 @@ async function generarPrograma() {
   lov(true); setLoad(15,'ORION analizando...','Perfiles y resultados');
   var pasos=[[30,'Estructurando semanas...','Cargas'],[55,'Detallando ejercicios...','Series y ritmos'],[75,'Personalizando...','Por nadador'],[88,'Validando distancias...','Sumatoria exacta']];
   var si=0; var iv=setInterval(function(){if(si<pasos.length){setLoad(pasos[si][0],pasos[si][1],pasos[si][2]);si++;}},2000);
+  // Volume reference: 1hr session = ~2000-2800m depending on intensity
+  var volMin = parseInt(dias) >= 3 ? 2000 : 1800;
   var prompt =
-    'Eres ORION, coach experto natacion master. Genera programa entrenamiento JSON estricto. ' +
-    'PRUEBAS: '+pruebasTxt+'. Fecha: '+fecha+'. '+sem+' semanas, '+dias+' dias/semana, ~60min. ' +
+    'Eres ORION, coach experto natacion master. Genera programa de entrenamiento COMPLETO en JSON. ' +
+    'PRUEBAS OBJETIVO: '+pruebasTxt+'. Competencia: '+fecha+'. '+sem+' semanas, '+dias+' dias/semana. ' +
+    'VOLUMEN POR SESION: cada sesion debe totalizar entre 2000 y 2800m (sesion de ~60min en piscina). ' +
+    'CRITICO VOLUMEN: si la suma de reps*dist de todos los bloques no alcanza 1800m, agrega mas series. ' +
     'NADADORES: '+perfilesTxt+'. ' +
     'HISTORIAL: '+(histTxt||'sin datos')+'. ' +
-    (notas?'INSTRUCCIONES: '+notas+'. ':'')+
-    'REGLAS: objetivo no volumen. Felipe mejora eficiencia. Sergio mejora agresividad. ' +
-    'CRITICO: campo series obligatorio en cada bloque: [{reps,dist,estilo,implemento,salida,descanso}]. descanso_bloque obligatorio. NO calcules dist total. ' +
-    'Terminos nuevos en glosario_nuevos [{termino,definicion,ejecucion}]. ' +
-    'Responde SOLO JSON valido sin backticks: ' +
+    (notas?'INSTRUCCIONES EXTRA: '+notas+'. ':'')+
+    'FILOSOFIA: entrena por objetivo no por volumen. Cada sesion tiene un mini-objetivo especifico que construye hacia la competencia. ' +
+    'Felipe mejora eficiencia y DPS. Sergio mejora agresividad y cierre. ' +
+    'ESTRUCTURA SESION: calentamiento (~400m) + bloques principales (1200-1800m) + afloje (~200m). ' +
+    'Bloques principales incluyen: tecnica, velocidad especifica, resistencia especifica segun semana. ' +
+    'CAMPO rationale OBLIGATORIO en cada sesion: explicar en 2-3 frases como esta sesion sirve al objetivo general y que mini-objetivo tiene. ' +
+    'CRITICO BLOQUES: campo series obligatorio: [{reps:N,dist:M,estilo:"...",implemento:"",salida:"",descanso:""}]. descanso_bloque obligatorio. NO calcules dist total. ' +
+    'Terminos nuevos en glosario_nuevos: [{termino,definicion,ejecucion}]. ' +
+    'Responde SOLO JSON valido sin backticks, sin texto extra: ' +
     '{"nombre":"Plan...","subtitulo":"'+pruebasTxt+'","fechaFin":"'+fecha+'","glosario_nuevos":[],' +
-    '"semanas":[{"id":"S1","nombre":"Semana 1","sesiones":[{"id":"G1","tipo":"A","nombre":"...","dia":"Lun...","intensidad":"Aerobico","objetivo":"...",' +
-    '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"","ms":"","ritmo":""}]}]}]}';
+    '"semanas":[{"id":"S1","nombre":"Semana 1 - nombre descriptivo","sesiones":[{"id":"G1","tipo":"A","nombre":"...","dia":"Lun ...","intensidad":"Aerobico","objetivo":"mini-objetivo especifico",' +
+    '"rationale":"2-3 frases explicando como esta sesion conecta con el objetivo general y que capacidad desarrolla",' +
+    '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":400,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"meta Felipe","ms":"meta Sergio","ritmo":""}]}]}]}';
+
   try {
     var resp = await fetch('https://orion-proxy.felgonino.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
     clearInterval(iv); setLoad(92,'Procesando...','');
