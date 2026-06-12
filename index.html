@@ -2329,64 +2329,106 @@ function setPrueba(i,campo,val){
 
 async function generarPrograma() {
   var fecha = document.getElementById('obj-fecha').value;
-  var sem = document.getElementById('obj-sem').value || '3';
-  var dias = document.getElementById('obj-dias').value || '3';
+  var sem = parseInt(document.getElementById('obj-sem').value || '3');
+  var dias = parseInt(document.getElementById('obj-dias').value || '3');
   var notas = document.getElementById('obj-notas') ? document.getElementById('obj-notas').value : '';
   OBJ.fecha=fecha; OBJ.semanas=sem; OBJ.dias=dias; OBJ.notas=notas;
   if(!fecha){toast('Selecciona la fecha de competencia');return;}
   if(!OBJ.pruebas.length){toast('Agrega al menos una prueba');return;}
+
   var pruebasTxt = OBJ.pruebas.map(function(p){return p.dist+'m '+p.estilo;}).join(', ');
   var perfilesTxt = NADADORES.map(function(n){
     var d=[];
-    if(n.t50_libre) d.push('50L '+n.t50_libre);
-    if(n.t400_libre) d.push('400L '+n.t400_libre);
-    if(n.fortaleza) d.push('fortaleza: '+n.fortaleza);
-    if(n.debilidad) d.push('mejorar: '+n.debilidad);
-    return n.nombre+' ('+(n.tipo_nadador||'sin tipo')+'): '+d.join(', ');
-  }).join(' | ');
-  var histTxt='';
-  NADADORES.forEach(function(n){
-    var ses=CACHE.filter(function(r){return r.Nadador===n.nombre;}).slice(-3);
-    if(ses.length) histTxt+=n.nombre+': '+ses.map(function(s){return (s.Distancia_m||'?')+'m '+(s.Ritmo_100m||'?');}).join(', ')+'. ';
-  });
-  lov(true); setLoad(15,'ORION analizando...','Perfiles y resultados');
-  var pasos=[[30,'Estructurando semanas...','Cargas'],[55,'Detallando ejercicios...','Series y ritmos'],[75,'Personalizando...','Por nadador'],[88,'Validando distancias...','Sumatoria exacta']];
-  var si=0; var iv=setInterval(function(){if(si<pasos.length){setLoad(pasos[si][0],pasos[si][1],pasos[si][2]);si++;}},2000);
-  // Volume reference: 1hr session = ~2000-2800m depending on intensity
-  var volMin = parseInt(dias) >= 3 ? 2000 : 1800;
-  var prompt =
-    'Coach natacion master. Genera programa JSON EXACTO para: '+pruebasTxt+'. Competencia: '+fecha+'. '+sem+' semanas, '+dias+' sesiones/semana, 60min c/u, 2000-2500m/sesion. ' +
-    'Nadadores: '+perfilesTxt+'. Historial: '+(histTxt||'ninguno')+'. ' +
-    (notas?notas+'. ':'')+
-    'Felipe: mejorar DPS y eficiencia. Sergio: mejorar agresividad y cierre. ' +
-    'Cada sesion: calentamiento 300-400m + principal 1400-1800m + afloje 200m. ' +
-    'JSON sin texto extra:\n' +
-    '{"nombre":"...","subtitulo":"'+pruebasTxt+'","fechaFin":"'+fecha+'","glosario_nuevos":[{"termino":"...","definicion":"...","ejecucion":"..."}],' +
-    '"semanas":[{"id":"S1","nombre":"Sem 1","sesiones":[' +
-    '{"id":"G1","tipo":"A","nombre":"...","dia":"...","intensidad":"Aerobico","objetivo":"...","rationale":"como conecta con el objetivo",' +
-    '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":300,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"...","ms":"...","ritmo":""},' +
-    '{"tipo":"Principal","series":[{"reps":4,"dist":200,"estilo":"Libre","implemento":"","salida":"2:00","descanso":""}],"descanso_bloque":"30seg","mf":"...","ms":"...","ritmo":"1:45/100"},' +
-    '{"tipo":"Afloje","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"...","ms":"...","ritmo":""}]}]}]}';
+    if(n.t50_libre) d.push('50L:'+n.t50_libre);
+    if(n.t400_libre) d.push('400L:'+n.t400_libre);
+    if(n.fortaleza) d.push('F:'+n.fortaleza);
+    if(n.debilidad) d.push('M:'+n.debilidad);
+    return n.nombre+'('+d.join(',')+')';
+  }).join('|');
 
-  try {
-    // Generar via Worker → Apps Script (Apps Script llama a Anthropic sin límite de tiempo)
-    var resp = await fetch('https://orion-proxy.felgonino.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'claude_gen',messages:[{role:'user',content:prompt}]})});
-    clearInterval(iv); setLoad(92,'Procesando...','');
-    var data = await resp.json();
-    if(!data.ok||!data.text) throw new Error(data.error||'Sin respuesta');
-    var raw=data.text.trim();
-    var s=raw.indexOf('{'), e2=raw.lastIndexOf('}');
-    if(s<0||e2<0) throw new Error('Respuesta no es JSON valido');
-    var prog=JSON.parse(raw.substring(s,e2+1));
-    prog.id='GEN'+Date.now(); prog.color='#CA6F1E'; prog.activo=false;
-    (prog.semanas||[]).forEach(function(w){(w.sesiones||[]).forEach(function(ss){var di=calcDistSesion(ss);ss.volumen=di?di.total:0;});});
-    var glosAdd=agregarTerminosGlosario(prog.glosario_nuevos||[]);
-    PROGRAMAS_GEN.push(prog);
+  var histTxt = CACHE.filter(function(r){return r.Ritmo_100m;}).slice(-4)
+    .map(function(r){return r.Nadador+':'+r.Distancia_m+'m '+r.Ritmo_100m;}).join(',');
+
+  lov(true); setLoad(10,'Generando programa...','Semana por semana');
+
+  var todasSemanas = [];
+  var todosGlos = [];
+  var errorGen = null;
+
+  // Generate one week at a time to stay under 30s limit
+  for (var w = 1; w <= sem; w++) {
+    setLoad(Math.round(10 + (w-1)/sem*80), 'Generando semana '+w+' de '+sem+'...', pruebasTxt);
+
+    var semanaPrompt =
+      'Coach natacion master. Genera SOLO la semana '+w+' de '+sem+' de un programa de entrenamiento. ' +
+      'Pruebas objetivo: '+pruebasTxt+'. Competencia: '+fecha+'. '+dias+' sesiones esta semana. ~2200m/sesion. ' +
+      'Nadadores: '+perfilesTxt+'. Historial: '+(histTxt||'ninguno')+'. ' +
+      (notas?notas+'. ':'')+
+      'Felipe: mejorar DPS/eficiencia. Sergio: mejorar agresividad/cierre. ' +
+      'ESTRUCTURA: calentamiento 300-400m + principal 1400-1600m + afloje 200m. ' +
+      'JSON solo la semana, sin texto extra: ' +
+      '{"semana_num":'+w+',"nombre":"Semana '+w+' - descripcion","glosario_nuevos":[],' +
+      '"sesiones":[{"id":"G'+w+'1","tipo":"A","nombre":"...","dia":"Lun...","intensidad":"Aerobico","objetivo":"...","rationale":"...",' +
+      '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":300,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"...","ms":"...","ritmo":""},' +
+      '{"tipo":"Principal","series":[{"reps":5,"dist":200,"estilo":"Libre","implemento":"","salida":"2:30","descanso":""}],"descanso_bloque":"30seg","mf":"...","ms":"...","ritmo":"1:45/100"},' +
+      '{"tipo":"Afloje","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"...","ms":"...","ritmo":""}]}]}';
+
+    try {
+      var resp = await fetch('https://orion-proxy.felgonino.workers.dev',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({messages:[{role:'user',content:semanaPrompt}]})
+      });
+      var data = await resp.json();
+      if(!data.ok||!data.text) throw new Error(data.error||'Sin respuesta semana '+w);
+      var raw=data.text.trim();
+      var s=raw.indexOf('{'), e2=raw.lastIndexOf('}');
+      if(s<0||e2<0) throw new Error('JSON invalido semana '+w);
+      var semData = JSON.parse(raw.substring(s,e2+1));
+
+      // Fix session IDs to be unique
+      (semData.sesiones||[]).forEach(function(ses,i){
+        ses.id = 'G'+w+'S'+(i+1);
+        var di = calcDistSesion(ses);
+        ses.volumen = di ? di.total : 0;
+      });
+
+      todasSemanas.push({
+        id: 'S'+w,
+        nombre: semData.nombre || 'Semana '+w,
+        sesiones: semData.sesiones || []
+      });
+      todosGlos = todosGlos.concat(semData.glosario_nuevos||[]);
+    } catch(e) {
+      errorGen = e.message;
+      break;
+    }
+  }
+
+  setLoad(95,'Finalizando...','');
+
+  if (errorGen) {
     lov(false);
-    toast(glosAdd?'Programa generado (glosario actualizado)':'Programa generado');
-    renderObjetivos();
-  } catch(e){ clearInterval(iv); lov(false); toast('Error: '+e.message,5000); }
+    toast('Error semana: '+errorGen, 5000);
+    return;
+  }
+
+  var prog = {
+    id: 'GEN'+Date.now(),
+    nombre: 'Plan '+pruebasTxt,
+    subtitulo: pruebasTxt+' · '+fecha,
+    fechaFin: fecha,
+    color: '#CA6F1E',
+    activo: false,
+    semanas: todasSemanas
+  };
+
+  var glosAdd = agregarTerminosGlosario(todosGlos);
+  PROGRAMAS_GEN.push(prog);
+  lov(false);
+  toast(glosAdd ? 'Programa generado (glosario actualizado)' : 'Programa generado');
+  renderObjetivos();
 }
+
 
 function activarProgramaGen(i) {
   var prog=PROGRAMAS_GEN[i];
