@@ -2369,9 +2369,8 @@ async function generarPrograma() {
     '{"tipo":"Afloje","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"...","ms":"...","ritmo":""}]}]}]}';
 
   try {
-    // Generar via Apps Script (sin límite de tiempo, a diferencia del Worker)
-    const SHEETS_URL_GEN = 'https://script.google.com/macros/s/AKfycbw_cpwvwdC73P7sSAl45iWNOq5BaPiHtANQYZGLA0-2gpgLcdEVP2GFQZjFiQP52-izKA/exec';
-    var resp = await fetch(SHEETS_URL_GEN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'claude_gen',messages:[{role:'user',content:prompt}]})});
+    // Generar via Worker → Apps Script (Apps Script llama a Anthropic sin límite de tiempo)
+    var resp = await fetch('https://orion-proxy.felgonino.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'claude_gen',messages:[{role:'user',content:prompt}]})});
     clearInterval(iv); setLoad(92,'Procesando...','');
     var data = await resp.json();
     if(!data.ok||!data.text) throw new Error(data.error||'Sin respuesta');
