@@ -601,7 +601,7 @@ let GLOSARIO = [
 function getBloqueActivo() { return BLOQUES.find(b=>b.activo)||BLOQUES[0]; }
 function getAllSesiones() { return getBloqueActivo().semanas.flatMap(w=>w.sesiones); }
 function getSesion(id) { return BLOQUES.flatMap(b=>b.semanas.flatMap(w=>w.sesiones)).find(s=>s.id===id); }
-function completadas(id) { return CACHE.filter(r=>r.Sesion_Plan===id && r.Sesion_Plan!=='' && r.ID!==''); }
+function completadas(id) { return CACHE.filter(r=>r.Sesion_Plan===id && r.ID && r.ID!=='' && r.ID!=='ID'); }
 function todayStr() { const d=new Date(); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
 function z(n){ return String(n).padStart(2,'0'); }
 function genId(nad) {
@@ -711,7 +711,7 @@ async function sheetsSave(reg) {
   try {
     const r=await fetch('https://orion-proxy.felgonino.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(reg)});
     const j=await r.json();
-    if(j.ok){ CACHE.push({ID:reg.id,Fecha:reg.fecha,Nadador:reg.nadador,Sesion_Plan:reg.sesionPlan,Distancia_m:reg.resumen?.distancia_m,Ritmo_100m:reg.resumen?.ritmo_medio,FC_Media:reg.resumen?.fc_media,SWOLF:reg.resumen?.swolf_medio,TE_Aerobico:reg.resumen?.te_aerobico,Carga:reg.resumen?.carga_ejercicio}); syncDot('ok'); return true; }
+    if(j.ok){ CACHE.push({ID:reg.id,Fecha:reg.fecha,Nadador:reg.nadador,Sesion_Plan:reg.sesionPlan,Distancia_m:reg.resumen?.distancia_m,Ritmo_100m:reg.resumen?.ritmo_medio,FC_Media:reg.resumen?.fc_media,SWOLF:reg.resumen?.swolf_medio,TE_Aerobico:reg.resumen?.te_aerobico,Carga:reg.resumen?.carga_ejercicio,Pendiente:reg.pendiente?'SI':''}); syncDot('ok'); return true; }
     syncDot('err'); return false;
   } catch(e){ syncDot('err'); return false; }
 }
@@ -852,8 +852,10 @@ function renderPlan() {
     h+='<div class="lbl">'+sem.nombre+'</div>';
     sem.sesiones.forEach(s=>{
       const comp=completadas(s.id);
-      const done=comp.length>=2;
-      const hasPending=comp.some(function(r){return r.Pendiente==='SI'||r.Pendiente===true;});
+      const compReal=comp.filter(function(r){return !r.Pendiente||r.Pendiente===''||r.Pendiente==='NO';});
+      const compPend=comp.filter(function(r){return r.Pendiente==='SI'||r.Pendiente===true;});
+      const done=compReal.length>=2;
+      const hasPending=compPend.length>0;
       const isComp=s.intensidad.includes('🏆');
       const distInfo=calcDistSesion(s);
       const distLabel = distInfo ? (' · '+distInfo.total+'m'+(distInfo.completo?'':'+')) : '';
@@ -872,14 +874,17 @@ function renderPlan() {
         h+='<div class="blq-s">🟢 Sergio: '+b.ms+'</div></div>';
       });
       if(distInfo) h+='<div style="text-align:right;font-size:12px;font-weight:700;color:var(--navy);margin-top:8px">Distancia total: '+distInfo.total+'m'+(distInfo.completo?'':' (parcial)')+'</div>';
-      comp.forEach(function(c){
-        if(c.Pendiente==='SI'||c.Pendiente===true){
-          h+='<div style="background:var(--orange-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px;display:flex;align-items:center;justify-content:space-between">⏳ <b>'+c.Nadador+'</b>: plan guardado, sin resultados Garmin · <button onclick="retomarPendiente(\''+s.id+'\')" style="background:none;border:none;color:var(--orange);font-size:11px;font-weight:700;cursor:pointer">📸 Cargar fotos</button></div>';
-        } else {
-          h+='<div style="background:var(--green-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px">✅ <b>'+c.Nadador+'</b>: '+(c.Distancia_m||'?')+'m · '+(c.Ritmo_100m||'?')+'/100m · SWOLF '+(c.SWOLF||'?')+'</div>';
-        }
+      compReal.forEach(function(r){
+        h+='<div style="background:var(--green-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px">&#x2705; <b>'+r.Nadador+'</b>: '+(r.Distancia_m||'?')+'m &middot; '+(r.Ritmo_100m||'?')+'/100m &middot; SWOLF '+(r.SWOLF||'?')+'</div>';
       });
-      if(!isComp) h+='<button class="btn" style="margin-top:10px" onclick="iniciarDesde(\''+s.id+'\')">📤 Cargar resultado</button>';
+      compPend.forEach(function(r){
+        h+='<div style="background:var(--orange-l);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px;display:flex;align-items:center;justify-content:space-between">';
+        h+='<span>&#x23F3; <b>'+r.Nadador+'</b>: plan guardado, sin resultados Garmin</span>';
+        h+='<button onclick="retomarPendiente(\''+s.id+'\')" style="background:var(--orange);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer">&#x1F4F8; Cargar fotos</button>';
+        h+='</div>';
+      });
+      if(!isComp) h+='<button class="btn" style="margin-top:10px" onclick="iniciarDesde(\''+s.id+'\')">&#x1F4E4; Cargar resultado</button>';
+      h+='<button class="btn2" style="margin-top:6px" onclick="imprimirSesion(\''+s.id+'\')">🖨️ Imprimir / PDF</button>';
       h+='</div></div>';
     });
   });
@@ -2615,6 +2620,98 @@ function activarProgramaGen(i) {
 }
 
 
+
+// ═══════════════════════════════════════════════════
+// IMPRIMIR SESIÓN — ventana de impresión / PDF
+// ═══════════════════════════════════════════════════
+function imprimirSesion(id) {
+  var s = BLOQUES.flatMap(function(b){ return b.semanas.flatMap(function(w){ return w.sesiones; }); }).find(function(x){ return x.id===id; });
+  if (!s) { toast('Sesión no encontrada'); return; }
+
+  var distInfo = calcDistSesion(s);
+  var totalDist = distInfo ? distInfo.total+'m' : '';
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
+  html += '<title>ORION — '+s.nombre+'</title>';
+  html += '<style>';
+  html += 'body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:20px;color:#1B2631}';
+  html += 'h1{font-size:20px;color:#0D2B55;margin-bottom:4px}';
+  html += '.meta{font-size:13px;color:#566573;margin-bottom:16px}';
+  html += '.objetivo{background:#EBF5FB;border-left:4px solid #0D2B55;padding:10px 14px;border-radius:4px;margin-bottom:12px;font-size:13px}';
+  html += '.rationale{background:#FEF9E7;border-left:4px solid #F39C12;padding:10px 14px;border-radius:4px;margin-bottom:16px;font-size:12px;color:#7D6608}';
+  html += '.bloque{border:1px solid #D5D8DC;border-radius:8px;margin-bottom:10px;overflow:hidden}';
+  html += '.bloque-header{background:#F4F6F7;padding:8px 12px;font-size:12px;font-weight:700;color:#0D2B55;border-bottom:1px solid #D5D8DC}';
+  html += '.bloque-body{padding:10px 12px}';
+  html += '.bloque-desc{font-size:13px;margin-bottom:6px}';
+  html += '.serie-row{font-size:12px;color:#1B2631;padding:3px 0;border-bottom:1px solid #F4F6F7}';
+  html += '.metas{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}';
+  html += '.meta-f{background:#EBF5FB;padding:6px 8px;border-radius:4px;font-size:11px}';
+  html += '.meta-s{background:#D1F2EB;padding:6px 8px;border-radius:4px;font-size:11px}';
+  html += '.descanso{font-size:11px;color:#AAB7B8;margin-top:4px}';
+  html += '.total{text-align:right;font-weight:700;color:#0D2B55;margin-top:12px;font-size:14px;border-top:2px solid #0D2B55;padding-top:8px}';
+  html += '.footer{margin-top:24px;font-size:10px;color:#AAB7B8;text-align:center;border-top:1px solid #E5E8E8;padding-top:8px}';
+  html += '@media print{body{padding:10px}.no-print{display:none}}';
+  html += '</style></head><body>';
+
+  html += '<div class="no-print" style="margin-bottom:16px">';
+  html += '<button onclick="window.print()" style="background:#0D2B55;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;margin-right:8px">🖨️ Imprimir / Guardar PDF</button>';
+  html += '<button onclick="window.close()" style="background:#E5E8E8;color:#1B2631;border:none;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer">✕ Cerrar</button>';
+  html += '</div>';
+
+  html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">';
+  html += '<div style="background:#0D2B55;color:#fff;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700">ORION MASTER</div>';
+  html += '<div style="font-size:11px;color:#AAB7B8">'+s.dia+'</div>';
+  html += '</div>';
+  html += '<h1>'+s.nombre+'</h1>';
+  html += '<div class="meta">'+s.intensidad+(totalDist?' &nbsp;·&nbsp; '+totalDist:'')+'</div>';
+
+  html += '<div class="objetivo"><b>Objetivo:</b> '+s.objetivo+'</div>';
+  if (s.rationale) html += '<div class="rationale"><b>¿Por qué esta sesión?</b> '+s.rationale+'</div>';
+
+  s.bloques.forEach(function(b, idx){
+    var distB = calcDistBloque(b);
+    html += '<div class="bloque">';
+    html += '<div class="bloque-header">';
+    html += (idx+1)+'. '+b.tipo;
+    if (distB) html += ' &nbsp;·&nbsp; '+distB+'m';
+    if (b.ritmo) html += ' &nbsp;·&nbsp; 🎯 '+b.ritmo;
+    html += '</div>';
+    html += '<div class="bloque-body">';
+    html += '<div class="bloque-desc">'+fmtEstructura(b)+'</div>';
+
+    if (b.series && b.series.length) {
+      b.series.forEach(function(ser){
+        var txt = (ser.reps>1?ser.reps+'×':'')+ser.dist+'m '+ser.estilo;
+        if(ser.implemento) txt += ' ('+ser.implemento+')';
+        var tiempos = [];
+        if(ser.salida) tiempos.push('salida @'+ser.salida);
+        if(ser.descanso) tiempos.push('desc '+ser.descanso);
+        if(tiempos.length) txt += ' — '+tiempos.join(', ');
+        html += '<div class="serie-row">'+txt+'</div>';
+      });
+    }
+
+    if (b.descanso_bloque && b.descanso_bloque!=='—') {
+      html += '<div class="descanso">⏸ Descanso tras bloque: '+b.descanso_bloque+'</div>';
+    }
+
+    if (b.mf || b.ms) {
+      html += '<div class="metas">';
+      if(b.mf) html += '<div class="meta-f"><b>🔵 Felipe:</b> '+b.mf+'</div>';
+      if(b.ms) html += '<div class="meta-s"><b>🟢 Sergio:</b> '+b.ms+'</div>';
+      html += '</div>';
+    }
+    html += '</div></div>';
+  });
+
+  if (totalDist) html += '<div class="total">Distancia total: '+totalDist+'</div>';
+  html += '<div class="footer">ORION Master &nbsp;·&nbsp; '+new Date().toLocaleDateString('es-CL')+'</div>';
+  html += '</body></html>';
+
+  var ventana = window.open('', '_blank', 'width=850,height=700');
+  ventana.document.write(html);
+  ventana.document.close();
+}
 
 // ═══════════════════════════════════════════════════
 // INIT
