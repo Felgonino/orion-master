@@ -1137,8 +1137,79 @@ function retomarLibreConNad(nombre, nadador) {
   S.nadador = nadador;
   S.files = [];
   S.extracted = null;
+
+  // Find the pending record to get sesion_id
+  var reg = CACHE.find(function(r){
+    return (r.Pendiente==='SI'||r.Pendiente===true) && r.Sesion_Plan===nombre;
+  });
+
   goTab('cargar');
-  setTimeout(function(){ renderCargar3(); }, 150);
+
+  if (reg && reg.ID) {
+    // Load bloques from Sheets and show checklist
+    lov(true); setLoad(50,'Cargando bloques del entrenamiento...','');
+    fetch('https://orion-proxy.felgonino.workers.dev?tipo=detalle_plan&sesion_id='+encodeURIComponent(reg.ID)+'&t='+Date.now())
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        lov(false);
+        if (j.ok && j.bloques && j.bloques.length) {
+          // Convert DETALLE_PLAN rows to bloques format for checklist
+          var bloques = j.bloques.map(function(b){
+            return {
+              tipo: b.Tipo || b.Bloque_Tipo || b.bloque_tipo || '',
+              desc: b.Descripcion || b.bloque_desc || '',
+              mf: b.Meta_Felipe || b.meta_f || '',
+              ms: b.Meta_Sergio || b.meta_s || '',
+              ritmo: b.Ritmo_Obj || b.ritmo_obj || '',
+              descanso_bloque: ''
+            };
+          });
+          // Create a virtual plan object
+          S._libreVirtualPlan = { id:'LIBRE', nombre:nombre, bloques:bloques, objetivo:'Entrenamiento libre' };
+          renderChecklistLibre(bloques);
+        } else {
+          // No bloques found - go straight to photos
+          renderCargar3();
+        }
+      })
+      .catch(function(){ lov(false); renderCargar3(); });
+  } else {
+    setTimeout(function(){ renderCargar3(); }, 150);
+  }
+}
+
+function renderChecklistLibre(bloques) {
+  // Re-use renderCargar2 logic but with virtual bloques
+  S.bloqueStates = bloques.map(function(){ return {hecho:true, estiloVar:'', nota:''}; });
+  var bx = S.nadador==='Felipe' ? '<span class="bx bf">Felipe</span>' : '<span class="bx bs">'+S.nadador+'</span>';
+  var h = '<div class="card" style="margin-bottom:12px"><div class="cb">'
+    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">'+bx+'<span class="itag">'+S.libreNombre+'</span></div>'
+    + '<p style="font-size:12px;color:var(--text2)">Revisa cada bloque. Desmarca los que <b>no hiciste</b> o indica variaciones.</p>'
+    + '</div></div>';
+  h += '<div class="lbl">Bloques del entrenamiento</div>';
+  h += '<div id="blq-list">';
+  bloques.forEach(function(b, i){
+    var estilos = ['Libre','Espalda','Pecho','Mariposa','Combinado'];
+    h += '<div class="blq-check-card" id="bcc-'+i+'">';
+    h += '<div class="bcc-hdr" onclick="toggleBloque('+i+')">';
+    h += '<div class="bcc-check" id="bcc-chk-'+i+'">&#x2713;</div>';
+    h += '<div style="flex:1;min-width:0"><div class="bcc-tipo">'+b.tipo+'</div>';
+    h += '<div class="bcc-desc">'+(b.desc||'')+'</div></div></div>';
+    h += '<div class="bcc-opts" id="bcc-opts-'+i+'">';
+    h += '<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:600">VARIACIÓN DE ESTILO</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    h += '<button class="estilo-btn on" id="est-'+i+'-" onclick="setEstilo('+i+',\"\")">Sin cambio</button>';
+    estilos.forEach(function(e){ h += '<button class="estilo-btn" id="est-'+i+'-'+e+'" onclick="setEstilo('+i+',\"'+e+'\")">' +e+'</button>'; });
+    h += '</div></div>';
+    h += '<div><div style="font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:600">NOTA (opcional)</div>';
+    h += '<input type="text" class="nota-inp" placeholder="ej: hice 2x400 en vez de 3x400" oninput="setNota('+i+',this.value)" id="nota-'+i+'"></div>';
+    h += '</div></div>';
+  });
+  h += '</div>';
+  h += '<div id="blq-summary" style="background:var(--azul-l);border-radius:8px;padding:10px 12px;margin:12px 0;font-size:12px;color:var(--navy);font-weight:500">&#x2705; Todos los bloques marcados como realizados</div>';
+  h += '<button class="btn" onclick="renderCargar3()">Continuar &#x2192; Subir fotos Garmin</button>';
+  h += '<button class="btn2" onclick="renderCargar1()">&#x2190; Volver</button>';
+  document.getElementById('pg-cargar').innerHTML = h;
 }
 
 function retomarLibrePendiente(sesionPlanNombre) {
