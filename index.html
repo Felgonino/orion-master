@@ -241,158 +241,170 @@ const BLOQUES = [
     subtitulo:'50m Libre · 50m Espalda · 100m Combinado',
     fechaFin:'2026-06-20',
     semanas:[
-      {
-        id:'B1-W1', nombre:'Semana 1 (2-6 Jun) — Base + técnica estilos',
+{
+        id:'B1-W-COMP', nombre:'Semana Pre-Competencia 16-20 Jun',
         sesiones:[
           {
-            id:'B1-1A', tipo:'A', nombre:'Sesión A — Aeróbico + técnica espalda',
-            fecha:'2026-06-02', dia:'Lun 2 Jun', volumen:2600, intensidad:'🟢 Aeróbico',
-            objetivo:'Activar espalda · Introducir combinado',
+            id:'B1-LUN', tipo:'A', nombre:'Sesión Lunes 16 — Técnica + Velocidad específica',
+            fecha:'2026-06-16', dia:'Lun 16 Jun', intensidad:'⚡ Neuromuscular',
+            objetivo:'Activar los 4 estilos con calidad técnica máxima y sentir la velocidad de competencia en distancias cortas.',
+            rationale:'A 5 días de competir el cuerpo necesita recordar sensaciones de velocidad sin acumular lactato. Series cortas al máximo con recuperación completa — calidad sobre cantidad. El SNC necesita este estímulo después del fin de semana.',
             bloques:[
-              {tipo:'Entrada',      desc:'200m libre suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Activar, respiración', ms:'Activar, respiración', descanso_bloque:'—'},
-              {tipo:'Pull+resp',    desc:'200m pull con respiración 3/5/5/7 x 25m', series:[{reps:1,dist:200,estilo:'Libre',implemento:'Pull-buoy'}], mf:'Control respiratorio', ms:'Control respiratorio', descanso_bloque:'20seg'},
-              {tipo:'Drill IM',     desc:'4×75 (50 libre + 25 drill espalda) · foco entrada mano espalda', series:[{reps:4,dist:75,estilo:'Combinado',descanso:'15seg'}], mf:'Técnica entrada brazada esp', ms:'Posición cadera espalda', descanso_bloque:'15seg'},
-              {tipo:'Mixto',        desc:'400m: 100 libre + 100 esp + 100 libre + 100 pecho (suave)', series:[{reps:4,dist:100,estilo:'Combinado'}], mf:'Sentir los 4 estilos', ms:'Sentir los 4 estilos', descanso_bloque:'20seg'},
-              {tipo:'Principal',    desc:'3×[50 esp + 50 libre + 2×50 ritmo + 100 + 3×50 ritmo + 150]', series:[{reps:3,dist:50,estilo:'Espalda'},{reps:3,dist:50,estilo:'Libre'},{reps:6,dist:50,estilo:'Espalda'},{reps:3,dist:100,estilo:'Libre'},{reps:9,dist:50,estilo:'Espalda'},{reps:3,dist:150,estilo:'Libre'}], mf:'Técnica brazada en la fatiga', ms:'Agresividad en esp impares', descanso_bloque:'@tabla', ritmo:'1:45-1:55/100'},
-              {tipo:'Pateo',        desc:'2×100 pateo @2:50 + 2×100 libre 80% @1:50 (con aletas)', series:[{reps:2,dist:100,estilo:'Libre',implemento:'Aletas',salida:'2:50'},{reps:2,dist:100,estilo:'Libre',implemento:'Aletas',salida:'1:50'}], mf:'Pateo espalda 6 tiempos', ms:'Potencia pateo espalda', descanso_bloque:'@tabla'},
-              {tipo:'Afloje',       desc:'200m libre suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
+              {
+                tipo:'Calentamiento progresivo',
+                desc:'200m Libre suave (A1) + 4×50m Libre progresivo (50m1 suave → 50m4 a ritmo carrera)',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''},{reps:4,dist:50,estilo:'Libre',implemento:'',salida:'1:30',descanso:''}],
+                descanso_bloque:'30seg pasivos',
+                mf:'Contar brazadas desde el primer largo, establecer DPS base',
+                ms:'Activar cadencia, no arrancar dormido',
+                ritmo:''
+              },
+              {
+                tipo:'Drill IM en orden',
+                desc:'8×25m en orden IM: Mariposa drill + Espalda drill + Pecho drill + Libre drill (×2 veces completo). Foco técnico puro, no velocidad.',
+                series:[{reps:8,dist:25,estilo:'Combinado',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'30seg',
+                mf:'Espalda: entrada de mano con dedo meñique primero, brazo alineado al hombro, no cruzar línea media',
+                ms:'Mariposa: ondulación desde cadera, no solo pies',
+                ritmo:''
+              },
+              {
+                tipo:'Velocidad corta por estilo',
+                desc:'3×50m Espalda máximo (desc 1min30seg) + 3×50m Pecho máximo (desc 1min30seg) + 3×50m Libre máximo (desc 1min30seg). Cada serie debe ser igual de rápida que la anterior.',
+                series:[{reps:3,dist:50,estilo:'Espalda',implemento:'',salida:'',descanso:'1min30seg'},{reps:3,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'1min30seg'},{reps:3,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'1min30seg'}],
+                descanso_bloque:'1min',
+                mf:'Espalda: subacuático 7-8m luego brazada larga. Libre: últimos 10m sin respirar si es posible',
+                ms:'Atacar desde el bloque sin gradualismo. Pecho: patada de rana explosiva en la salida',
+                ritmo:'máximo sostenible'
+              },
+              {
+                tipo:'100m IM de control',
+                desc:'2×100m IM completo al 85% (25m Mariposa + 25m Espalda + 25m Pecho + 25m Libre). Foco: transiciones limpias en cada viraje, no velocidad máxima.',
+                series:[{reps:2,dist:100,estilo:'Combinado',implemento:'',salida:'3:30',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Transición Espalda→Pecho: toque con ambas manos simultáneo antes de girar',
+                ms:'Último libre (25m): acelerar progresivamente, terminar más rápido que el primer mariposa',
+                ritmo:'85% esfuerzo'
+              },
+              {
+                tipo:'Afloje',
+                desc:'150m Libre muy suave. Soltar hombros, espalda y caderas. No es opcional.',
+                series:[{reps:1,dist:150,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'—',
+                mf:'Soltar completamente, respiración profunda',
+                ms:'Soltar completamente, respiración profunda',
+                ritmo:''
+              }
             ]
           },
           {
-            id:'B1-1B', tipo:'B', nombre:'Sesión B — Velocidad 50m libre',
-            fecha:'2026-06-04', dia:'Mié 4 Jun', volumen:2200, intensidad:'🔴 Velocidad',
-            objetivo:'Velocidad corta · Salidas y subacuático libre',
+            id:'B1-MAR', tipo:'B', nombre:'Sesión Martes 17 — Resistencia de velocidad + IM completo',
+            fecha:'2026-06-17', dia:'Mar 17 Jun', intensidad:'🔴 Umbral + Velocidad',
+            objetivo:'Consolidar el ritmo de competencia en las pruebas individuales.',
+            rationale:'Un día después del trabajo neuromuscular del lunes el cuerpo está encendido — es el mejor momento para series más largas a ritmo de carrera. El miércoles descansamos completo, donde llega la supercompensación.',
             bloques:[
-              {tipo:'Entrada',      desc:'400m progresivo (200 suave + 4×50 acelerando)', series:[{reps:1,dist:200,estilo:'Libre'},{reps:4,dist:50,estilo:'Libre'}], mf:'Último 50 a ritmo carrera', ms:'Último 50 máximo', descanso_bloque:'—'},
-              {tipo:'Salidas',      desc:'6×25 desde el borde · subacuático 7-10m', series:[{reps:6,dist:25,estilo:'Libre',descanso:'45seg'}], mf:'Subacuático limpio', ms:'Máxima potencia salida', descanso_bloque:'45seg'},
-              {tipo:'Principal',    desc:'8×50 libre: pares ritmo 200 / impares sprint', series:[{reps:8,dist:50,estilo:'Libre',descanso:'30seg'}], mf:'Pares técnica · Impares potencia', ms:'Impares: atacar desde la pared', descanso_bloque:'30seg', ritmo:'1:20-1:35/100'},
-              {tipo:'Resistencia',  desc:'4×100 libre @1:50 · foco últimos 25m', series:[{reps:4,dist:100,estilo:'Libre',salida:'1:50'}], mf:'No bajar ritmo al final', ms:'Últimos 25m más rápido', descanso_bloque:'30seg', ritmo:'1:40-1:48/100'},
-              {tipo:'Pateo',        desc:'4×50 pateo libre con tabla @1:20', series:[{reps:4,dist:50,estilo:'Libre',implemento:'Tabla',salida:'1:20'}], mf:'6 tiempos, cadera alta', ms:'Potencia + cadera alta', descanso_bloque:'20seg'},
-              {tipo:'Afloje',       desc:'200m suave técnica libre', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Relajar hombros', ms:'Relajar hombros', descanso_bloque:'—'},
+              {
+                tipo:'Calentamiento + activación',
+                desc:'300m Libre progresivo (100m suave + 100m medio + 100m fuerte) + 4×25m aceleración máxima (desc 30seg). Último 25m: salida desde el borde, subacuático 6m.',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:''},{reps:4,dist:25,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'}],
+                descanso_bloque:'30seg',
+                mf:'Último 25m de aceleración: salida desde el borde, subacuático 6m, luego máxima frecuencia de brazada',
+                ms:'Los 4 sprints de 25m: sin reserva, como si fuera la final',
+                ritmo:''
+              },
+              {
+                tipo:'Umbral por estilo (CRTP)',
+                desc:'4×50m Espalda @1:20 (obj: 0:42-0:46) + 4×50m Pecho @1:30 (obj: 0:46-0:52) + 4×50m Libre @1:10 (obj: 0:36-0:40). Variación máxima aceptable entre primera y última: 2 segundos.',
+                series:[{reps:4,dist:50,estilo:'Espalda',implemento:'',salida:'1:20',descanso:''},{reps:4,dist:50,estilo:'Pecho',implemento:'',salida:'1:30',descanso:''},{reps:4,dist:50,estilo:'Libre',implemento:'',salida:'1:10',descanso:''}],
+                descanso_bloque:'1min entre estilos',
+                mf:'Pecho: cadencia de brazada alta, patada de rana inmediatamente después de la tracción de brazos',
+                ms:'Espalda: no bajar cadencia en los últimos 15m, que es donde suele conservar',
+                ritmo:'0:42-0:52 según estilo'
+              },
+              {
+                tipo:'IM completo a ritmo',
+                desc:'4×100m IM (25 Mariposa+25 Espalda+25 Pecho+25 Libre). Reps 1-2 al 85% (sentir ritmo). Reps 3-4 al 95% (ritmo de competencia real). Salida cada 3min.',
+                series:[{reps:4,dist:100,estilo:'Combinado',implemento:'',salida:'3:00',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Contar brazadas en cada estilo — buscar consistencia. Mariposa: no bajar de 6 brazadas en 25m',
+                ms:'Reps 3 y 4: atacar desde el mariposa, no espectar. El libre final debe ser el segmento más rápido',
+                ritmo:'Rep 1-2: 85% · Rep 3-4: 95%'
+              },
+              {
+                tipo:'Afloje',
+                desc:'200m Libre muy suave. Pull-buoy opcional si los hombros están cargados. Recuperación activa, no hay más trabajo hoy.',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'Pull-buoy (opcional)',salida:'',descanso:''}],
+                descanso_bloque:'—',
+                mf:'Soltar hombros, recuperación completa',
+                ms:'Soltar hombros, recuperación completa',
+                ritmo:''
+              }
             ]
           },
           {
-            id:'B1-1C', tipo:'C', nombre:'Sesión C — 100 Combinado + transiciones',
-            fecha:'2026-06-06', dia:'Vie 6 Jun', volumen:2400, intensidad:'🟡 Umbral',
-            objetivo:'Técnica de transiciones · Ritmo 100 combinado',
+            id:'B1-JUE', tipo:'C', nombre:'Sesión Jueves 19 — Activación pre-competencia',
+            fecha:'2026-06-19', dia:'Jue 19 Jun', intensidad:'⚡ Activación pura',
+            objetivo:'Despertar el sistema nervioso sin generar fatiga. Salir sintiéndose rápido y fresco.',
+            rationale:'A 2 días de competir cualquier fatiga residual perjudica el rendimiento del sábado. Volumen mínimo, intensidad en ráfagas muy cortas con recuperación total entre ellas.',
             bloques:[
-              {tipo:'Entrada',      desc:'300m libre + 4×25 drill por estilo (esp/libre)', series:[{reps:1,dist:300,estilo:'Libre'},{reps:4,dist:25,estilo:'Combinado',descanso:'15seg'}], mf:'Activar espalda y libre', ms:'Activar espalda y libre', descanso_bloque:'15seg'},
-              {tipo:'Transiciones', desc:'8×25 alternando esp → libre al toque · foco viraje', series:[{reps:8,dist:25,estilo:'Combinado',descanso:'20seg'}], mf:'Sin perder ritmo en viraje', ms:'Acelerar salida del viraje', descanso_bloque:'20seg'},
-              {tipo:'Principal',    desc:'4×100 combinado (25esp+25lib+25pecho+25lib) @2:30', series:[{reps:4,dist:100,estilo:'Combinado',salida:'2:30'}], mf:'Constancia en los 4 segmentos', ms:'Cierre en el último libre', descanso_bloque:'45seg', ritmo:'1:45-1:55/100'},
-              {tipo:'Series',       desc:'6×50 alternando esp/libre @1:20', series:[{reps:6,dist:50,estilo:'Combinado',salida:'1:20'}], mf:'Técnica brazada esp bajo fatiga', ms:'Velocidad en el libre', descanso_bloque:'20seg', ritmo:'1:15-1:30/100'},
-              {tipo:'Pateo',        desc:'200m aletas + 4×25 pateo esp a fondo', series:[{reps:1,dist:200,estilo:'Libre',implemento:'Aletas'},{reps:4,dist:25,estilo:'Espalda',descanso:'30seg'}], mf:'6 tiempos espalda', ms:'Potencia pateo espalda', descanso_bloque:'30seg'},
-              {tipo:'Afloje',       desc:'200m suave mixto', series:[{reps:1,dist:200,estilo:'Combinado'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
+              {
+                tipo:'Calentamiento suave',
+                desc:'200m Libre suave, sin apuro. Foco en la respiración, no en el ritmo.',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'30seg',
+                mf:'Foco en la respiración, no en el ritmo',
+                ms:'Suave de verdad — este no es el momento de probar nada',
+                ritmo:''
+              },
+              {
+                tipo:'Activación de velocidad',
+                desc:'2×25m Mariposa máximo (desc 1min) + 2×25m Espalda máximo (desc 1min) + 2×25m Pecho máximo (desc 1min) + 2×25m Libre máximo (desc 1min). 8 sprints perfectos, calidad absoluta.',
+                series:[{reps:2,dist:25,estilo:'Mariposa',implemento:'',salida:'',descanso:'1min'},{reps:2,dist:25,estilo:'Espalda',implemento:'',salida:'',descanso:'1min'},{reps:2,dist:25,estilo:'Pecho',implemento:'',salida:'',descanso:'1min'},{reps:2,dist:25,estilo:'Libre',implemento:'',salida:'',descanso:'1min'}],
+                descanso_bloque:'1min',
+                mf:'Salida desde bloque en cada 25m — practicar la reacción',
+                ms:'Máxima agresividad desde el primer metro',
+                ritmo:'máximo'
+              },
+              {
+                tipo:'Sensación de IM',
+                desc:'1×100m IM al 80% (cómodo, fluido, transiciones limpias) + 1×50m Libre al 85%. Descanso 2min entre series. Confirmar sensaciones, no testear marcas.',
+                series:[{reps:1,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:'2min'},{reps:1,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'El 100 IM: nadar relajado, disfrutar el combinado',
+                ms:'El 50 Libre: salir con energía pero sin vaciar el tanque',
+                ritmo:'80-85% esfuerzo'
+              },
+              {
+                tipo:'Afloje',
+                desc:'150m muy suave. Estirar en el agua: hombros, pecho, espalda. Terminar sintiéndose bien, no cansado.',
+                series:[{reps:1,dist:150,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'—',
+                mf:'Terminar fresco para el sábado',
+                ms:'Terminar fresco para el sábado',
+                ritmo:''
+              }
             ]
           },
+          {
+            id:'B1-SAB', tipo:'C', nombre:'🏆 COMPETENCIA — Sáb 20 Jun 2026',
+            fecha:'2026-06-20', dia:'Sáb 20 Jun', intensidad:'🏆 Competencia',
+            objetivo:'100m IM · 50m Espalda · 50m Pecho · Posta Libre (Felipe) · 50m Crol (Sergio)',
+            rationale:'Solo calentamiento oficial del evento. No se agrega trabajo extra.',
+            bloques:[
+              {
+                tipo:'Calentamiento oficial',
+                desc:'En piscina del evento, tiempo asignado al equipo: 400m progresivo muy suave + 4×25m aceleración (último al 95%) + 2×25m sprint máximo del estilo de tu primera prueba. Descanso completo 3-5min antes de subir al bloque.',
+                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:''},{reps:4,dist:25,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:2,dist:25,estilo:'Combinado',implemento:'',salida:'',descanso:'1min'}],
+                descanso_bloque:'3-5min antes del primer evento',
+                mf:'Llegar activado, no cansado. Último sprint: el estilo de tu primera prueba',
+                ms:'Llegar activado, no cansado. Último sprint: el estilo de tu primera prueba',
+                ritmo:''
+              }
+            ]
+          }
         ]
       },
-      {
-        id:'B1-WTEST', nombre:'⭐ Sesión de prueba (carga)',
-        sesiones:[
-          {
-            id:'B1-TEST', tipo:'A', nombre:'Sesión Prueba — Combinado + aletas',
-            fecha:'2026-06-07', dia:'Sesión de prueba', volumen:2300, intensidad:'🟡 Mixto',
-            objetivo:'Sesión de prueba para validar carga de datos',
-            bloques:[
-              {tipo:'Calentamiento', desc:'200m libre suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Activar', ms:'Activar', descanso_bloque:'—'},
-              {tipo:'Pull', desc:'4×50 pull respirando cada 5 brazadas', series:[{reps:4,dist:50,estilo:'Libre',implemento:'Pull-buoy',descanso:'15seg'}], mf:'Control respiratorio', ms:'Control respiratorio', descanso_bloque:'20seg'},
-              {tipo:'Set 1', desc:'4×75 combinado (25 pateo + 25 drill + 25 estilo completo)', series:[{reps:4,dist:75,estilo:'Combinado',descanso:'15seg'}], mf:'Técnica por estilo', ms:'Técnica por estilo', descanso_bloque:'30seg'},
-              {tipo:'Set 2', desc:'4×(100 @2:25 + 2×50 @1:15 + 4×25 @40seg) combinado con aletas', series:[{reps:4,dist:100,estilo:'Combinado',implemento:'Aletas',salida:'2:25'},{reps:8,dist:50,estilo:'Combinado',implemento:'Aletas',salida:'1:15'},{reps:16,dist:25,estilo:'Combinado',implemento:'Aletas',salida:'40seg'}], mf:'Sostener ritmo con aletas', ms:'Velocidad en los 25', descanso_bloque:'@tabla', ritmo:'2:25/100'},
-              {tipo:'Soltura', desc:'150m suave', series:[{reps:1,dist:150,estilo:'Libre'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
-            ]
-          },
-        ]
-      },
-      {
-        id:'B1-W2', nombre:'Semana 2 (9-13 Jun) — Velocidad específica + test',
-        sesiones:[
-          {
-            id:'B1-2A', tipo:'A', nombre:'Sesión A — Sprint espalda + libre',
-            fecha:'2026-06-09', dia:'Mar 9 Jun', volumen:2000, intensidad:'🔴 Velocidad',
-            objetivo:'Velocidad máxima 50m · Técnica bajo fatiga',
-            bloques:[
-              {tipo:'Entrada',      desc:'200 libre + 4×50 progresivo (últimos 2 a ritmo carrera)', series:[{reps:1,dist:200,estilo:'Libre'},{reps:4,dist:50,estilo:'Libre'}], mf:'Activar SNC', ms:'Activar SNC', descanso_bloque:'—'},
-              {tipo:'Salidas esp',  desc:'6×25 espalda desde bloque · posición hidrodinámica', series:[{reps:6,dist:25,estilo:'Espalda',descanso:'45seg'}], mf:'Cabeza alineada', ms:'Máxima potencia + alineación', descanso_bloque:'45seg'},
-              {tipo:'Sprint esp',   desc:'6×50 espalda progresivos: 1-2 técnica / 3-4 ritmo / 5-6 máximo', series:[{reps:6,dist:50,estilo:'Espalda',descanso:'40seg'}], mf:'Progresión clara', ms:'5-6 sin reserva', descanso_bloque:'40seg', ritmo:'1:25-1:40/100'},
-              {tipo:'Sprint lib',   desc:'4×50 libre sprint máximo @45seg', series:[{reps:4,dist:50,estilo:'Libre',salida:'45seg'}], mf:'Mantener técnica en el sprint', ms:'Atacar primeros 15m', descanso_bloque:'45seg', ritmo:'<1:20/100'},
-              {tipo:'Recuperación', desc:'2×200 combinado suave @4:00', series:[{reps:2,dist:200,estilo:'Combinado',salida:'4:00'}], mf:'Soltar y recuperar', ms:'Soltar y recuperar', descanso_bloque:'60seg'},
-              {tipo:'Afloje',       desc:'200m suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
-            ]
-          },
-          {
-            id:'B1-2B', tipo:'B', nombre:'Sesión B — Test de marcas',
-            fecha:'2026-06-11', dia:'Jue 11 Jun', volumen:1800, intensidad:'🔴 Test',
-            objetivo:'🏁 Test oficial de referencia previo a competencia',
-            bloques:[
-              {tipo:'Entrada',      desc:'200 suave + 6×50 activación progresiva', series:[{reps:1,dist:200,estilo:'Libre'},{reps:6,dist:50,estilo:'Libre'}], mf:'Bien activado antes del test', ms:'Bien activado antes del test', descanso_bloque:'—'},
-              {tipo:'Test 50 lib',  desc:'1×50m libre a fondo · salida desde bloque', series:[{reps:1,dist:50,estilo:'Libre'}], mf:'Registrar marca de referencia', ms:'Registrar marca de referencia', descanso_bloque:'5min'},
-              {tipo:'Test 50 esp',  desc:'1×50m espalda a fondo · salida desde bloque', series:[{reps:1,dist:50,estilo:'Espalda'}], mf:'Registrar marca de referencia', ms:'Registrar marca de referencia', descanso_bloque:'5min'},
-              {tipo:'Test 100 comb',desc:'1×100m combinado a fondo (25esp+25lib+25pecho+25lib)', series:[{reps:1,dist:100,estilo:'Combinado'}], mf:'Registrar marca de referencia', ms:'Registrar marca de referencia', descanso_bloque:'8min'},
-              {tipo:'Afloje',       desc:'400m suave mixto · estirar hombros y espalda', series:[{reps:1,dist:400,estilo:'Combinado'}], mf:'Recuperación completa', ms:'Recuperación completa', descanso_bloque:'—'},
-            ]
-          },
-          {
-            id:'B1-2C', tipo:'C', nombre:'Sesión C — Técnica + resistencia velocidad',
-            fecha:'2026-06-13', dia:'Sáb 13 Jun', volumen:2300, intensidad:'🟡 Umbral',
-            objetivo:'Consolidar técnica · Resistencia de velocidad',
-            bloques:[
-              {tipo:'Entrada',      desc:'300m libre + 200m pull respiración 3/5/5/7', series:[{reps:1,dist:300,estilo:'Libre'},{reps:1,dist:200,estilo:'Libre',implemento:'Pull-buoy'}], mf:'Control respiratorio', ms:'Control respiratorio', descanso_bloque:'—'},
-              {tipo:'Drill',        desc:'6×50 drill alternado esp/libre · foco entrada mano y rolido', series:[{reps:6,dist:50,estilo:'Combinado',descanso:'15seg'}], mf:'DPS en espalda', ms:'Posición cadera espalda', descanso_bloque:'15seg'},
-              {tipo:'Principal',    desc:'3×[100 esp + 100 libre] @2:00', series:[{reps:3,dist:100,estilo:'Espalda',salida:'2:00'},{reps:3,dist:100,estilo:'Libre',salida:'2:00'}], mf:'No bajar ritmo en el libre', ms:'Libre más rápido que el esp', descanso_bloque:'60seg', ritmo:'1:35-1:50/100'},
-              {tipo:'Velocidad',    desc:'6×25 sprint alternando esp/libre · máximo', series:[{reps:6,dist:25,estilo:'Combinado',descanso:'30seg'}], mf:'Técnica limpia en el sprint', ms:'Sin reserva', descanso_bloque:'30seg'},
-              {tipo:'Pateo',        desc:'200m aletas + 4×25 pateo esp máximo @45seg', series:[{reps:1,dist:200,estilo:'Libre',implemento:'Aletas'},{reps:4,dist:25,estilo:'Espalda',salida:'45seg'}], mf:'Potencia pateo', ms:'Potencia pateo', descanso_bloque:'45seg'},
-              {tipo:'Afloje',       desc:'200m suave', series:[{reps:1,dist:200,estilo:'Libre'}], mf:'Relajar', ms:'Relajar', descanso_bloque:'—'},
-            ]
-          },
-        ]
-      },
-      {
-        id:'B1-W3', nombre:'Semana 3 (16-20 Jun) — Activación + COMPETENCIA',
-        sesiones:[
-          {
-            id:'B1-3A', tipo:'A', nombre:'Sesión A — Activación velocidad',
-            fecha:'2026-06-16', dia:'Mar 16 Jun', volumen:1800, intensidad:'🟡 Activación',
-            objetivo:'Mantener velocidad · No acumular fatiga',
-            bloques:[
-              {tipo:'Entrada',      desc:'400m progresivo suave', series:[{reps:1,dist:400,estilo:'Libre'}], mf:'Activar sin forzar', ms:'Activar sin forzar', descanso_bloque:'—'},
-              {tipo:'Técnica',      desc:'6×50 drill esp+libre alternado · calidad máxima', series:[{reps:6,dist:50,estilo:'Combinado',descanso:'20seg'}], mf:'Técnica pura', ms:'Técnica pura', descanso_bloque:'20seg'},
-              {tipo:'Velocidad',    desc:'4×50 progresivo: 1 suave → 4 máximo', series:[{reps:4,dist:50,estilo:'Libre',descanso:'45seg'}], mf:'Sensación de carrera', ms:'Sensación de carrera', descanso_bloque:'45seg', ritmo:'progresivo hasta máximo'},
-              {tipo:'Combinado',    desc:'2×100 combinado al 85% · transiciones limpias', series:[{reps:2,dist:100,estilo:'Combinado',descanso:'3min'}], mf:'Transiciones sin perder ritmo', ms:'Transiciones + cierre libre', descanso_bloque:'3min'},
-              {tipo:'Afloje',       desc:'400m suave mixto', series:[{reps:1,dist:400,estilo:'Combinado'}], mf:'Fresco para el jueves', ms:'Fresco para el jueves', descanso_bloque:'—'},
-            ]
-          },
-          {
-            id:'B1-3B', tipo:'B', nombre:'Sesión B — Pre-competencia',
-            fecha:'2026-06-18', dia:'Jue 18 Jun', volumen:1200, intensidad:'⚡ Pre-comp',
-            objetivo:'Última activación antes del 20 Jun',
-            bloques:[
-              {tipo:'Entrada',      desc:'300m suave libre', series:[{reps:1,dist:300,estilo:'Libre'}], mf:'Activar suave', ms:'Activar suave', descanso_bloque:'—'},
-              {tipo:'Activación',   desc:'4×50: 1 suave / 2 ritmo / 3 fuerte / 4 máximo', series:[{reps:4,dist:50,estilo:'Libre',descanso:'45seg'}], mf:'Sentir la velocidad', ms:'Sentir la velocidad', descanso_bloque:'45seg'},
-              {tipo:'Sprints',      desc:'3×25 máximo esp + 3×25 máximo libre', series:[{reps:3,dist:25,estilo:'Espalda',descanso:'1min'},{reps:3,dist:25,estilo:'Libre',descanso:'1min'}], mf:'Explosividad pura', ms:'Explosividad pura', descanso_bloque:'1min'},
-              {tipo:'Afloje',       desc:'300m suave · estirar bien', series:[{reps:1,dist:300,estilo:'Libre'}], mf:'Llegar descansado al viernes', ms:'Llegar descansado al viernes', descanso_bloque:'—'},
-            ]
-          },
-          {
-            id:'B1-3C', tipo:'C', nombre:'🏆 COMPETENCIA — 20 Jun 2026',
-            fecha:'2026-06-20', dia:'Vie 20 Jun', volumen:0, intensidad:'🏆 Competencia',
-            objetivo:'50m Libre · 50m Espalda · 100m Combinado',
-            bloques:[
-              {tipo:'Entrada agua', desc:'400-600m suave progresivo · últimos 2x50 a ritmo carrera',                           mf:'Activar SNC · sentir el agua',   ms:'Activar SNC · sentir el agua',    desc2:'—'},
-              {tipo:'50m Libre',    desc:'Salida bloque · máximo esfuerzo · subacuático 10m · cierre fuerte',                  mf:'No salir frenado · mantener hasta el final', ms:'Atacar los primeros 25m', desc2:'—'},
-              {tipo:'50m Espalda',  desc:'Salida de espaldas · subacuático espalda · brazada larga y potente',                 mf:'Posición hidrodinámica · pateo constante', ms:'Velocidad desde la salida', desc2:'—'},
-              {tipo:'100 Combinado',desc:'25 esp → 25 lib → 25 pecho → 25 lib · transiciones sin perder impulso',             mf:'Constancia en 4 segmentos · no frenar en transiciones', ms:'Cierre fuerte en el último libre', desc2:'—'},
-            ]
-          },
-        ]
-      },
-    ]
-  },
-  {
-    id:'B2', activo:false, color:'#0E6655',
-    nombre:'🏊 Fondo Julio — 800m & 1500m',
-    subtitulo:'800m Libre · 1500m Libre · Piscina',
-    fechaFin:'2026-07-31',
-    semanas:[
+    
       {
         id:'B2-W1', nombre:'Semana 1 Julio — Base aeróbica',
         sesiones:[
@@ -550,14 +562,36 @@ let cacheOk = false;
 // ═══════════════════════════════════════════════════
 // Términos base. ORION agrega nuevos automáticamente al generar programas.
 let GLOSARIO = [
-  { termino:'DPS', definicion:'Distancia por brazada (Distance Per Stroke). Mide cuántos metros avanzas en cada brazada.', ejecucion:'Cuenta tus brazadas por largo: menos brazadas a la misma velocidad = mejor DPS. Se mejora con técnica y deslizamiento, no con fuerza.' },
-  { termino:'SWOLF', definicion:'Índice de eficiencia de nado: suma del tiempo en segundos de un largo más el número de brazadas de ese largo.', ejecucion:'Un SWOLF menor indica nado más eficiente. Ej: 30s + 15 brazadas = SWOLF 45. Busca bajarlo sin perder velocidad.' },
-  { termino:'Pull', definicion:'Set de solo brazos, usando pull-buoy entre las piernas para aislar el tren superior.', ejecucion:'Coloca el pull-buoy entre los muslos, no patees, enfócate en la tracción y el agarre del agua.' },
-  { termino:'Drill', definicion:'Ejercicio técnico que aísla un componente específico de la brazada para perfeccionarlo.', ejecucion:'Se nada lento y con foco en la técnica, no en la velocidad. Ej: nado con un solo brazo, punta de flecha, etc.' },
-  { termino:'Tiempo de salida', definicion:'Cada cuánto tiempo inicias la siguiente repetición, incluyendo el nado y el descanso.', ejecucion:'Ej: "4×100 @2:00" significa salir cada 2 minutos. Si nadas el 100 en 1:40, descansas 20s antes del siguiente.' },
-  { termino:'Combinado / IM', definicion:'Estilo combinado individual: mariposa, espalda, pecho y libre en ese orden.', ejecucion:'En 100m combinado: 25 mariposa + 25 espalda + 25 pecho + 25 libre. Cuida las transiciones entre estilos.' },
-  { termino:'Umbral', definicion:'Intensidad de esfuerzo sostenible justo antes de acumular fatiga (umbral anaeróbico).', ejecucion:'Ritmo exigente pero mantenible por varios minutos. Base para mejorar resistencia de velocidad.' },
-  { termino:'Aletas', definicion:'Implemento de pies que aumenta la propulsión y la velocidad, trabajando fuerza de pateo.', ejecucion:'Útil para sets de pateo y para nadar más rápido de lo habitual y sentir mejor posición corporal.' }
+  { termino:'Aletas', definicion:'Accesorio de pies que aumenta la propulsión y permite nadar más rápido de lo habitual. Hay aletas largas (más propulsión, menos esfuerzo) y cortas (más específicas para nadadores).', ejecucion:'Úsalas para sets de pateo, para sentir la posición hidrodinámica correcta y para nadar a velocidades que normalmente no alcanzas. En piscina 25m se usan principalmente aletas cortas. Evita usarlas en sets de resistencia donde el objetivo es trabajar la técnica real sin ayuda.' },
+  { termino:'Pull-buoy', definicion:'Flotador de espuma que se coloca entre los muslos para aislar el trabajo de brazos, eliminando el aporte del pateo.', ejecucion:'Colócalo firme entre la parte alta de los muslos, no en las rodillas. No patees. Enfócate en la tracción, el agarre del agua y el rolido. Ideal para series de técnica de brazada, trabajo de respiración y resistencia de tren superior. Úsalo cuando el objetivo sea mejorar la brazada, no cuando el objetivo sea velocidad total.' },
+  { termino:'Tabla', definicion:'Flotador plano que se sostiene con las manos para aislar el trabajo de piernas.', ejecucion:'Extiende los brazos al frente, agarra la tabla por los laterales o la parte superior. Mantén las caderas altas y el cuerpo alineado. Úsala para sets específicos de pateo. En espalda se puede usar apoyada sobre el pecho. Evita usarla si el objetivo del set es técnica completa de nado.' },
+  { termino:'Palas', definicion:'Paletas plásticas que se colocan en las manos para aumentar la superficie de propulsión y la resistencia al avance.', ejecucion:'Generan más carga sobre hombros y espalda. Úsalas solo cuando ya tienes buena técnica de brazada — amplifican tanto los movimientos correctos como los errores. Ideales para fuerza específica de natación. Combínalas con pull-buoy. Nunca en sets de velocidad máxima ni cuando estés fatigado.' },
+  { termino:'Snorkel frontal', definicion:'Tubo de respiración frontal que permite nadar sin rotar la cabeza para respirar.', ejecucion:'Colócalo centrado en la frente, bien ajustado. Permite concentrarse completamente en la técnica de brazada y posición corporal sin interrumpir el ciclo de movimiento. Ideal para drill de técnica, para corregir el rolido y para sets donde la respiración distorsiona la postura. Úsalo en libre y espalda principalmente.' },
+  { termino:'DPS (Distancia por Brazada)', definicion:'Metros que avanzas por cada ciclo completo de brazada. Es el indicador más directo de eficiencia técnica.', ejecucion:'Se mide contando brazadas por largo y dividiendo la distancia entre ese número. En piscina 25m, un DPS de 9-11m por brazada es bueno para master. Felipe debe enfocarse en aumentar su DPS. Se mejora con mejor agarre del agua, menos deslizamiento lateral y rolido más completo.' },
+  { termino:'Rolido', definicion:'Rotación del cuerpo sobre su eje longitudinal durante el nado de libre y espalda.', ejecucion:'En libre: el cuerpo debe rotar 35-45 grados hacia cada lado sincronizado con la brazada. En espalda: la rotación es similar pero en posición dorsal. Un rolido correcto permite mayor alcance de la brazada, reduce la resistencia frontal y facilita la respiración. Error común: rotar los hombros sin rotar las caderas.' },
+  { termino:'Agarre del agua', definicion:'Fase inicial de la brazada donde la mano \'engancha\' el agua para comenzar la tracción.', ejecucion:'La mano entra al agua con los dedos ligeramente separados, se extiende hacia adelante y hacia abajo en un ángulo de 45°, luego \'agarra\' el agua antes de iniciar el tirón. Un mal agarre (mano que resbala) desperdicia toda la energía de la brazada. Practicar con el ejercicio \'catch-up\' o con snorkel frontal.' },
+  { termino:'Entrada de mano', definicion:'Momento y posición en que la mano entra al agua al inicio de la brazada.', ejecucion:'En libre: la mano debe entrar alineada con el hombro (no cruzando la línea media), con los dedos primero, pulgar ligeramente hacia abajo. En espalda: la mano entra con el dedo meñique primero, brazo extendido alineado con el hombro. Una entrada incorrecta genera resistencia y desvía el cuerpo.' },
+  { termino:'Pateo 6 tiempos', definicion:'Patrón de patada en libre donde se dan 6 golpes de pies por cada ciclo completo de brazada (2 brazadas = 6 patadas).', ejecucion:'Es el patrón más eficiente para velocidad y fondo en aguas abiertas. Las patadas deben ser pequeñas, rígidas y generadas desde la cadera — no desde la rodilla. Los pies apenas deben romper la superficie. En piscina 25m este patrón es el estándar. Sergio ya lo ejecuta bien; Felipe debe controlarlo bajo fatiga.' },
+  { termino:'Subacuático', definicion:'Fase de deslizamiento bajo el agua después de la salida desde el bloque o después de cada viraje, con ondulación de delfín.', ejecucion:'Es la parte más rápida del nado en competencia — puedes superar tu velocidad de nado en superficie. En libre y espalda se recomienda mantener el subacuático entre 7-12 metros. La ondulación parte desde el pecho y las caderas, no solo de los pies. En el entrenamiento se practica con series de salidas y virajes.' },
+  { termino:'IM (Individual Medley / Combinado)', definicion:'Nado de los 4 estilos en este orden fijo: Mariposa → Espalda → Pecho → Libre. En competencia o en bloques de entrenamiento.', ejecucion:'En 100m IM: 25m Mariposa + 25m Espalda + 25m Pecho + 25m Libre. En 200m IM: 50m de cada estilo. Las transiciones entre estilos ocurren en el viraje — son críticas y hay reglas técnicas específicas. En entrenamiento, cuando decimos 4×100 Combinado (IM) cada repetición de 100m se nada con los 4 estilos en ese orden.' },
+  { termino:'Drill', definicion:'Ejercicio técnico que aísla y exagera un componente específico de la brazada para corregirlo o perfeccionarlo.', ejecucion:'Se ejecuta lento, con máxima concentración en el movimiento específico. No busca velocidad. Ejemplos: nado con un solo brazo (aísla la brazada), catch-up (trabaja el alcance), punta de flecha (trabaja la posición hidrodinámica). Siempre viene acompañado de la indicación del foco específico.' },
+  { termino:'Aeróbico (A1 / A2)', definicion:'Sistema energético que usa oxígeno para producir energía. Es la base de todo el entrenamiento de fondo y resistencia.', ejecucion:'A1 es el ritmo más suave — se puede mantener una conversación mientras nadas. A2 es algo más intenso pero sostenible por largos períodos. En piscina 25m, para Felipe el ritmo A1 es ~1:55-2:05/100m y A2 ~1:45-1:55/100m. Para Sergio son ~5-8 seg más rápido. El trabajo aeróbico mejora la base cardiorrespiratoria y la economía de nado.' },
+  { termino:'Umbral anaeróbico (AN1)', definicion:'Intensidad máxima a la que el cuerpo puede metabolizar el lactato tan rápido como lo produce. Es el ritmo de competencia en pruebas de 400-1500m.', ejecucion:'Se siente como esfuerzo controlado pero exigente — no se puede conversar. En piscina, para Felipe ~1:40-1:48/100m y para Sergio ~1:33-1:40/100m. El trabajo en umbral es el más específico para mejorar el rendimiento en competencia. Se identifica como \'tempo\' en el programa.' },
+  { termino:'CRTP (Capacidad de Repetición en Trabajo de Alta Intensidad)', definicion:'Capacidad del cuerpo para recuperarse entre esfuerzos intensos y repetir el mismo nivel de rendimiento.', ejecucion:'Se trabaja con series cortas (25-50m) a máxima intensidad con descansos cortos. Ejemplo: 8×25 máximo con 30seg descanso. El objetivo es mantener la velocidad de los últimos 25 igual que los primeros. Clave para mejorar el cierre en competencia — especialmente importante para Sergio.' },
+  { termino:'VO2max', definicion:'Volumen máximo de oxígeno que el cuerpo puede utilizar por minuto. Determina el techo de la capacidad aeróbica.', ejecucion:'Se trabaja con series de 3-5 minutos al 90-95% del esfuerzo máximo con descansos largos (2-3 min). En piscina 25m son series de 200-400m. Este trabajo genera mucha fatiga — se usa con moderación, generalmente en la fase de desarrollo del plan. Mejora el motor aeróbico a largo plazo.' },
+  { termino:'Tempo / Ritmo de carrera', definicion:'Velocidad específica a la que se debe completar una prueba en competencia.', ejecucion:'El objetivo de un set de tempo es \'memorizar\' esa sensación de ritmo. Se trabaja con series de la distancia de competencia o partes de ella. Es el tipo de trabajo más específico de cada prueba. Ejemplo: si el objetivo es 100m combinado en 1:30, el tempo de trabajo es ~1:35-1:38/100m en entrenamiento.' },
+  { termino:'Resistencia de velocidad', definicion:'Capacidad de mantener una velocidad alta por más tiempo del que duraría naturalmente.', ejecucion:'Series medianas (50-100m) a ritmo más rápido que el umbral, con descanso suficiente para recuperarse. Ejemplo: 6×50m a ritmo máximo sostenible con 45seg descanso. Desarrolla la capacidad de aguantar el ritmo de competencia al final de la prueba — el \'cierre\'.' },
+  { termino:'Activación / Calentamiento', definicion:'Fase inicial de la sesión que prepara el cuerpo fisiológica y neuromuscularmente para el trabajo principal.', ejecucion:'Siempre empieza suave y va progresando en intensidad. Incluye nado suave, drill técnico y algunas aceleraciones cortas. Nunca se omite — el rendimiento en el bloque principal depende de la calidad del calentamiento. Duración típica en piscina 25m: 300-500m.' },
+  { termino:'Afloje / Vuelta a la calma', definicion:'Fase final de la sesión para facilitar la recuperación y eliminar el lactato muscular.', ejecucion:'Nado suave, sin esfuerzo, preferentemente en estilo libre o espalda. Activa la circulación para limpiar los metabolitos de la fatiga. Nunca se omite si se quiso entrenar bien — una sesión sin afloje compromete la recuperación para el próximo entrenamiento. Duración típica: 150-200m.' },
+  { termino:'Tiempo de salida (@ / por)', definicion:'Intervalo de tiempo desde que sale una repetición hasta que sale la siguiente, incluyendo el nado y el descanso.', ejecucion:'Ejemplo: \'4×100 @2:00\' significa que cada 2 minutos parte un 100m. Si nadas el 100 en 1:45, tienes 15seg de descanso. Si lo nadas en 2:05, saliste tarde y el set pierde su objetivo. El tiempo de salida controla la intensidad y el descanso simultáneamente. Es más preciso que indicar el descanso fijo.' },
+  { termino:'Descanso fijo', definicion:'Tiempo de pausa entre repeticiones medido desde que terminas hasta que empiezas la siguiente.', ejecucion:'Ejemplo: \'6×50 desc 30seg\' significa 30 segundos de pausa después de cada 50m. A diferencia del tiempo de salida, el descanso fijo es igual para todos independiente del ritmo. Se usa más en sets de velocidad donde la recuperación completa es necesaria para mantener la calidad del sprint.' },
+  { termino:'Negativo split', definicion:'Estrategia de nadar la segunda mitad de una distancia más rápido que la primera.', ejecucion:'Es la estrategia de pacing más eficiente en competencia. Evita salir demasiado rápido y morir al final. En entrenamiento se practica en series largas: los primeros 200m más suaves que los últimos 200m. Clave para Sergio, que tiende a nadar conservador — el negativo split lo obliga a atacar en la segunda mitad.' },
+  { termino:'Pirámide', definicion:'Estructura de series donde la distancia o intensidad sube y luego baja (o solo sube).', ejecucion:'Ejemplo ascendente: 50 + 100 + 150 + 200m. Ejemplo pirámide completa: 50+100+150+200+150+100+50m. Permite trabajar distintas longitudes en un mismo set, generando variedad de estímulos. Las distancias cortas al inicio activan la velocidad; las largas en el centro trabajan resistencia; las cortas al final trabajan cierre bajo fatiga.' },
+  { termino:'Salida desde bloque', definicion:'Salida de competencia desde el bloque de salida (trampolín), disponible en libre, pecho, mariposa y combinado.', ejecucion:'El objetivo es maximizar la distancia del salto y la profundidad para un subacuático largo. Posición: agarre del borde del bloque, rodillas semiflexionadas, cabeza abajo. Al señal: extensión explosiva de todo el cuerpo hacia adelante y arriba. En entrenamiento se practica con series de 25m desde el bloque.' },
+  { termino:'Salida de espaldas', definicion:'Salida específica para espalda: desde el agua, agarrado al bloque, cuerpo en posición de tensión.', ejecucion:'Pies en la pared, rodillas semiflexionadas, cuerpo arqueado. Al señal: empuje explosivo de piernas, arqueo de espalda, brazos hacia atrás. El cuerpo debe entrar al agua extendido para maximizar el subacuático. Es técnicamente compleja — requiere práctica específica.' },
+  { termino:'Viraje', definicion:'Cambio de dirección en el extremo de la piscina para continuar nadando. Cada estilo tiene su técnica específica.', ejecucion:'En libre y espalda: volteo (tumba-turn) — el nadador da un medio giro al llegar a la pared, empuja con los pies y sale subacuático. En pecho y mariposa: toque con ambas manos simultáneo antes de empujar. La pérdida de velocidad en el viraje puede ser 0.3-0.8 segundos — un viraje bien hecho marca la diferencia en competencia.' },
+  { termino:'Drafting', definicion:'Técnica de nadar en la estela de otro nadador para reducir la resistencia hidrodinámica y ahorrar energía.', ejecucion:'Más relevante en aguas abiertas que en piscina. El nadador que \'draftea\' se posiciona justo detrás (0.5-1m) o a un lado de los pies del nadador delantero. Puede ahorrar 10-20% de energía. Felipe lo aprovecha bien en aguas abiertas. En piscina se usa en sets de entrenamiento en grupo para simular competencia.' },
+  { termino:'Pacing / Distribución de esfuerzo', definicion:'Estrategia de cómo distribuir la energía a lo largo de una prueba o serie.', ejecucion:'Tipos: uniforme (mismo ritmo todo el tiempo), negativo (segunda mitad más rápido), positivo (primera mitad más rápido — poco recomendable). En pruebas cortas (50m) se sale al máximo. En pruebas largas (800-1500m) el pacing uniforme o negativo es lo más eficiente. Aprender a regular el esfuerzo es una habilidad que se entrena explícitamente.' }
 ];
 
 
