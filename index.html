@@ -968,7 +968,7 @@ function renderCargar1() {
               return x.Sesion_Plan===r.Sesion_Plan && x.Nadador===n.nombre && !x.Pendiente && x.Distancia_m;
             });
             if (!yaCargoN) {
-              h += '<button class="btn tl" style="margin-bottom:6px" onclick="retomarLibreConNad(this.dataset.s,this.dataset.n)" data-s="'+r.Sesion_Plan.replace(/"/g,'&quot;')+'" data-n="'+n.nombre+'">'+n.emoji+' '+n.nombre+' — Cargar fotos</button>';
+              h += '<button class="btn tl" style="margin-bottom:6px" onclick="retomarLibreConNad(this.dataset.s,this.dataset.n)" data-s="'+r.Sesion_Plan.replace(/"/g,'&quot;')+'" data-n="'+n.nombre+'">&#x1F4F8; '+n.nombre+' &mdash; Cargar fotos</button>';
             } else {
               h += '<div style="font-size:11px;color:var(--green);padding:4px 0">&#x2705; '+n.nombre+': resultados cargados</div>';
             }
