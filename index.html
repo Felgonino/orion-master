@@ -601,7 +601,7 @@ let GLOSARIO = [
 function getBloqueActivo() { return BLOQUES.find(b=>b.activo)||BLOQUES[0]; }
 function getAllSesiones() { return getBloqueActivo().semanas.flatMap(w=>w.sesiones); }
 function getSesion(id) { return BLOQUES.flatMap(b=>b.semanas.flatMap(w=>w.sesiones)).find(s=>s.id===id); }
-function completadas(id) { return CACHE.filter(r=>r.Sesion_Plan===id); }
+function completadas(id) { return CACHE.filter(r=>r.Sesion_Plan===id && r.Sesion_Plan!=='' && r.ID!==''); }
 function todayStr() { const d=new Date(); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
 function z(n){ return String(n).padStart(2,'0'); }
 function genId(nad) {
@@ -809,11 +809,10 @@ function renderHoy() {
       if (esLibre) {
         // Show button for each nadador
         NADADORES.forEach(function(n){
-          h += '<button class="btn tl" style="margin-bottom:6px" onclick="retomarLibrePendiente(this.dataset.s)" data-s="'+r.Sesion_Plan.replace(/"/g,'&quot;')+'">';
-          h += '📸 '+n.emoji+' '+n.nombre+' — Cargar fotos</button>';
+          h += '<button class="btn tl" style="margin-bottom:6px" onclick="retomarLibrePendiente(this.dataset.s)" data-s="'+r.Sesion_Plan.replace(/"/g,'&quot;')+'">&#x1F4F8; '+n.nombre+' &mdash; Cargar fotos</button>';
         });
       } else {
-        h += '<button class="btn tl" onclick="retomarPendiente(this.dataset.id)" data-id="'+r.Sesion_Plan+'"">📸 Cargar fotos Garmin</button>';
+        h += '<button class="btn tl" onclick="retomarPendiente(this.dataset.id)" data-id="'+r.Sesion_Plan+'">&#x1F4F8; Cargar fotos Garmin</button>';
       }
       h += '</div></div>';
     });
