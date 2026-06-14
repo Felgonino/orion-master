@@ -789,38 +789,6 @@ function renderHoy() {
   }
 
   // Pendientes de resultados
-  // Pendientes de resultados
-  var pendientes2 = CACHE.filter(function(r){ return r.Pendiente==='SI' || r.Pendiente===true; });
-  // Deduplicate libre sessions
-  var vistasH = {};
-  var pendientesDed = pendientes2.filter(function(r){
-    var key = r.Sesion_Plan+'|'+r.Fecha;
-    var esLibre = !getSesion(r.Sesion_Plan);
-    if (esLibre) {
-      if (vistasH[key]) return false;
-      vistasH[key] = true;
-    }
-    return true;
-  });
-  if (pendientesDed.length) {
-    h += '<div class="lbl" style="margin-top:4px;color:var(--orange)">⏳ Pendientes de resultados</div>';
-    pendientesDed.forEach(function(r){
-      var planN = getSesion(r.Sesion_Plan);
-      var esLibre = !planN;
-      h += '<div class="card" style="margin-bottom:8px;border-left:4px solid var(--orange)"><div class="cb">';
-      h += '<div style="font-size:12px;font-weight:700;margin-bottom:6px">'+(planN?planN.nombre:r.Sesion_Plan)+'</div>';
-      if (esLibre) {
-        // Show button for each nadador
-        NADADORES.forEach(function(n){
-          h += '<button class="btn tl" style="margin-bottom:6px" onclick="retomarLibrePendiente(this.dataset.s)" data-s="'+r.Sesion_Plan.replace(/"/g,'&quot;')+'">&#x1F4F8; '+n.nombre+' &mdash; Cargar fotos</button>';
-        });
-      } else {
-        h += '<button class="btn tl" onclick="retomarPendiente(this.dataset.id)" data-id="'+r.Sesion_Plan+'">&#x1F4F8; Cargar fotos Garmin</button>';
-      }
-      h += '</div></div>';
-    });
-  }
-
   // Últimas
   if(ultimas.length) {
     h+='<div class="lbl" style="margin-top:4px">Últimas sesiones</div>';
@@ -906,7 +874,7 @@ function toggleSC(id) { document.getElementById(id)?.classList.toggle('open'); }
 // CARGAR — STEP 1
 // ═══════════════════════════════════════════════════
 function renderCargar1() {
-  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null; S.libreBloques=null; S.libreNombre=null;
+  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null; S.libreBloques=null; S.libreNombre=null; S.pendienteId=null; S.pendienteFecha=null;
   const sesiones=getAllSesiones().filter(s=>!s.intensidad.includes('🏆'));
 
   // Show pending sessions at top
@@ -1048,11 +1016,14 @@ async function ejecutarGuardarPendiente() {
   var plan = getSesion(S.sesionPlan);
   var distInfo = plan ? calcDistSesion({bloques: plan.bloques.filter(function(b,i){ return !S.bloqueStates||!S.bloqueStates[i]||S.bloqueStates[i].hecho; })}) : null;
 
+  // If resuming a pending session, update that record (same ID/fecha)
+  var isPendiente = !!(S.pendienteId);
   var reg = {
-    id: genId(S.nadador),
-    fecha: todayStr(),
+    id: isPendiente ? S.pendienteId : genId(S.nadador),
+    fecha: isPendiente && S.pendienteFecha ? String(S.pendienteFecha).substring(0,10) : todayStr(),
     nadador: S.nadador,
-    sesionPlan: S.sesionPlan,
+    sesionPlan: isPendiente ? (S.libreNombre||S.sesionPlan) : S.sesionPlan,
+    _update: isPendiente,
     medio: 'Piscina',
     resumen: { distancia_m:'', pendiente:true },
     vueltas: [],
@@ -1104,8 +1075,12 @@ function retomarLibreConNad(nombre, nadador) {
 
   // Find the pending record to get sesion_id
   var reg = CACHE.find(function(r){
-    return (r.Pendiente==='SI'||r.Pendiente===true) && r.Sesion_Plan===nombre;
+    return (r.Pendiente==='SI'||r.Pendiente===true) && r.Sesion_Plan===nombre && r.Nadador===nadador;
   });
+
+  // Store pending ID so guardar() updates instead of inserting
+  S.pendienteId = reg ? reg.ID : null;
+  S.pendienteFecha = reg ? reg.Fecha : null;
 
   goTab('cargar');
 
@@ -1697,11 +1672,14 @@ async function guardar() {
   var r = S.extracted && S.extracted.resumen ? S.extracted.resumen : {};
   var ev = S.extracted && S.extracted.evaluacion ? S.extracted.evaluacion : {};
   var plan = getSesion(S.sesionPlan);
+  // If resuming a pending session, update that record (same ID/fecha)
+  var isPendiente = !!(S.pendienteId);
   var reg = {
-    id: genId(S.nadador),
-    fecha: todayStr(),
+    id: isPendiente ? S.pendienteId : genId(S.nadador),
+    fecha: isPendiente && S.pendienteFecha ? String(S.pendienteFecha).substring(0,10) : todayStr(),
     nadador: S.nadador,
-    sesionPlan: S.sesionPlan,
+    sesionPlan: isPendiente ? (S.libreNombre||S.sesionPlan) : S.sesionPlan,
+    _update: isPendiente,
     medio: 'Piscina',
     resumen: r,
     vueltas: S.extracted ? S.extracted.vueltas||[] : [],
@@ -1778,6 +1756,11 @@ async function guardar() {
       '<button class="btn2" onclick="goTab(\'historial\')">&#x1F4C8; Ver historial</button>' +
       '<button class="btn2" onclick="goTab(\'hoy\')">&#x1F3E0; Inicio</button>';
     toast('Guardado en Google Sheets');
+    // Mark pending record as completed in local CACHE
+    if (S.pendienteId) {
+      CACHE.forEach(function(r){ if(r.ID===S.pendienteId){ r.Pendiente=''; r.Distancia_m=reg.resumen?.distancia_m||''; r.Ritmo_100m=reg.resumen?.ritmo_medio||''; } });
+      S.pendienteId=null; S.pendienteFecha=null;
+    }
   } else {
     toast('Error al guardar. Verifica conexi&#xF3;n.', 4000);
   }
@@ -1785,11 +1768,14 @@ async function guardar() {
 
 async function guardarPendiente() {
   var plan = getSesion(S.sesionPlan);
+  // If resuming a pending session, update that record (same ID/fecha)
+  var isPendiente = !!(S.pendienteId);
   var reg = {
-    id: genId(S.nadador),
-    fecha: todayStr(),
+    id: isPendiente ? S.pendienteId : genId(S.nadador),
+    fecha: isPendiente && S.pendienteFecha ? String(S.pendienteFecha).substring(0,10) : todayStr(),
     nadador: S.nadador,
-    sesionPlan: S.sesionPlan,
+    sesionPlan: isPendiente ? (S.libreNombre||S.sesionPlan) : S.sesionPlan,
+    _update: isPendiente,
     medio: 'Piscina',
     resumen: { distancia_m: '', pendiente: true },
     vueltas: [],
@@ -1945,6 +1931,11 @@ async function guardarLibreSinFotos() {
       '<button class="btn2" onclick="goTab(\'historial\')">&#x1F4C8; Ver historial</button>' +
       '<button class="btn2" onclick="goTab(\'hoy\')">&#x1F3E0; Inicio</button>';
     toast('Guardado en Google Sheets');
+    // Mark pending record as completed in local CACHE
+    if (S.pendienteId) {
+      CACHE.forEach(function(r){ if(r.ID===S.pendienteId){ r.Pendiente=''; r.Distancia_m=reg.resumen?.distancia_m||''; r.Ritmo_100m=reg.resumen?.ritmo_medio||''; } });
+      S.pendienteId=null; S.pendienteFecha=null;
+    }
     S.libreBloques = null; S.libreNombre = null;
   } else {
     toast('Error al guardar. Verifica conexión.', 4000);
