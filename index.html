@@ -724,6 +724,7 @@ async function sheetsSave(reg) {
 // ═══════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════
+function irHoy(){ goTab('hoy'); }
 function goTab(tab) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
@@ -1764,6 +1765,17 @@ async function guardar() {
       CACHE = CACHE.filter(function(r){ return !(r.ID===S.pendienteId && r.Nadador===S.nadador); });
       S.pendienteId=null; S.pendienteFecha=null;
     }
+      // Add completed record to CACHE immediately — no page reload needed
+      CACHE.push({
+        ID:reg.id, Fecha:reg.fecha+'T04:00:00.000Z', Nadador:reg.nadador,
+        Sesion_Plan:reg.sesionPlan, Medio:reg.medio,
+        Distancia_m:reg.resumen.distancia_m||'',
+        Ritmo_100m:reg.resumen.ritmo_medio||'',
+        FC_Media:reg.resumen.fc_media||'',
+        SWOLF:reg.resumen.swolf_medio||'',
+        Pendiente:''
+      });
+      if (HIST_NAD) renderHistorial();
   } else {
     toast('Error al guardar. Verifica conexi&#xF3;n.', 4000);
   }
@@ -1824,71 +1836,53 @@ async function guardarLibrePendiente() {
   if (!S.libreNombre && !S.libreBloques) { toast('Ingresa al menos el nombre del entrenamiento'); return; }
   var totalL = calcLibreTotal();
   var nombre = S.libreNombre || 'Entrenamiento libre';
+  var fecha = todayStr();
 
-  // Build a virtual session from libre blocks so it can appear in Plan
-  var sesionId = 'LIBRE_' + Date.now();
-  var reg = {
-    id: genId(S.nadador),
-    fecha: todayStr(),
-    nadador: S.nadador,
-    sesionPlan: nombre,
-    medio: 'Piscina',
-    resumen: { distancia_m: totalL || '', pendiente: true },
-    vueltas: [],
-    bloqueStates: [],
-    evaluacion: {},
-    pendiente: true,
-    _libreNombre: nombre,
-    _libreBloques: S.libreBloques || []
-  };
+  lov(true); setLoad(20, 'Guardando plan para todos los nadadores...', '');
+  var todosOk = true;
 
-  lov(true); setLoad(40, 'Guardando plan libre...', '');
-  var ok = await sheetsSave(reg);
+  for (var ni = 0; ni < NADADORES.length; ni++) {
+    var nad = NADADORES[ni];
+    setLoad(20 + Math.round(ni/NADADORES.length*60), 'Guardando para '+nad.nombre+'...', '');
+    var reg = {
+      id: genId(nad.nombre), fecha: fecha, nadador: nad.nombre,
+      sesionPlan: nombre, medio: 'Piscina',
+      resumen: { distancia_m: totalL || '', pendiente: true },
+      vueltas: [], bloqueStates: [], evaluacion: {}, pendiente: true
+    };
+    var ok = await sheetsSave(reg);
+    if (!ok) { todosOk = false; continue; }
 
-  if (ok && S.libreBloques) {
-    setLoad(70, 'Guardando bloques...', '');
-    for (var li = 0; li < S.libreBloques.length; li++) {
-      var lb = S.libreBloques[li];
-      if (!lb.tipo && !lb.dist) continue;
-      await fetch('https://orion-proxy.felgonino.workers.dev', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          action:'detalle', sesion_id:reg.id, fecha:reg.fecha,
-          nadador:reg.nadador, sesion_plan:nombre,
-          bloque_idx:li+1, bloque_tipo:lb.tipo||'Bloque',
-          bloque_desc:(lb.dist?lb.dist+'m':'')+(lb.nota?' — '+lb.nota:''),
-          ritmo_obj:'', hecho:true, estilo_var:'', nota:lb.nota||'',
-          meta_f:'', meta_s:''
-        })
-      }).catch(function(){});
+    if (S.libreBloques) {
+      for (var li = 0; li < S.libreBloques.length; li++) {
+        var lb = S.libreBloques[li];
+        if (!lb.tipo && !lb.dist) continue;
+        await fetch('https://orion-proxy.felgonino.workers.dev',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'detalle',sesion_id:reg.id,fecha:reg.fecha,nadador:reg.nadador,sesion_plan:nombre,bloque_idx:li+1,bloque_tipo:lb.tipo||'Bloque',bloque_desc:(lb.dist?lb.dist+'m':'')+(lb.nota?' — '+lb.nota:''),ritmo_obj:'',hecho:true,estilo_var:'',nota:lb.nota||'',meta_f:'',meta_s:''})
+        }).catch(function(){});
+      }
     }
+    CACHE.push({ID:reg.id,Fecha:reg.fecha+'T04:00:00.000Z',Nadador:reg.nadador,Sesion_Plan:nombre,Distancia_m:totalL||'',Ritmo_100m:'',SWOLF:'',FC_Media:'',Pendiente:'SI'});
   }
 
   lov(false);
-  if (ok) {
-    // Add to cache as pending so Hoy shows it
-    CACHE.push({
-      ID:reg.id, Fecha:reg.fecha, Nadador:reg.nadador,
-      Sesion_Plan:nombre, Distancia_m:totalL||'',
-      Ritmo_100m:'', SWOLF:'', FC_Media:'',
-      Pendiente:'SI',
-      _libreData: { nombre:nombre, bloques: S.libreBloques||[], dist:totalL }
-    });
-
+  if (todosOk) {
     document.getElementById('pg-cargar').innerHTML =
-      '<div class="ok-box"><div class="ok-ico">⏳</div>' +
-      '<div class="ok-t">Plan guardado como pendiente</div>' +
-      '<div class="ok-s"><b>'+nombre+'</b><br>'+reg.nadador+' · '+reg.fecha+'<br>'+(totalL?totalL+'m total':'')+'<br><br>' +
-      'Aparece en <b>Hoy</b> con el botón para cargar fotos cuando quieras.</div></div>' +
-      '<button class="btn" onclick="renderCargar1()">📤 Registrar otra sesión</button>' +
-      '<button class="btn2" onclick="goTab(\'hoy\')">🏠 Inicio</button>';
-    toast('Plan libre guardado — retoma cuando tengas las fotos');
-    S.libreBloques = null; S.libreNombre = null;
+      '<div class="ok-box"><div class="ok-ico">&#x23F3;</div>' +
+      '<div class="ok-t">Plan guardado para todos</div>' +
+      '<div class="ok-s"><b>'+nombre+'</b><br>'+fecha+(totalL?'<br>'+totalL+'m total':'')+'<br><br>'+
+      NADADORES.map(function(n){return n.emoji+' '+n.nombre+': pendiente de resultados';}).join('<br>')+'</div></div>'+
+      '<button class="btn" onclick="renderCargar1()">&#x1F4E4; Registrar otra sesi&#xF3;n</button>'+
+      '<button class="btn2" onclick="irHoy()">&#x1F3E0; Inicio</button>';
+    toast('Plan guardado para '+NADADORES.map(function(n){return n.nombre;}).join(' y '));
+    S.libreBloques=null; S.libreNombre=null;
     renderHoy();
   } else {
-    toast('Error al guardar. Verifica conexión.', 4000);
+    toast('Algunos registros no se guardaron. Verifica conexión.', 4000);
   }
 }
+
 
 async function guardarLibreSinFotos() {
   var totalL = calcLibreTotal();
