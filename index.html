@@ -892,42 +892,6 @@ function renderPlan() {
     });
   });
 
-  // Sesiones libres pendientes (disponibles para ambos nadadores)
-  var libresP = CACHE.filter(function(r){
-    return (r.Pendiente==='SI'||r.Pendiente===true) && r.Sesion_Plan && r.Sesion_Plan!==r.ID;
-  });
-  // Deduplicate by Sesion_Plan name
-  var vistas = {};
-  libresP = libresP.filter(function(r){
-    if(vistas[r.Sesion_Plan]) return false;
-    vistas[r.Sesion_Plan] = true;
-    return true;
-  });
-  if (libresP.length) {
-    h += '<div class="lbl" style="margin-top:4px;color:var(--orange)">⏳ Entrenamientos pendientes de resultados</div>';
-    libresP.forEach(function(r){
-      // Check which nadadores already loaded results
-      var cargados = CACHE.filter(function(x){
-        return x.Sesion_Plan===r.Sesion_Plan && x.Fecha===r.Fecha && !x.Pendiente;
-      }).map(function(x){return x.Nadador;});
-      h += '<div class="card" style="margin-bottom:10px;border-left:4px solid var(--orange)"><div class="cb">';
-      h += '<div style="font-size:13px;font-weight:700;margin-bottom:6px">'+r.Sesion_Plan+'</div>';
-      h += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+formatShortDate(r.Fecha||'')+(r.Distancia_m?' · '+r.Distancia_m+'m':'')+'</div>';
-      NADADORES.forEach(function(n){
-        var yaCargo = cargados.indexOf(n.nombre) >= 0;
-        h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--gray2)">';
-        h += '<span style="font-size:12px">'+n.emoji+' '+n.nombre+'</span>';
-        if (yaCargo) {
-          h += '<span style="font-size:11px;color:var(--green);font-weight:600">✅ Resultados cargados</span>';
-        } else {
-          h += '<button class="btn tl" style="margin-bottom:6px" onclick="retomarLibrePendiente(this.dataset.s)" data-s="'+r.Sesion_Plan+'">';
-        }
-        h += '</div>';
-      });
-      h += '</div></div>';
-    });
-  }
-
   document.getElementById('pg-plan').innerHTML=h;
 }
 
@@ -1621,6 +1585,8 @@ async function analizarFotos() {
     'Devuelve SOLO JSON valido sin backticks:\n' +
     '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[{"intervalo":1,"tiempo":null,"distancia_m":null,"ritmo":null}],"evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"para_proxima":[]}}';
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 55000);
     const resp=await fetch('https://orion-proxy.felgonino.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
