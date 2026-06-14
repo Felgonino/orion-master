@@ -1761,7 +1761,7 @@ async function guardar() {
     toast('Guardado en Google Sheets');
     // Remove pending record from CACHE and add completed one
     if (S.pendienteId) {
-      CACHE = CACHE.filter(function(r){ return r.ID !== S.pendienteId; });
+      CACHE = CACHE.filter(function(r){ return !(r.ID===S.pendienteId && r.Nadador===S.nadador); });
       S.pendienteId=null; S.pendienteFecha=null;
     }
   } else {
@@ -1936,7 +1936,7 @@ async function guardarLibreSinFotos() {
     toast('Guardado en Google Sheets');
     // Remove pending record from CACHE and add completed one
     if (S.pendienteId) {
-      CACHE = CACHE.filter(function(r){ return r.ID !== S.pendienteId; });
+      CACHE = CACHE.filter(function(r){ return !(r.ID===S.pendienteId && r.Nadador===S.nadador); });
       S.pendienteId=null; S.pendienteFecha=null;
     }
     S.libreBloques = null; S.libreNombre = null;
