@@ -601,7 +601,9 @@ let GLOSARIO = [
 function getBloqueActivo() { return BLOQUES.find(b=>b.activo)||BLOQUES[0]; }
 function getAllSesiones() { return getBloqueActivo().semanas.flatMap(w=>w.sesiones); }
 function getSesion(id) { return BLOQUES.flatMap(b=>b.semanas.flatMap(w=>w.sesiones)).find(s=>s.id===id); }
-function completadas(id) { return CACHE.filter(r=>r.Sesion_Plan===id && r.ID && r.ID!=='' && r.ID!=='ID'); }
+function completadas(id) { 
+  return CACHE.filter(r=>r.Sesion_Plan===id && r.ID && r.ID!=='' && r.ID!=='ID' && r.Pendiente!=='SI' && r.Pendiente!==true);
+}
 function todayStr() { const d=new Date(); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
 function z(n){ return String(n).padStart(2,'0'); }
 function genId(nad) {
@@ -1067,22 +1069,23 @@ async function ejecutarGuardarPendiente() {
 
 // Retomar sesión pendiente desde Hoy o Plan
 function retomarLibreConNad(nombre, nadador) {
+  if (nombre && nombre.dataset) { nadador = nombre.dataset.n; nombre = nombre.dataset.s; }
+
+  var reg = CACHE.find(function(r){
+    return (r.Pendiente==='SI'||r.Pendiente===true) && r.Sesion_Plan===nombre && r.Nadador===nadador;
+  });
+  var pendId = reg ? reg.ID : null;
+  var pendFecha = reg ? reg.Fecha : null;
+
+  // goTab calls renderCargar1 which resets S — set values AFTER
+  goTab('cargar');
   S.sesionPlan = 'LIBRE';
   S.libreNombre = nombre;
   S.nadador = nadador;
   S.files = [];
   S.extracted = null;
-
-  // Find the pending record to get sesion_id
-  var reg = CACHE.find(function(r){
-    return (r.Pendiente==='SI'||r.Pendiente===true) && r.Sesion_Plan===nombre && r.Nadador===nadador;
-  });
-
-  // Store pending ID so guardar() updates instead of inserting
-  S.pendienteId = reg ? reg.ID : null;
-  S.pendienteFecha = reg ? reg.Fecha : null;
-
-  goTab('cargar');
+  S.pendienteId = pendId;
+  S.pendienteFecha = pendFecha;
 
   if (reg && reg.ID) {
     // Load bloques from Sheets and show checklist
@@ -1756,9 +1759,9 @@ async function guardar() {
       '<button class="btn2" onclick="goTab(\'historial\')">&#x1F4C8; Ver historial</button>' +
       '<button class="btn2" onclick="goTab(\'hoy\')">&#x1F3E0; Inicio</button>';
     toast('Guardado en Google Sheets');
-    // Mark pending record as completed in local CACHE
+    // Remove pending record from CACHE and add completed one
     if (S.pendienteId) {
-      CACHE.forEach(function(r){ if(r.ID===S.pendienteId){ r.Pendiente=''; r.Distancia_m=reg.resumen?.distancia_m||''; r.Ritmo_100m=reg.resumen?.ritmo_medio||''; } });
+      CACHE = CACHE.filter(function(r){ return r.ID !== S.pendienteId; });
       S.pendienteId=null; S.pendienteFecha=null;
     }
   } else {
@@ -1931,9 +1934,9 @@ async function guardarLibreSinFotos() {
       '<button class="btn2" onclick="goTab(\'historial\')">&#x1F4C8; Ver historial</button>' +
       '<button class="btn2" onclick="goTab(\'hoy\')">&#x1F3E0; Inicio</button>';
     toast('Guardado en Google Sheets');
-    // Mark pending record as completed in local CACHE
+    // Remove pending record from CACHE and add completed one
     if (S.pendienteId) {
-      CACHE.forEach(function(r){ if(r.ID===S.pendienteId){ r.Pendiente=''; r.Distancia_m=reg.resumen?.distancia_m||''; r.Ritmo_100m=reg.resumen?.ritmo_medio||''; } });
+      CACHE = CACHE.filter(function(r){ return r.ID !== S.pendienteId; });
       S.pendienteId=null; S.pendienteFecha=null;
     }
     S.libreBloques = null; S.libreNombre = null;
