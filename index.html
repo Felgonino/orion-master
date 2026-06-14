@@ -1591,7 +1591,7 @@ async function analizarFotos() {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       signal: controller.signal,
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})
     });
     clearTimeout(timeoutId);
     clearInterval(iv); setLoad(100,'Análisis completo ✓','');
