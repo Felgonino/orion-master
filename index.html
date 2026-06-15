@@ -2748,54 +2748,98 @@ function imprimirSesion(id) {
   var s=BLOQUES.flatMap(function(b){return b.semanas.flatMap(function(w){return w.sesiones;});}).find(function(x){return x.id===id;});
   if(!s){toast('Sesión no encontrada');return;}
   var di=calcDistSesion(s), tot=di?di.total+'m':'';
-  var parts=['<!DOCTYPE html><html><head><meta charset="UTF-8">',
-    '<title>ORION '+s.nombre+'<\/title>',
-    '<style>',
-    'body{font-family:Arial,sans-serif;font-size:15pt;color:#1B2631;padding:12mm 14mm;margin:0}',
-    '@media print{@page{size:letter portrait;margin:12mm 14mm}.no-print{display:none!important}}',
-    '.no-print{margin-bottom:14px}',
-    'h1{font-size:19pt;color:#0D2B55;margin:6px 0 2px}',
-    '.meta{font-size:12pt;color:#666;margin-bottom:10px}',
-    '.obj{background:#EBF5FB;border-left:5px solid #0D2B55;padding:9px 13px;border-radius:4px;margin-bottom:8px;font-size:14pt;line-height:1.4}',
-    '.rat{background:#FEF9E7;border-left:5px solid #F39C12;padding:8px 13px;border-radius:4px;margin-bottom:12px;font-size:12pt;color:#7D6608}',
-    '.blq{border:2px solid #BDC3C7;border-radius:8px;margin-bottom:12px;page-break-inside:avoid}',
-    '.bh{background:#D6EAF8;padding:9px 13px;font-size:14pt;font-weight:700;color:#0D2B55;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center}',
-    '.bb{padding:9px 13px}',
-    '.ser{font-size:14pt;padding:5px 0;border-bottom:1px solid #EEE;line-height:1.5}',
-    '.ser:last-child{border-bottom:none}',
-    '.tag{background:#0D2B55;color:#fff;border-radius:4px;padding:2px 9px;font-size:12pt;font-weight:700}',
-    '.desc{font-size:12pt;color:#5D6D7E;margin-left:6px}',
-    '.desc-b{font-size:11pt;color:#888;font-style:italic;margin-top:5px}',
-    '.tot{text-align:right;font-size:15pt;font-weight:700;color:#0D2B55;margin-top:12px;border-top:3px solid #0D2B55;padding-top:8px}',
-    '.foot{margin-top:14px;font-size:10pt;color:#AAA;text-align:center;border-top:1px solid #EEE;padding-top:7px}',
-    'button{padding:9px 18px;border:none;border-radius:7px;font-size:13pt;cursor:pointer;margin-right:8px}',
-    '<\/style><\/head><body>'];
-  parts.push('<div class="no-print"><button style="background:#0D2B55;color:#fff" onclick="window.print()">Imprimir / Guardar PDF<\/button><button style="background:#E5E8E8" onclick="window.close()">Cerrar<\/button><\/div>');
-  parts.push('<div style="background:#0D2B55;color:#fff;display:inline-block;padding:2px 10px;border-radius:4px;font-size:10pt;font-weight:700;letter-spacing:1px;margin-bottom:4px">ORION MASTER<\/div>');
-  parts.push('<h1>'+s.nombre+'<\/h1>');
-  parts.push('<div class="meta">'+s.dia+(tot?' &bull; '+tot:'')+'<\/div>');
-  parts.push('<div class="obj"><b>Objetivo:<\/b> '+s.objetivo+'<\/div>');
-  if(s.rationale) parts.push('<div class="rat"><b>¿Por qué esta sesión?<\/b> '+s.rationale+'<\/div>');
+
+  // Build WhatsApp text summary
+  var waTxt = 'ORION Master - '+s.nombre+'\n'+s.dia+(tot?' | '+tot:'')+'\nObjetivo: '+s.objetivo+'\n\n';
   s.bloques.forEach(function(b,i){
     var dB=calcDistBloque(b);
-    parts.push('<div class="blq"><div class="bh"><span>'+(i+1)+'. '+b.tipo+(dB?' &mdash; '+dB+'m':'')+'<\/span>'+(b.ritmo?'<span class="tag">'+b.ritmo+'<\/span>':'')+'<\/div><div class="bb">');
+    waTxt+=(i+1)+'. '+b.tipo+(dB?' ('+dB+'m)':'')+'\n';
     if(b.series&&b.series.length){
-      b.series.forEach(function(s){
-        var t='<b>'+(s.reps>1?s.reps+'&times;'+s.dist+'m':s.dist+'m')+'<\/b> '+s.estilo;
-        if(s.implemento)t+=' <span class="desc">('+s.implemento+')<\/span>';
-        var ts=[];if(s.salida)ts.push('salida @'+s.salida);if(s.descanso)ts.push('desc. '+s.descanso);
-        if(ts.length)t+='<span class="desc"> &mdash; '+ts.join(' &middot; ')+'<\/span>';
-        parts.push('<div class="ser">'+t+'<\/div>');
+      b.series.forEach(function(sr){
+        var t=(sr.reps>1?sr.reps+'x'+sr.dist+'m':sr.dist+'m')+' '+sr.estilo;
+        if(sr.implemento)t+=' ('+sr.implemento+')';
+        if(sr.salida)t+=' @'+sr.salida;
+        if(sr.descanso)t+=' desc.'+sr.descanso;
+        waTxt+='   - '+t+'\n';
       });
-    } else if(b.desc) parts.push('<div class="ser">'+b.desc+'<\/div>');
-    if(b.descanso_bloque&&b.descanso_bloque!=='—') parts.push('<div class="desc-b">&#x23F8; Descanso: '+b.descanso_bloque+'<\/div>');
-    parts.push('<\/div><\/div>');
+    } else if(b.desc) waTxt+='   '+b.desc+'\n';
+    if(b.ritmo)waTxt+='   Ritmo: '+b.ritmo+'\n';
+    waTxt+='\n';
   });
-  if(tot) parts.push('<div class="tot">Distancia total: '+tot+'<\/div>');
-  parts.push('<div class="foot">ORION Master &bull; '+new Date().toLocaleDateString('es-CL')+'<\/div>');
-  parts.push('<\/body><\/html>');
-  var v=window.open('','_blank','width=900,height=800');
-  if(v){v.document.write(parts.join(''));v.document.close();}
+  if(tot)waTxt+='Total: '+tot;
+  var waUrl='https://wa.me/?text='+encodeURIComponent(waTxt);
+
+  // Build PDF HTML - everything escaped to not break script
+  var p=[];
+  p.push('<!DOCTYPE html><html><head><meta charset="UTF-8">');
+  p.push('<title>ORION - '+s.nombre+'<\/title>');
+  p.push('<style>');
+  p.push('*{box-sizing:border-box;margin:0;padding:0}');
+  p.push('body{font-family:Arial,sans-serif;font-size:13pt;color:#1B2631;padding:10mm 12mm}');
+  p.push('@media print{@page{size:letter portrait;margin:8mm 10mm}.no-print{display:none!important}body{font-size:12pt;padding:0}}');
+  p.push('.no-print{margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap}');
+  p.push('button{padding:8px 16px;border:none;border-radius:7px;font-size:12pt;cursor:pointer}');
+  p.push('.badge{background:#0D2B55;color:#fff;display:inline-block;padding:2px 10px;border-radius:4px;font-size:10pt;font-weight:700;letter-spacing:1px;margin-bottom:4px}');
+  p.push('h1{font-size:17pt;color:#0D2B55;margin:3px 0 2px;line-height:1.2}');
+  p.push('.meta{font-size:11pt;color:#666;margin-bottom:7px}');
+  p.push('.obj{background:#EBF5FB;border-left:4px solid #0D2B55;padding:7px 11px;border-radius:3px;margin-bottom:8px;font-size:12pt;line-height:1.3}');
+  p.push('.blq{border:1.5px solid #BDC3C7;border-radius:6px;margin-bottom:8px;page-break-inside:avoid}');
+  p.push('.bh{background:#D6EAF8;padding:6px 11px;font-size:13pt;font-weight:700;color:#0D2B55;border-radius:4px 4px 0 0;display:flex;justify-content:space-between;align-items:center}');
+  p.push('.bb{padding:6px 11px}');
+  p.push('.ser{font-size:13pt;padding:4px 0;border-bottom:1px solid #EEE;line-height:1.4}');
+  p.push('.ser:last-child{border-bottom:none}');
+  p.push('.rtag{background:#0D2B55;color:#fff;border-radius:3px;padding:1px 8px;font-size:11pt;font-weight:700}');
+  p.push('.sd{font-size:11pt;color:#5D6D7E;margin-left:5px}');
+  p.push('.desc-b{font-size:11pt;color:#888;font-style:italic;margin-top:4px}');
+  p.push('.tot{text-align:right;font-size:14pt;font-weight:700;color:#0D2B55;margin-top:8px;border-top:2.5px solid #0D2B55;padding-top:7px}');
+  p.push('.foot{margin-top:10px;font-size:10pt;color:#AAA;text-align:center;border-top:1px solid #EEE;padding-top:6px}');
+  p.push('<\/style><\/head><body>');
+
+  // Action buttons
+  p.push('<div class="no-print">');
+  p.push('<button style="background:#0D2B55;color:#fff" onclick="window.print()">&#x1F5A8; Imprimir \/ Guardar PDF<\/button>');
+  p.push('<button style="background:#25D366;color:#fff" onclick="window.open(\''+waUrl+'\')">&#x1F4F1; WhatsApp<\/button>');
+  p.push('<button style="background:#E5E8E8;color:#333" onclick="window.close()">&#x2715; Cerrar<\/button>');
+  p.push('<\/div>');
+
+  // Header
+  p.push('<div class="badge">ORION MASTER<\/div>');
+  p.push('<h1>'+s.nombre+'<\/h1>');
+  p.push('<div class="meta">'+s.dia+(tot?' &bull; '+tot:'')+(s.intensidad?' &bull; '+s.intensidad:'')+'<\/div>');
+  p.push('<div class="obj"><b>Objetivo:<\/b> '+s.objetivo+'<\/div>');
+
+  // Bloques with full detail
+  s.bloques.forEach(function(b,i){
+    var dB=calcDistBloque(b);
+    p.push('<div class="blq">');
+    p.push('<div class="bh"><span>'+(i+1)+'. '+b.tipo+(dB?' &mdash; '+dB+'m':'')+'<\/span>'+(b.ritmo?'<span class="rtag">'+b.ritmo+'<\/span>':'')+'<\/div>');
+    p.push('<div class="bb">');
+    if(b.series&&b.series.length){
+      b.series.forEach(function(sr){
+        p.push('<div class="ser">');
+        p.push('<b>'+(sr.reps>1?sr.reps+'&times;'+sr.dist+'m':sr.dist+'m')+'<\/b> '+sr.estilo);
+        if(sr.implemento)p.push(' <span class="sd">('+sr.implemento+')<\/span>');
+        var ts=[];
+        if(sr.salida)ts.push('salida @'+sr.salida);
+        if(sr.descanso)ts.push('desc. '+sr.descanso);
+        if(ts.length)p.push('<span class="sd"> &mdash; '+ts.join(' &middot; ')+'<\/span>');
+        p.push('<\/div>');
+      });
+    } else if(b.desc){
+      p.push('<div class="ser">'+b.desc+'<\/div>');
+    }
+    if(b.descanso_bloque&&b.descanso_bloque!=='—'){
+      p.push('<div class="desc-b">&#x23F8; Descanso entre bloques: '+b.descanso_bloque+'<\/div>');
+    }
+    p.push('<\/div><\/div>');
+  });
+
+  if(tot)p.push('<div class="tot">Distancia total: '+tot+'<\/div>');
+  p.push('<div class="foot">ORION Master &bull; '+new Date().toLocaleDateString('es-CL')+'<\/div>');
+  p.push('<\/body><\/html>');
+
+  var v=window.open('','_blank','width=880,height=800');
+  if(v){v.document.write(p.join(''));v.document.close();}
   else toast('Permite ventanas emergentes para imprimir',3000);
 }
 
