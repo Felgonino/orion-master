@@ -2753,149 +2753,96 @@ function activarProgramaGen(i) {
 // ═══════════════════════════════════════════════════
 function imprimirSesion(id) {
   var s = BLOQUES.flatMap(function(b){ return b.semanas.flatMap(function(w){ return w.sesiones; }); }).find(function(x){ return x.id===id; });
-  if (!s) { toast('Sesión no encontrada'); return; }
+  if (!s) { toast('Sesi\xF3n no encontrada'); return; }
 
   var distInfo = calcDistSesion(s);
   var totalDist = distInfo ? distInfo.total+'m' : '';
 
   var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
-  html += '<title>ORION — '+s.nombre+'</title>';
+  html += '<meta name="viewport" content="width=device-width, initial-scale=1">';
+  html += '<title>ORION \u2014 '+s.nombre+'</title>';
   html += '<style>';
-  html += '@page{size:letter portrait;margin:15mm 18mm}';
-  html += '*{box-sizing:border-box}';
-  html += 'body{font-family:Arial,sans-serif;font-size:13pt;color:#1B2631;margin:0;padding:0}';
-  html += 'h1{font-size:17pt;color:#0D2B55;margin:0 0 4px}';
-  html += '.meta{font-size:11pt;color:#566573;margin-bottom:10px}';
-  html += '.objetivo{background:#EBF5FB;border-left:5px solid #0D2B55;padding:8px 12px;border-radius:4px;margin-bottom:8px;font-size:12pt}';
-  html += '.rationale{background:#FEF9E7;border-left:5px solid #F39C12;padding:8px 12px;border-radius:4px;margin-bottom:12px;font-size:11pt;color:#7D6608}';
-  html += '.bloque{border:1.5px solid #BDC3C7;border-radius:6px;margin-bottom:10px;page-break-inside:avoid}';
-  html += '.bloque-header{background:#EAF2FF;padding:7px 12px;font-size:13pt;font-weight:700;color:#0D2B55;border-radius:4px 4px 0 0}';
-  html += '.bloque-body{padding:8px 12px}';
-  html += '.serie-row{font-size:13pt;padding:5px 0;border-bottom:1px solid #F2F3F4;line-height:1.4}';
-  html += '.serie-row:last-child{border-bottom:none}';
-  html += '.ritmo-badge{display:inline-block;background:#0D2B55;color:#fff;border-radius:4px;padding:2px 8px;font-size:11pt;margin-left:8px}';
-  html += '.descanso{font-size:11pt;color:#888;margin-top:4px;font-style:italic}';
-  html += '.total-box{text-align:right;font-weight:700;font-size:14pt;color:#0D2B55;margin-top:12px;border-top:2.5px solid #0D2B55;padding-top:8px}';
-  html += '.footer{margin-top:16px;font-size:10pt;color:#AAB7B8;text-align:center;border-top:1px solid #E5E8E8;padding-top:8px}';
-  html += '.header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}';
-  html += '.orion-badge{background:#0D2B55;color:#fff;border-radius:5px;padding:3px 10px;font-size:10pt;font-weight:700;letter-spacing:1px}';
-  html += '.no-print{display:block;margin-bottom:14px}';
-  html += '@media print{.no-print{display:none!important}}';
+  html += '* { box-sizing: border-box; margin: 0; padding: 0; }';
+  html += 'body { font-family: Arial, sans-serif; background: #fff; color: #1B2631; padding: 12mm 14mm; }';
+  html += '@media print { @page { size: letter portrait; margin: 12mm 14mm; } .no-print { display: none !important; } }';
+  html += '.no-print { margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap; }';
+  html += 'button { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14pt; cursor: pointer; }';
+  html += '.btn-print { background: #0D2B55; color: #fff; }';
+  html += '.btn-close { background: #E5E8E8; color: #333; }';
+  html += '.orion-tag { background: #0D2B55; color: #fff; display: inline-block; padding: 3px 12px; border-radius: 5px; font-size: 11pt; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }';
+  html += 'h1 { font-size: 20pt; color: #0D2B55; margin-bottom: 2px; line-height: 1.2; }';
+  html += '.session-meta { font-size: 13pt; color: #566573; margin-bottom: 10px; }';
+  html += '.objetivo-box { background: #EBF5FB; border-left: 5px solid #0D2B55; padding: 10px 14px; border-radius: 4px; margin-bottom: 8px; font-size: 14pt; line-height: 1.4; }';
+  html += '.rationale-box { background: #FEF9E7; border-left: 5px solid #F39C12; padding: 8px 14px; border-radius: 4px; margin-bottom: 14px; font-size: 12pt; color: #7D6608; line-height: 1.4; }';
+  html += '.bloque { border: 2px solid #BDC3C7; border-radius: 8px; margin-bottom: 14px; page-break-inside: avoid; }';
+  html += '.bloque-hdr { background: #D6EAF8; padding: 9px 14px; font-size: 15pt; font-weight: 700; color: #0D2B55; border-radius: 6px 6px 0 0; display: flex; justify-content: space-between; align-items: center; }';
+  html += '.bloque-body { padding: 10px 14px; }';
+  html += '.serie { font-size: 15pt; line-height: 1.5; padding: 6px 0; border-bottom: 1px solid #EEE; }';
+  html += '.serie:last-child { border-bottom: none; }';
+  html += '.serie b { color: #0D2B55; }';
+  html += '.serie-detalle { font-size: 13pt; color: #5D6D7E; margin-left: 8px; }';
+  html += '.descanso-bloque { font-size: 12pt; color: #888; font-style: italic; margin-top: 6px; }';
+  html += '.ritmo-tag { background: #0D2B55; color: #fff; border-radius: 4px; padding: 2px 10px; font-size: 12pt; font-weight: 700; }';
+  html += '.total { text-align: right; font-size: 16pt; font-weight: 700; color: #0D2B55; margin-top: 14px; border-top: 3px solid #0D2B55; padding-top: 10px; }';
+  html += '.footer { margin-top: 16px; font-size: 11pt; color: #AAA; text-align: center; border-top: 1px solid #EEE; padding-top: 8px; }';
   html += '</style></head><body>';
 
-  // Action buttons (hidden when printing)
-  html += '<div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap">';
-  html += '<button onclick="window.print()" style="background:#0D2B55;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13pt;cursor:pointer">&#x1F5A8; Imprimir / PDF</button>';
-  // WhatsApp share button
-  var waText = encodeURIComponent('ORION Master — ' + s.nombre + ' (' + s.dia + ')\n' + s.objetivo + (totalDist ? '\nDistancia: '+totalDist : ''));
-  html += '<button onclick="window.open(\'https://wa.me/?text='+waText+'\')" style="background:#25D366;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13pt;cursor:pointer">&#x1F4F1; WhatsApp</button>';
-  html += '<button onclick="window.close()" style="background:#E5E8E8;color:#1B2631;border:none;padding:10px 20px;border-radius:8px;font-size:13pt;cursor:pointer">&#x2715; Cerrar</button>';
+  // Buttons - hidden when printing
+  html += '<div class="no-print">';
+  html += '<button class="btn-print" onclick="window.print()">&#x1F5A8; Imprimir / Guardar PDF</button>';
+  html += '<button class="btn-close" onclick="window.close()">&#x2715; Cerrar</button>';
   html += '</div>';
 
   // Header
-  html += '<div class="header-bar"><div>';
-  html += '<div class="orion-badge">ORION MASTER</div>';
-  html += '<h1 style="margin-top:4px">'+s.nombre+'</h1>';
-  html += '</div>';
-  html += '<div style="text-align:right;font-size:11pt;color:#566573">'+s.dia+'<br>'+s.intensidad+'</div></div>';
-  html += '<div class="objetivo"><b>Objetivo:</b> '+s.objetivo+'</div>';
-  if (s.rationale) html += '<div class="rationale"><b>¿Por qué esta sesión?</b> '+s.rationale+'</div>';
+  html += '<div class="orion-tag">ORION MASTER</div>';
+  html += '<h1>'+s.nombre+'</h1>';
+  html += '<div class="session-meta">'+s.dia+'&nbsp;&nbsp;&bull;&nbsp;&nbsp;'+s.intensidad+(totalDist ? '&nbsp;&nbsp;&bull;&nbsp;&nbsp;'+totalDist : '')+'</div>';
+  html += '<div class="objetivo-box"><b>Objetivo:</b> '+s.objetivo+'</div>';
+  if (s.rationale) html += '<div class="rationale-box"><b>&#x1F4CC; Por qu\xE9 esta sesi\xF3n:</b> '+s.rationale+'</div>';
 
   // Bloques
-  s.bloques.forEach(function(b, idx){
+  s.bloques.forEach(function(b, i){
     var distB = calcDistBloque(b);
     html += '<div class="bloque">';
-    html += '<div class="bloque-header">'+String(idx+1)+'. '+b.tipo;
-    if (distB) html += ' &nbsp;&mdash;&nbsp; '+distB+'m';
-    if (b.ritmo) html += ' <span class="ritmo-badge">'+b.ritmo+'</span>';
+    html += '<div class="bloque-hdr"><span>'+(i+1)+'. '+b.tipo+(distB ? ' &mdash; '+distB+'m' : '')+'</span>';
+    if (b.ritmo) html += '<span class="ritmo-tag">&#x1F3AF; '+b.ritmo+'</span>';
     html += '</div>';
     html += '<div class="bloque-body">';
 
     if (b.series && b.series.length) {
       b.series.forEach(function(ser){
-        html += '<div class="serie-row">';
-        var txt = '';
-        if (ser.reps && ser.reps > 1) txt += '<b>'+ser.reps+'&times;'+ser.dist+'m</b>';
-        else txt += '<b>'+ser.dist+'m</b>';
-        txt += ' '+ser.estilo;
-        if (ser.implemento) txt += ' <span style="color:#5D6D7E">('+ser.implemento+')</span>';
-        var tiempos = [];
-        if (ser.salida) tiempos.push('salida @'+ser.salida);
-        if (ser.descanso) tiempos.push('desc. '+ser.descanso);
-        if (tiempos.length) txt += ' &nbsp;<span style="color:#5D6D7E;font-size:12pt">'+tiempos.join(' &middot; ')+'</span>';
-        html += txt+'</div>';
+        html += '<div class="serie">';
+        html += '<b>'+(ser.reps>1 ? ser.reps+'&times;'+ser.dist+'m' : ser.dist+'m')+'</b> '+ser.estilo;
+        if (ser.implemento) html += ' <span class="serie-detalle">('+ser.implemento+')</span>';
+        var t = [];
+        if (ser.salida) t.push('salida @'+ser.salida);
+        if (ser.descanso) t.push('desc. '+ser.descanso);
+        if (t.length) html += '<span class="serie-detalle"> &mdash; '+t.join(' &middot; ')+'</span>';
+        html += '</div>';
       });
     } else if (b.desc) {
-      html += '<div class="serie-row">'+b.desc+'</div>';
+      html += '<div class="serie">'+b.desc+'</div>';
     }
 
     if (b.descanso_bloque && b.descanso_bloque !== '—') {
-      html += '<div class="descanso">&#x23F8; Descanso tras bloque: '+b.descanso_bloque+'</div>';
+      html += '<div class="descanso-bloque">&#x23F8; Descanso tras bloque: '+b.descanso_bloque+'</div>';
     }
     html += '</div></div>';
   });
 
-  if (totalDist) html += '<div class="total-box">Distancia total: '+totalDist+'</div>';
-  html += '<div class="footer">ORION Master &nbsp;&bull;&nbsp; '+new Date().toLocaleDateString('es-CL')+' &nbsp;&bull;&nbsp; Generado con IA</div>';
+  if (totalDist) html += '<div class="total">Distancia total: '+totalDist+'</div>';
+  html += '<div class="footer">ORION Master &bull; '+new Date().toLocaleDateString('es-CL')+' &bull; Piscina 25m</div>';
   html += '</body></html>';
 
-  var v = window.open('', '_blank', 'width=900,height=750');
-  if (v) { v.document.write(html); v.document.close(); }
-  else { toast('Permite ventanas emergentes para imprimir', 3000); }
-}
-
-
-// ═══════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════
-// Cargar nadadores y competencias desde Sheets, luego mostrar login
-async function initApp() {
-  await cargarNadadores();
-  renderLogin();
-  // Cargar datos en background
-  sheetsLoad().then(()=>{
-    const tab=document.querySelector('.tab.on')?.id?.replace('tab-','');
-    if(tab==='hoy'&&USUARIO_ACTUAL) renderHoy();
-    if(tab==='historial'&&USUARIO_ACTUAL) renderHistorial();
-  }).catch(()=>syncDot('err'));
-}
-
-async function cargarNadadores() {
-  try {
-    const r = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=nadadores&t='+Date.now());
-    const j = await r.json();
-    if (j.ok && j.nadadores && j.nadadores.length) {
-      NADADORES = j.nadadores;
-    }
-  } catch(e) { /* usa los por defecto */ }
-  // Cargar glosario
-  try {
-    const rg = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=glosario&t='+Date.now());
-    const jg = await rg.json();
-    if (jg.ok && jg.glosario && jg.glosario.length) {
-      // Fusionar con los base sin duplicar
-      jg.glosario.forEach(function(g){
-        if (!GLOSARIO.find(function(x){ return x.termino.toLowerCase() === (g.termino||'').toLowerCase(); })) {
-          GLOSARIO.push(g);
-        }
-      });
-    }
-  } catch(e) { /* usa los base */ }
-}
-
-initApp();
-</script>
-</body>
-</html>function formatShortDate(s) {
-  if (!s) return '';
-  // Handle both 'YYYY-MM-DD' and 'YYYY-MM-DDT...' formats
-  var d = new Date(s);
-  if (isNaN(d.getTime())) {
-    // Try parsing as plain date
-    var parts = String(s).substring(0,10).split('-');
-    if (parts.length === 3) d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  var v = window.open('', '_blank', 'width=900,height=800');
+  if (v) {
+    v.document.write(html);
+    v.document.close();
+    // Auto-trigger print dialog after content loads
+    v.onload = function(){ v.focus(); };
+  } else {
+    toast('Permite ventanas emergentes para imprimir', 3000);
   }
-  if (isNaN(d.getTime())) return '';
-  var months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  return d.getDate()+' '+months[d.getMonth()];
 }
+
+
