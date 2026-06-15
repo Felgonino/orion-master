@@ -692,17 +692,11 @@ async function sheetsLoad() {
     clearTimeout(t);
     const j=await r.json();
     if(j.ok&&j.data){ 
-      var rawData = j.data.filter(x=>x.ID&&x.ID!==''&&x.ID!=='ID'&&x.Nadador).map(function(r){
+      var _raw=j.data.filter(x=>x.ID&&x.ID!==''&&x.ID!=='ID'&&x.Nadador).map(function(r){
         if(!r.Pendiente&&!r.Distancia_m&&!r.Ritmo_100m&&!r.Tiempo_Total) r.Pendiente='SI';
         return r;
       });
-      // Deduplicate: keep only the most recent record per ID
-      var seen = {};
-      CACHE = rawData.filter(function(r){
-        if(seen[r.ID]) return false;
-        seen[r.ID] = true;
-        return true;
-      });
+      var _seen={};CACHE=_raw.filter(function(r){if(_seen[r.ID])return false;_seen[r.ID]=true;return true;});
       cacheOk=true; 
       syncDot('ok'); 
       // Preselect historial to current user if logged in
@@ -732,16 +726,6 @@ async function sheetsSave(reg) {
 // NAVIGATION
 // ═══════════════════════════════════════════════════
 function irHoy(){ goTab('hoy'); }
-
-function getMedioLabel() {
-  var labels = {piscina25:'Piscina 25m',piscina50:'Piscina 50m',mar:'Mar',lago:'Lago',rio:'Río'};
-  var base = labels[S.libreMedio] || 'Piscina 25m';
-  if (S.libreTipoMedio === 'oa') {
-    if (S.libreTraje) base += S.libreTraje==='si' ? ' · Con traje' : ' · Sin traje';
-    if (S.libreTemp) base += ' · '+S.libreTemp+'°C';
-  }
-  return base;
-}
 function goTab(tab) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
@@ -894,7 +878,7 @@ function toggleSC(id) { document.getElementById(id)?.classList.toggle('open'); }
 // CARGAR — STEP 1
 // ═══════════════════════════════════════════════════
 function renderCargar1() {
-  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null; S.libreBloques=null; S.libreNombre=null; S.pendienteId=null; S.pendienteFecha=null; S.libreMedio='piscina25'; S.libreTipoMedio='piscina'; S.libreTraje=null; S.libreTemp=null;
+  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null; S.libreBloques=null; S.libreNombre=null; S.pendienteId=null; S.pendienteFecha=null; S.libreMedio='piscina25'; S.libreTipoMedio='p'; S.libreTraje=null; S.libreTemp=null;
   const sesiones=getAllSesiones().filter(s=>!s.intensidad.includes('🏆'));
 
   // Show pending sessions at top
@@ -932,7 +916,7 @@ function renderCargar1() {
         h += '<div class="card" style="margin-bottom:8px;border-left:4px solid var(--orange)"><div class="cb">';
         h += '<div style="font-size:13px;font-weight:700;margin-bottom:4px">'+(planS?planS.nombre:r.Sesion_Plan)+'</div>';
         h += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+r.Nadador+' · '+formatShortDate(r.Fecha||'')+'</div>';
-        h += '<button class="btn tl" onclick="retomarPendiente(this.dataset.id)" data-id="'+r.Sesion_Plan+'">&#x1F4F8; Cargar fotos Garmin</button>';
+        h += '<button class="btn tl" onclick="retomarPendiente(this.dataset.id)" data-id="'+r.Sesion_Plan+'"">&#x1F4F8; Cargar fotos Garmin</button>';
         h += '</div></div>';
       }
     });
@@ -1044,7 +1028,7 @@ async function ejecutarGuardarPendiente() {
     nadador: S.nadador,
     sesionPlan: isPendiente ? (S.libreNombre||S.sesionPlan) : S.sesionPlan,
     _update: isPendiente,
-    medio: getMedioLabel(),
+    medio: 'Piscina',
     resumen: { distancia_m:'', pendiente:true },
     vueltas: [],
     bloqueStates: S.bloqueStates||[],
@@ -1229,23 +1213,23 @@ function renderLibreBuilder() {
     + '<p style="font-size:12px;color:var(--text2)">Arma tu entrenamiento bloque por bloque. La distancia total se calcula sola.</p>'
     + '</div></div>';
 
-  // Medio y condiciones
-  if (!S.libreMedio) S.libreMedio = 'piscina25';
-  if (!S.libreTipoMedio) S.libreTipoMedio = 'piscina';
-  h += '<div class="lbl">Medio</div>';
-  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
-  [{id:'piscina25',label:'Piscina 25m',tipo:'piscina'},{id:'piscina50',label:'Piscina 50m',tipo:'piscina'},{id:'mar',label:'Mar',tipo:'oa'},{id:'lago',label:'Lago',tipo:'oa'},{id:'rio',label:'Rio',tipo:'oa'}].forEach(function(m){
-    var on=(S.libreMedio===m.id)?' on':'';
-    h+='<button class="estilo-btn'+on+'" onclick="setLibreMedio(this.dataset.id,this.dataset.tipo)" data-id="'+m.id+'" data-tipo="'+m.tipo+'">'+m.label+'</button>';
+  // Medio
+  if(!S.libreMedio){S.libreMedio='piscina25';S.libreTipoMedio='piscina';}
+  h+='<div class="lbl">Medio de entrenamiento</div>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+  [{v:'piscina25',l:'Piscina 25m',t:'p'},{v:'piscina50',l:'Piscina 50m',t:'p'},
+   {v:'mar',l:'Mar',t:'o'},{v:'lago',l:'Lago',t:'o'},{v:'rio',l:'Río',t:'o'}
+  ].forEach(function(m){
+    h+='<button class="estilo-btn'+(S.libreMedio===m.v?' on':'')+'" onclick="setLibreMedio2(this);" data-v="'+m.v+'" data-t="'+m.t+'">'+m.l+'</button>';
   });
-  h += '</div>';
-  if (S.libreTipoMedio==='oa') {
-    h += '<div class="lbl">Traje de neopreno</div><div style="display:flex;gap:8px;margin-bottom:10px">';
-    h += '<button class="estilo-btn'+(S.libreTraje==='si'?' on':'')+'" onclick="setTraje(this.dataset.v)" data-v="si">Con traje</button>';
-    h += '<button class="estilo-btn'+(S.libreTraje==='no'?' on':'')+'" onclick="setTraje(this.dataset.v)" data-v="no">Sin traje</button>';
-    h += '</div>';
-    h += '<div class="lbl">Temperatura agua °C <span style="font-weight:400;font-size:11px;color:var(--text3)">(opcional)</span></div>';
-    h += '<input type="number" id="libre-temp" class="nota-inp" value="'+(S.libreTemp||'')+'" placeholder="ej: 14" oninput="S.libreTemp=this.value" style="max-width:120px;margin-bottom:12px">';
+  h+='</div>';
+  if(S.libreTipoMedio==='o'){
+    h+='<div class="lbl">Traje de neopreno</div><div style="display:flex;gap:8px;margin-bottom:10px">';
+    h+='<button class="estilo-btn'+(S.libreTraje==='si'?' on':'')+'" onclick="setTraje2(this.dataset.v)" data-v="si">Con traje</button>';
+    h+='<button class="estilo-btn'+(S.libreTraje==='no'?' on':'')+'" onclick="setTraje2(this.dataset.v)" data-v="no">Sin traje</button>';
+    h+='</div>';
+    h+='<div class="lbl">Temp. agua °C <span style="font-weight:400;font-size:11px;color:var(--text3)">(opcional)</span></div>';
+    h+='<input type="number" class="nota-inp" value="'+(S.libreTemp||'')+'" placeholder="ej: 14" oninput="S.libreTemp=this.value" style="max-width:100px;margin-bottom:12px">';
   }
 
   // Nombre de la sesión
@@ -1284,15 +1268,10 @@ function renderLibreBloque(b, i) {
   return h;
 }
 
-function setTraje(v){ S.libreTraje=v; renderLibreBuilder(); }
-function setLibreMedio(id, tipo) {
-  if (id && id.dataset) { tipo=id.dataset.tipo; id=id.dataset.id; }
-  S.libreMedio = id;
-  S.libreTipoMedio = tipo;
-  if (tipo !== 'oa') { S.libreTraje = null; S.libreTemp = null; }
-  renderLibreBuilder();
-}
 
+function setLibreMedio2(btn){ S.libreMedio=btn.dataset.v; S.libreTipoMedio=btn.dataset.t==='o'?'o':'p'; if(S.libreTipoMedio!=='o'){S.libreTraje=null;S.libreTemp=null;} renderLibreBuilder(); }
+function setTraje2(v){ S.libreTraje=v; renderLibreBuilder(); }
+function getMedioLabel(){ var m={piscina25:'Piscina 25m',piscina50:'Piscina 50m',mar:'Mar',lago:'Lago',rio:'Río'}; var b=m[S.libreMedio]||'Piscina 25m'; if(S.libreTipoMedio==='o'){if(S.libreTraje)b+=S.libreTraje==='si'?' · Con traje':' · Sin traje';if(S.libreTemp)b+=' · '+S.libreTemp+'°C';} return b; }
 function setLibre(i, campo, val) {
   S.libreBloques[i][campo] = val;
   if (campo === 'dist') {
@@ -1810,17 +1789,6 @@ async function guardar() {
       CACHE = CACHE.filter(function(r){ return !(r.ID===S.pendienteId && r.Nadador===S.nadador); });
       S.pendienteId=null; S.pendienteFecha=null;
     }
-      // Add completed record to CACHE immediately — no page reload needed
-      CACHE.push({
-        ID:reg.id, Fecha:reg.fecha+'T04:00:00.000Z', Nadador:reg.nadador,
-        Sesion_Plan:reg.sesionPlan, Medio:reg.medio,
-        Distancia_m:reg.resumen.distancia_m||'',
-        Ritmo_100m:reg.resumen.ritmo_medio||'',
-        FC_Media:reg.resumen.fc_media||'',
-        SWOLF:reg.resumen.swolf_medio||'',
-        Pendiente:''
-      });
-      if (HIST_NAD) renderHistorial();
   } else {
     toast('Error al guardar. Verifica conexi&#xF3;n.', 4000);
   }
@@ -1881,54 +1849,71 @@ async function guardarLibrePendiente() {
   if (!S.libreNombre && !S.libreBloques) { toast('Ingresa al menos el nombre del entrenamiento'); return; }
   var totalL = calcLibreTotal();
   var nombre = S.libreNombre || 'Entrenamiento libre';
-  var fecha = todayStr();
 
-  lov(true); setLoad(20, 'Guardando plan para todos los nadadores...', '');
-  var todosOk = true;
+  // Build a virtual session from libre blocks so it can appear in Plan
+  var sesionId = 'LIBRE_' + Date.now();
+  var reg = {
+    id: genId(S.nadador),
+    fecha: todayStr(),
+    nadador: S.nadador,
+    sesionPlan: nombre,
+    medio: 'Piscina',
+    resumen: { distancia_m: totalL || '', pendiente: true },
+    vueltas: [],
+    bloqueStates: [],
+    evaluacion: {},
+    pendiente: true,
+    _libreNombre: nombre,
+    _libreBloques: S.libreBloques || []
+  };
 
-  for (var ni = 0; ni < NADADORES.length; ni++) {
-    var nad = NADADORES[ni];
-    setLoad(20 + Math.round(ni/NADADORES.length*60), 'Guardando para '+nad.nombre+'...', '');
-    var reg = {
-      id: genId(nad.nombre), fecha: fecha, nadador: nad.nombre,
-      sesionPlan: nombre, medio: 'Piscina',
-      medio: getMedioLabel(),
-      resumen: { distancia_m: totalL || '', pendiente: true },
-      vueltas: [], bloqueStates: [], evaluacion: {}, pendiente: true
-    };
-    var ok = await sheetsSave(reg);
-    if (!ok) { todosOk = false; continue; }
+  lov(true); setLoad(40, 'Guardando plan libre...', '');
+  var ok = await sheetsSave(reg);
 
-    if (S.libreBloques) {
-      for (var li = 0; li < S.libreBloques.length; li++) {
-        var lb = S.libreBloques[li];
-        if (!lb.tipo && !lb.dist) continue;
-        await fetch('https://orion-proxy.felgonino.workers.dev',{
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'detalle',sesion_id:reg.id,fecha:reg.fecha,nadador:reg.nadador,sesion_plan:nombre,bloque_idx:li+1,bloque_tipo:lb.tipo||'Bloque',bloque_desc:(lb.dist?lb.dist+'m':'')+(lb.nota?' — '+lb.nota:''),ritmo_obj:'',hecho:true,estilo_var:'',nota:lb.nota||'',meta_f:'',meta_s:''})
-        }).catch(function(){});
-      }
+  if (ok && S.libreBloques) {
+    setLoad(70, 'Guardando bloques...', '');
+    for (var li = 0; li < S.libreBloques.length; li++) {
+      var lb = S.libreBloques[li];
+      if (!lb.tipo && !lb.dist) continue;
+      await fetch('https://orion-proxy.felgonino.workers.dev', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          action:'detalle', sesion_id:reg.id, fecha:reg.fecha,
+          nadador:reg.nadador, sesion_plan:nombre,
+          bloque_idx:li+1, bloque_tipo:lb.tipo||'Bloque',
+          bloque_desc:(lb.dist?lb.dist+'m':'')+(lb.nota?' — '+lb.nota:''),
+          ritmo_obj:'', hecho:true, estilo_var:'', nota:lb.nota||'',
+          meta_f:'', meta_s:''
+        })
+      }).catch(function(){});
     }
-    // sheetsSave already adds to CACHE - no duplicate push needed
   }
 
   lov(false);
-  if (todosOk) {
+  if (ok) {
+    // Add to cache as pending so Hoy shows it
+    CACHE.push({
+      ID:reg.id, Fecha:reg.fecha, Nadador:reg.nadador,
+      Sesion_Plan:nombre, Distancia_m:totalL||'',
+      Ritmo_100m:'', SWOLF:'', FC_Media:'',
+      Pendiente:'SI',
+      _libreData: { nombre:nombre, bloques: S.libreBloques||[], dist:totalL }
+    });
+
     document.getElementById('pg-cargar').innerHTML =
-      '<div class="ok-box"><div class="ok-ico">&#x23F3;</div>' +
-      '<div class="ok-t">Plan guardado para todos</div>' +
-      '<div class="ok-s"><b>'+nombre+'</b><br>'+fecha+(totalL?'<br>'+totalL+'m total':'')+'<br><br>'+
-      NADADORES.map(function(n){return n.emoji+' '+n.nombre+': pendiente de resultados';}).join('<br>')+'</div></div>'+
-      '<button class="btn" onclick="renderCargar1()">&#x1F4E4; Registrar otra sesi&#xF3;n</button>'+
-      '<button class="btn2" onclick="irHoy()">&#x1F3E0; Inicio</button>';
-    toast('Plan guardado para '+NADADORES.map(function(n){return n.nombre;}).join(' y '));
-    S.libreBloques=null; S.libreNombre=null;
+      '<div class="ok-box"><div class="ok-ico">⏳</div>' +
+      '<div class="ok-t">Plan guardado como pendiente</div>' +
+      '<div class="ok-s"><b>'+nombre+'</b><br>'+reg.nadador+' · '+reg.fecha+'<br>'+(totalL?totalL+'m total':'')+'<br><br>' +
+      'Aparece en <b>Hoy</b> con el botón para cargar fotos cuando quieras.</div></div>' +
+      '<button class="btn" onclick="renderCargar1()">📤 Registrar otra sesión</button>' +
+      '<button class="btn2" onclick="goTab(\'hoy\')">🏠 Inicio</button>';
+    toast('Plan libre guardado — retoma cuando tengas las fotos');
+    S.libreBloques = null; S.libreNombre = null;
     renderHoy();
   } else {
-    toast('Algunos registros no se guardaron. Verifica conexión.', 4000);
+    toast('Error al guardar. Verifica conexión.', 4000);
   }
 }
-
 
 async function guardarLibreSinFotos() {
   var totalL = calcLibreTotal();
@@ -2136,10 +2121,18 @@ function renderHistorial() {
 
 function formatShortDate(f) {
   try {
-    var d = new Date(f + 'T12:00:00');
-    if (isNaN(d)) return f;
-    return d.toLocaleDateString('es-CL', {day:'2-digit', month:'short'});
-  } catch(e) { return f; }
+    if (!f) return '';
+    var s = String(f).substring(0,10);
+    var parts = s.split('-');
+    if (parts.length===3) {
+      var d = new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+      if (!isNaN(d.getTime())) {
+        var months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+        return d.getDate()+' '+months[d.getMonth()];
+      }
+    }
+    return s;
+  } catch(e) { return String(f).substring(0,10); }
 }
 
 function ritmoToSec(r) {
@@ -2752,98 +2745,99 @@ function activarProgramaGen(i) {
 // IMPRIMIR SESIÓN — ventana de impresión / PDF
 // ═══════════════════════════════════════════════════
 function imprimirSesion(id) {
-  var s = BLOQUES.flatMap(function(b){ return b.semanas.flatMap(function(w){ return w.sesiones; }); }).find(function(x){ return x.id===id; });
-  if (!s) { toast('Sesi\xF3n no encontrada'); return; }
-
-  var distInfo = calcDistSesion(s);
-  var totalDist = distInfo ? distInfo.total+'m' : '';
-
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
-  html += '<meta name="viewport" content="width=device-width, initial-scale=1">';
-  html += '<title>ORION \u2014 '+s.nombre+'</title>';
-  html += '<style>';
-  html += '* { box-sizing: border-box; margin: 0; padding: 0; }';
-  html += 'body { font-family: Arial, sans-serif; background: #fff; color: #1B2631; padding: 12mm 14mm; }';
-  html += '@media print { @page { size: letter portrait; margin: 12mm 14mm; } .no-print { display: none !important; } }';
-  html += '.no-print { margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap; }';
-  html += 'button { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14pt; cursor: pointer; }';
-  html += '.btn-print { background: #0D2B55; color: #fff; }';
-  html += '.btn-close { background: #E5E8E8; color: #333; }';
-  html += '.orion-tag { background: #0D2B55; color: #fff; display: inline-block; padding: 3px 12px; border-radius: 5px; font-size: 11pt; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }';
-  html += 'h1 { font-size: 20pt; color: #0D2B55; margin-bottom: 2px; line-height: 1.2; }';
-  html += '.session-meta { font-size: 13pt; color: #566573; margin-bottom: 10px; }';
-  html += '.objetivo-box { background: #EBF5FB; border-left: 5px solid #0D2B55; padding: 10px 14px; border-radius: 4px; margin-bottom: 8px; font-size: 14pt; line-height: 1.4; }';
-  html += '.rationale-box { background: #FEF9E7; border-left: 5px solid #F39C12; padding: 8px 14px; border-radius: 4px; margin-bottom: 14px; font-size: 12pt; color: #7D6608; line-height: 1.4; }';
-  html += '.bloque { border: 2px solid #BDC3C7; border-radius: 8px; margin-bottom: 14px; page-break-inside: avoid; }';
-  html += '.bloque-hdr { background: #D6EAF8; padding: 9px 14px; font-size: 15pt; font-weight: 700; color: #0D2B55; border-radius: 6px 6px 0 0; display: flex; justify-content: space-between; align-items: center; }';
-  html += '.bloque-body { padding: 10px 14px; }';
-  html += '.serie { font-size: 15pt; line-height: 1.5; padding: 6px 0; border-bottom: 1px solid #EEE; }';
-  html += '.serie:last-child { border-bottom: none; }';
-  html += '.serie b { color: #0D2B55; }';
-  html += '.serie-detalle { font-size: 13pt; color: #5D6D7E; margin-left: 8px; }';
-  html += '.descanso-bloque { font-size: 12pt; color: #888; font-style: italic; margin-top: 6px; }';
-  html += '.ritmo-tag { background: #0D2B55; color: #fff; border-radius: 4px; padding: 2px 10px; font-size: 12pt; font-weight: 700; }';
-  html += '.total { text-align: right; font-size: 16pt; font-weight: 700; color: #0D2B55; margin-top: 14px; border-top: 3px solid #0D2B55; padding-top: 10px; }';
-  html += '.footer { margin-top: 16px; font-size: 11pt; color: #AAA; text-align: center; border-top: 1px solid #EEE; padding-top: 8px; }';
-  html += '</style></head><body>';
-
-  // Buttons - hidden when printing
-  html += '<div class="no-print">';
-  html += '<button class="btn-print" onclick="window.print()">&#x1F5A8; Imprimir / Guardar PDF</button>';
-  html += '<button class="btn-close" onclick="window.close()">&#x2715; Cerrar</button>';
-  html += '</div>';
-
-  // Header
-  html += '<div class="orion-tag">ORION MASTER</div>';
-  html += '<h1>'+s.nombre+'</h1>';
-  html += '<div class="session-meta">'+s.dia+'&nbsp;&nbsp;&bull;&nbsp;&nbsp;'+s.intensidad+(totalDist ? '&nbsp;&nbsp;&bull;&nbsp;&nbsp;'+totalDist : '')+'</div>';
-  html += '<div class="objetivo-box"><b>Objetivo:</b> '+s.objetivo+'</div>';
-  if (s.rationale) html += '<div class="rationale-box"><b>&#x1F4CC; Por qu\xE9 esta sesi\xF3n:</b> '+s.rationale+'</div>';
-
-  // Bloques
-  s.bloques.forEach(function(b, i){
-    var distB = calcDistBloque(b);
-    html += '<div class="bloque">';
-    html += '<div class="bloque-hdr"><span>'+(i+1)+'. '+b.tipo+(distB ? ' &mdash; '+distB+'m' : '')+'</span>';
-    if (b.ritmo) html += '<span class="ritmo-tag">&#x1F3AF; '+b.ritmo+'</span>';
-    html += '</div>';
-    html += '<div class="bloque-body">';
-
-    if (b.series && b.series.length) {
-      b.series.forEach(function(ser){
-        html += '<div class="serie">';
-        html += '<b>'+(ser.reps>1 ? ser.reps+'&times;'+ser.dist+'m' : ser.dist+'m')+'</b> '+ser.estilo;
-        if (ser.implemento) html += ' <span class="serie-detalle">('+ser.implemento+')</span>';
-        var t = [];
-        if (ser.salida) t.push('salida @'+ser.salida);
-        if (ser.descanso) t.push('desc. '+ser.descanso);
-        if (t.length) html += '<span class="serie-detalle"> &mdash; '+t.join(' &middot; ')+'</span>';
-        html += '</div>';
+  var s=BLOQUES.flatMap(function(b){return b.semanas.flatMap(function(w){return w.sesiones;});}).find(function(x){return x.id===id;});
+  if(!s){toast('Sesión no encontrada');return;}
+  var di=calcDistSesion(s), tot=di?di.total+'m':'';
+  var parts=['<!DOCTYPE html><html><head><meta charset="UTF-8">',
+    '<title>ORION '+s.nombre+'<\/title>',
+    '<style>',
+    'body{font-family:Arial,sans-serif;font-size:15pt;color:#1B2631;padding:12mm 14mm;margin:0}',
+    '@media print{@page{size:letter portrait;margin:12mm 14mm}.no-print{display:none!important}}',
+    '.no-print{margin-bottom:14px}',
+    'h1{font-size:19pt;color:#0D2B55;margin:6px 0 2px}',
+    '.meta{font-size:12pt;color:#666;margin-bottom:10px}',
+    '.obj{background:#EBF5FB;border-left:5px solid #0D2B55;padding:9px 13px;border-radius:4px;margin-bottom:8px;font-size:14pt;line-height:1.4}',
+    '.rat{background:#FEF9E7;border-left:5px solid #F39C12;padding:8px 13px;border-radius:4px;margin-bottom:12px;font-size:12pt;color:#7D6608}',
+    '.blq{border:2px solid #BDC3C7;border-radius:8px;margin-bottom:12px;page-break-inside:avoid}',
+    '.bh{background:#D6EAF8;padding:9px 13px;font-size:14pt;font-weight:700;color:#0D2B55;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center}',
+    '.bb{padding:9px 13px}',
+    '.ser{font-size:14pt;padding:5px 0;border-bottom:1px solid #EEE;line-height:1.5}',
+    '.ser:last-child{border-bottom:none}',
+    '.tag{background:#0D2B55;color:#fff;border-radius:4px;padding:2px 9px;font-size:12pt;font-weight:700}',
+    '.desc{font-size:12pt;color:#5D6D7E;margin-left:6px}',
+    '.desc-b{font-size:11pt;color:#888;font-style:italic;margin-top:5px}',
+    '.tot{text-align:right;font-size:15pt;font-weight:700;color:#0D2B55;margin-top:12px;border-top:3px solid #0D2B55;padding-top:8px}',
+    '.foot{margin-top:14px;font-size:10pt;color:#AAA;text-align:center;border-top:1px solid #EEE;padding-top:7px}',
+    'button{padding:9px 18px;border:none;border-radius:7px;font-size:13pt;cursor:pointer;margin-right:8px}',
+    '<\/style><\/head><body>'];
+  parts.push('<div class="no-print"><button style="background:#0D2B55;color:#fff" onclick="window.print()">Imprimir / Guardar PDF<\/button><button style="background:#E5E8E8" onclick="window.close()">Cerrar<\/button><\/div>');
+  parts.push('<div style="background:#0D2B55;color:#fff;display:inline-block;padding:2px 10px;border-radius:4px;font-size:10pt;font-weight:700;letter-spacing:1px;margin-bottom:4px">ORION MASTER<\/div>');
+  parts.push('<h1>'+s.nombre+'<\/h1>');
+  parts.push('<div class="meta">'+s.dia+(tot?' &bull; '+tot:'')+'<\/div>');
+  parts.push('<div class="obj"><b>Objetivo:<\/b> '+s.objetivo+'<\/div>');
+  if(s.rationale) parts.push('<div class="rat"><b>¿Por qué esta sesión?<\/b> '+s.rationale+'<\/div>');
+  s.bloques.forEach(function(b,i){
+    var dB=calcDistBloque(b);
+    parts.push('<div class="blq"><div class="bh"><span>'+(i+1)+'. '+b.tipo+(dB?' &mdash; '+dB+'m':'')+'<\/span>'+(b.ritmo?'<span class="tag">'+b.ritmo+'<\/span>':'')+'<\/div><div class="bb">');
+    if(b.series&&b.series.length){
+      b.series.forEach(function(s){
+        var t='<b>'+(s.reps>1?s.reps+'&times;'+s.dist+'m':s.dist+'m')+'<\/b> '+s.estilo;
+        if(s.implemento)t+=' <span class="desc">('+s.implemento+')<\/span>';
+        var ts=[];if(s.salida)ts.push('salida @'+s.salida);if(s.descanso)ts.push('desc. '+s.descanso);
+        if(ts.length)t+='<span class="desc"> &mdash; '+ts.join(' &middot; ')+'<\/span>';
+        parts.push('<div class="ser">'+t+'<\/div>');
       });
-    } else if (b.desc) {
-      html += '<div class="serie">'+b.desc+'</div>';
-    }
-
-    if (b.descanso_bloque && b.descanso_bloque !== '—') {
-      html += '<div class="descanso-bloque">&#x23F8; Descanso tras bloque: '+b.descanso_bloque+'</div>';
-    }
-    html += '</div></div>';
+    } else if(b.desc) parts.push('<div class="ser">'+b.desc+'<\/div>');
+    if(b.descanso_bloque&&b.descanso_bloque!=='—') parts.push('<div class="desc-b">&#x23F8; Descanso: '+b.descanso_bloque+'<\/div>');
+    parts.push('<\/div><\/div>');
   });
-
-  if (totalDist) html += '<div class="total">Distancia total: '+totalDist+'</div>';
-  html += '<div class="footer">ORION Master &bull; '+new Date().toLocaleDateString('es-CL')+' &bull; Piscina 25m</div>';
-  html += '<\/body><\/html>';
-
-  var v = window.open('', '_blank', 'width=900,height=800');
-  if (v) {
-    v.document.write(html);
-    v.document.close();
-    // Auto-trigger print dialog after content loads
-    v.onload = function(){ v.focus(); };
-  } else {
-    toast('Permite ventanas emergentes para imprimir', 3000);
-  }
+  if(tot) parts.push('<div class="tot">Distancia total: '+tot+'<\/div>');
+  parts.push('<div class="foot">ORION Master &bull; '+new Date().toLocaleDateString('es-CL')+'<\/div>');
+  parts.push('<\/body><\/html>');
+  var v=window.open('','_blank','width=900,height=800');
+  if(v){v.document.write(parts.join(''));v.document.close();}
+  else toast('Permite ventanas emergentes para imprimir',3000);
 }
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+// Cargar nadadores y competencias desde Sheets, luego mostrar login
+async function initApp() {
+  await cargarNadadores();
+  renderLogin();
+  // Cargar datos en background
+  sheetsLoad().then(()=>{
+    const tab=document.querySelector('.tab.on')?.id?.replace('tab-','');
+    if(tab==='hoy'&&USUARIO_ACTUAL) renderHoy();
+    if(tab==='historial'&&USUARIO_ACTUAL) renderHistorial();
+  }).catch(()=>syncDot('err'));
+}
+
+async function cargarNadadores() {
+  try {
+    const r = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=nadadores&t='+Date.now());
+    const j = await r.json();
+    if (j.ok && j.nadadores && j.nadadores.length) {
+      NADADORES = j.nadadores;
+    }
+  } catch(e) { /* usa los por defecto */ }
+  // Cargar glosario
+  try {
+    const rg = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=glosario&t='+Date.now());
+    const jg = await rg.json();
+    if (jg.ok && jg.glosario && jg.glosario.length) {
+      // Fusionar con los base sin duplicar
+      jg.glosario.forEach(function(g){
+        if (!GLOSARIO.find(function(x){ return x.termino.toLowerCase() === (g.termino||'').toLowerCase(); })) {
+          GLOSARIO.push(g);
+        }
+      });
+    }
+  } catch(e) { /* usa los base */ }
+}
+
+initApp();
 </script>
 </body>
 </html>
