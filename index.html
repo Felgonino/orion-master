@@ -725,6 +725,16 @@ async function sheetsSave(reg) {
 // NAVIGATION
 // ═══════════════════════════════════════════════════
 function irHoy(){ goTab('hoy'); }
+
+function getMedioLabel() {
+  var labels = {piscina25:'Piscina 25m',piscina50:'Piscina 50m',mar:'Mar',lago:'Lago',rio:'Río'};
+  var base = labels[S.libreMedio] || 'Piscina 25m';
+  if (S.libreTipoMedio === 'oa') {
+    if (S.libreTraje) base += S.libreTraje==='si' ? ' · Con traje' : ' · Sin traje';
+    if (S.libreTemp) base += ' · '+S.libreTemp+'°C';
+  }
+  return base;
+}
 function goTab(tab) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
@@ -877,7 +887,7 @@ function toggleSC(id) { document.getElementById(id)?.classList.toggle('open'); }
 // CARGAR — STEP 1
 // ═══════════════════════════════════════════════════
 function renderCargar1() {
-  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null; S.libreBloques=null; S.libreNombre=null; S.pendienteId=null; S.pendienteFecha=null;
+  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null; S.libreBloques=null; S.libreNombre=null; S.pendienteId=null; S.pendienteFecha=null; S.libreMedio='piscina25'; S.libreTipoMedio='piscina'; S.libreTraje=null; S.libreTemp=null;
   const sesiones=getAllSesiones().filter(s=>!s.intensidad.includes('🏆'));
 
   // Show pending sessions at top
@@ -1027,7 +1037,7 @@ async function ejecutarGuardarPendiente() {
     nadador: S.nadador,
     sesionPlan: isPendiente ? (S.libreNombre||S.sesionPlan) : S.sesionPlan,
     _update: isPendiente,
-    medio: 'Piscina',
+    medio: getMedioLabel(),
     resumen: { distancia_m:'', pendiente:true },
     vueltas: [],
     bloqueStates: S.bloqueStates||[],
@@ -1212,6 +1222,25 @@ function renderLibreBuilder() {
     + '<p style="font-size:12px;color:var(--text2)">Arma tu entrenamiento bloque por bloque. La distancia total se calcula sola.</p>'
     + '</div></div>';
 
+  // Medio y condiciones
+  if (!S.libreMedio) S.libreMedio = 'piscina25';
+  if (!S.libreTipoMedio) S.libreTipoMedio = 'piscina';
+  h += '<div class="lbl">Medio</div>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+  [{id:'piscina25',label:'Piscina 25m',tipo:'piscina'},{id:'piscina50',label:'Piscina 50m',tipo:'piscina'},{id:'mar',label:'Mar',tipo:'oa'},{id:'lago',label:'Lago',tipo:'oa'},{id:'rio',label:'Rio',tipo:'oa'}].forEach(function(m){
+    var on=(S.libreMedio===m.id)?' on':'';
+    h+='<button class="estilo-btn'+on+'" onclick="setLibreMedio(this.dataset.id,this.dataset.tipo)" data-id="'+m.id+'" data-tipo="'+m.tipo+'">'+m.label+'</button>';
+  });
+  h += '</div>';
+  if (S.libreTipoMedio==='oa') {
+    h += '<div class="lbl">Traje de neopreno</div><div style="display:flex;gap:8px;margin-bottom:10px">';
+    h += '<button class="estilo-btn'+(S.libreTraje==='si'?' on':'')+'" onclick="setTraje(this.dataset.v)" data-v="si">Con traje</button>';
+    h += '<button class="estilo-btn'+(S.libreTraje==='no'?' on':'')+'" onclick="setTraje(this.dataset.v)" data-v="no">Sin traje</button>';
+    h += '</div>';
+    h += '<div class="lbl">Temperatura agua °C <span style="font-weight:400;font-size:11px;color:var(--text3)">(opcional)</span></div>';
+    h += '<input type="number" id="libre-temp" class="nota-inp" value="'+(S.libreTemp||'')+'" placeholder="ej: 14" oninput="S.libreTemp=this.value" style="max-width:120px;margin-bottom:12px">';
+  }
+
   // Nombre de la sesión
   h += '<div class="lbl">Nombre del entrenamiento</div>';
   h += '<input type="text" id="libre-nombre" class="nota-inp" value="' + (S.libreNombre||'').replace(/"/g,'&quot;') + '" placeholder="ej: Fondo aeróbico libre" oninput="S.libreNombre=this.value" style="margin-bottom:14px">';
@@ -1246,6 +1275,15 @@ function renderLibreBloque(b, i) {
   h += '<div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Nota</div><input type="text" class="nota-inp" value="' + (b.nota||'').replace(/"/g,'&quot;') + '" placeholder="ej: 4x100 aletas" oninput="setLibre(' + i + ',\'nota\',this.value)"></div>';
   h += '</div></div></div>';
   return h;
+}
+
+function setTraje(v){ S.libreTraje=v; renderLibreBuilder(); }
+function setLibreMedio(id, tipo) {
+  if (id && id.dataset) { tipo=id.dataset.tipo; id=id.dataset.id; }
+  S.libreMedio = id;
+  S.libreTipoMedio = tipo;
+  if (tipo !== 'oa') { S.libreTraje = null; S.libreTemp = null; }
+  renderLibreBuilder();
 }
 
 function setLibre(i, campo, val) {
@@ -1847,6 +1885,7 @@ async function guardarLibrePendiente() {
     var reg = {
       id: genId(nad.nombre), fecha: fecha, nadador: nad.nombre,
       sesionPlan: nombre, medio: 'Piscina',
+      medio: getMedioLabel(),
       resumen: { distancia_m: totalL || '', pendiente: true },
       vueltas: [], bloqueStates: [], evaluacion: {}, pendiente: true
     };
@@ -2715,84 +2754,89 @@ function imprimirSesion(id) {
   var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
   html += '<title>ORION — '+s.nombre+'</title>';
   html += '<style>';
-  html += 'body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:20px;color:#1B2631}';
-  html += 'h1{font-size:20px;color:#0D2B55;margin-bottom:4px}';
-  html += '.meta{font-size:13px;color:#566573;margin-bottom:16px}';
-  html += '.objetivo{background:#EBF5FB;border-left:4px solid #0D2B55;padding:10px 14px;border-radius:4px;margin-bottom:12px;font-size:13px}';
-  html += '.rationale{background:#FEF9E7;border-left:4px solid #F39C12;padding:10px 14px;border-radius:4px;margin-bottom:16px;font-size:12px;color:#7D6608}';
-  html += '.bloque{border:1px solid #D5D8DC;border-radius:8px;margin-bottom:10px;overflow:hidden}';
-  html += '.bloque-header{background:#F4F6F7;padding:8px 12px;font-size:12px;font-weight:700;color:#0D2B55;border-bottom:1px solid #D5D8DC}';
-  html += '.bloque-body{padding:10px 12px}';
-  html += '.bloque-desc{font-size:13px;margin-bottom:6px}';
-  html += '.serie-row{font-size:12px;color:#1B2631;padding:3px 0;border-bottom:1px solid #F4F6F7}';
-  html += '.metas{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}';
-  html += '.meta-f{background:#EBF5FB;padding:6px 8px;border-radius:4px;font-size:11px}';
-  html += '.meta-s{background:#D1F2EB;padding:6px 8px;border-radius:4px;font-size:11px}';
-  html += '.descanso{font-size:11px;color:#AAB7B8;margin-top:4px}';
-  html += '.total{text-align:right;font-weight:700;color:#0D2B55;margin-top:12px;font-size:14px;border-top:2px solid #0D2B55;padding-top:8px}';
-  html += '.footer{margin-top:24px;font-size:10px;color:#AAB7B8;text-align:center;border-top:1px solid #E5E8E8;padding-top:8px}';
-  html += '@media print{body{padding:10px}.no-print{display:none}}';
+  html += '@page{size:letter portrait;margin:15mm 18mm}';
+  html += '*{box-sizing:border-box}';
+  html += 'body{font-family:Arial,sans-serif;font-size:13pt;color:#1B2631;margin:0;padding:0}';
+  html += 'h1{font-size:17pt;color:#0D2B55;margin:0 0 4px}';
+  html += '.meta{font-size:11pt;color:#566573;margin-bottom:10px}';
+  html += '.objetivo{background:#EBF5FB;border-left:5px solid #0D2B55;padding:8px 12px;border-radius:4px;margin-bottom:8px;font-size:12pt}';
+  html += '.rationale{background:#FEF9E7;border-left:5px solid #F39C12;padding:8px 12px;border-radius:4px;margin-bottom:12px;font-size:11pt;color:#7D6608}';
+  html += '.bloque{border:1.5px solid #BDC3C7;border-radius:6px;margin-bottom:10px;page-break-inside:avoid}';
+  html += '.bloque-header{background:#EAF2FF;padding:7px 12px;font-size:13pt;font-weight:700;color:#0D2B55;border-radius:4px 4px 0 0}';
+  html += '.bloque-body{padding:8px 12px}';
+  html += '.serie-row{font-size:13pt;padding:5px 0;border-bottom:1px solid #F2F3F4;line-height:1.4}';
+  html += '.serie-row:last-child{border-bottom:none}';
+  html += '.ritmo-badge{display:inline-block;background:#0D2B55;color:#fff;border-radius:4px;padding:2px 8px;font-size:11pt;margin-left:8px}';
+  html += '.descanso{font-size:11pt;color:#888;margin-top:4px;font-style:italic}';
+  html += '.total-box{text-align:right;font-weight:700;font-size:14pt;color:#0D2B55;margin-top:12px;border-top:2.5px solid #0D2B55;padding-top:8px}';
+  html += '.footer{margin-top:16px;font-size:10pt;color:#AAB7B8;text-align:center;border-top:1px solid #E5E8E8;padding-top:8px}';
+  html += '.header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}';
+  html += '.orion-badge{background:#0D2B55;color:#fff;border-radius:5px;padding:3px 10px;font-size:10pt;font-weight:700;letter-spacing:1px}';
+  html += '.no-print{display:block;margin-bottom:14px}';
+  html += '@media print{.no-print{display:none!important}}';
   html += '</style></head><body>';
 
-  html += '<div class="no-print" style="margin-bottom:16px">';
-  html += '<button onclick="window.print()" style="background:#0D2B55;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;margin-right:8px">🖨️ Imprimir / Guardar PDF</button>';
-  html += '<button onclick="window.close()" style="background:#E5E8E8;color:#1B2631;border:none;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer">✕ Cerrar</button>';
+  // Action buttons (hidden when printing)
+  html += '<div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap">';
+  html += '<button onclick="window.print()" style="background:#0D2B55;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13pt;cursor:pointer">&#x1F5A8; Imprimir / PDF</button>';
+  // WhatsApp share button
+  var waText = encodeURIComponent('ORION Master — ' + s.nombre + ' (' + s.dia + ')\n' + s.objetivo + (totalDist ? '\nDistancia: '+totalDist : ''));
+  html += '<button onclick="window.open(\'https://wa.me/?text='+waText+'\')" style="background:#25D366;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13pt;cursor:pointer">&#x1F4F1; WhatsApp</button>';
+  html += '<button onclick="window.close()" style="background:#E5E8E8;color:#1B2631;border:none;padding:10px 20px;border-radius:8px;font-size:13pt;cursor:pointer">&#x2715; Cerrar</button>';
   html += '</div>';
 
-  html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">';
-  html += '<div style="background:#0D2B55;color:#fff;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700">ORION MASTER</div>';
-  html += '<div style="font-size:11px;color:#AAB7B8">'+s.dia+'</div>';
+  // Header
+  html += '<div class="header-bar"><div>';
+  html += '<div class="orion-badge">ORION MASTER</div>';
+  html += '<h1 style="margin-top:4px">'+s.nombre+'</h1>';
   html += '</div>';
-  html += '<h1>'+s.nombre+'</h1>';
-  html += '<div class="meta">'+s.intensidad+(totalDist?' &nbsp;·&nbsp; '+totalDist:'')+'</div>';
-
+  html += '<div style="text-align:right;font-size:11pt;color:#566573">'+s.dia+'<br>'+s.intensidad+'</div></div>';
   html += '<div class="objetivo"><b>Objetivo:</b> '+s.objetivo+'</div>';
   if (s.rationale) html += '<div class="rationale"><b>¿Por qué esta sesión?</b> '+s.rationale+'</div>';
 
+  // Bloques
   s.bloques.forEach(function(b, idx){
     var distB = calcDistBloque(b);
     html += '<div class="bloque">';
-    html += '<div class="bloque-header">';
-    html += (idx+1)+'. '+b.tipo;
-    if (distB) html += ' &nbsp;·&nbsp; '+distB+'m';
-    if (b.ritmo) html += ' &nbsp;·&nbsp; 🎯 '+b.ritmo;
+    html += '<div class="bloque-header">'+String(idx+1)+'. '+b.tipo;
+    if (distB) html += ' &nbsp;&mdash;&nbsp; '+distB+'m';
+    if (b.ritmo) html += ' <span class="ritmo-badge">'+b.ritmo+'</span>';
     html += '</div>';
     html += '<div class="bloque-body">';
-    html += '<div class="bloque-desc">'+fmtEstructura(b)+'</div>';
 
     if (b.series && b.series.length) {
       b.series.forEach(function(ser){
-        var txt = (ser.reps>1?ser.reps+'×':'')+ser.dist+'m '+ser.estilo;
-        if(ser.implemento) txt += ' ('+ser.implemento+')';
+        html += '<div class="serie-row">';
+        var txt = '';
+        if (ser.reps && ser.reps > 1) txt += '<b>'+ser.reps+'&times;'+ser.dist+'m</b>';
+        else txt += '<b>'+ser.dist+'m</b>';
+        txt += ' '+ser.estilo;
+        if (ser.implemento) txt += ' <span style="color:#5D6D7E">('+ser.implemento+')</span>';
         var tiempos = [];
-        if(ser.salida) tiempos.push('salida @'+ser.salida);
-        if(ser.descanso) tiempos.push('desc '+ser.descanso);
-        if(tiempos.length) txt += ' — '+tiempos.join(', ');
-        html += '<div class="serie-row">'+txt+'</div>';
+        if (ser.salida) tiempos.push('salida @'+ser.salida);
+        if (ser.descanso) tiempos.push('desc. '+ser.descanso);
+        if (tiempos.length) txt += ' &nbsp;<span style="color:#5D6D7E;font-size:12pt">'+tiempos.join(' &middot; ')+'</span>';
+        html += txt+'</div>';
       });
+    } else if (b.desc) {
+      html += '<div class="serie-row">'+b.desc+'</div>';
     }
 
-    if (b.descanso_bloque && b.descanso_bloque!=='—') {
-      html += '<div class="descanso">⏸ Descanso tras bloque: '+b.descanso_bloque+'</div>';
-    }
-
-    if (b.mf || b.ms) {
-      html += '<div class="metas">';
-      if(b.mf) html += '<div class="meta-f"><b>🔵 Felipe:</b> '+b.mf+'</div>';
-      if(b.ms) html += '<div class="meta-s"><b>🟢 Sergio:</b> '+b.ms+'</div>';
-      html += '</div>';
+    if (b.descanso_bloque && b.descanso_bloque !== '—') {
+      html += '<div class="descanso">&#x23F8; Descanso tras bloque: '+b.descanso_bloque+'</div>';
     }
     html += '</div></div>';
   });
 
-  if (totalDist) html += '<div class="total">Distancia total: '+totalDist+'</div>';
-  html += '<div class="footer">ORION Master &nbsp;·&nbsp; '+new Date().toLocaleDateString('es-CL')+'</div>';
+  if (totalDist) html += '<div class="total-box">Distancia total: '+totalDist+'</div>';
+  html += '<div class="footer">ORION Master &nbsp;&bull;&nbsp; '+new Date().toLocaleDateString('es-CL')+' &nbsp;&bull;&nbsp; Generado con IA</div>';
   html += '</body></html>';
 
-  var ventana = window.open('', '_blank', 'width=850,height=700');
-  ventana.document.write(html);
-  ventana.document.close();
+  var v = window.open('', '_blank', 'width=900,height=750');
+  if (v) { v.document.write(html); v.document.close(); }
+  else { toast('Permite ventanas emergentes para imprimir', 3000); }
 }
+
 
 // ═══════════════════════════════════════════════════
 // INIT
