@@ -2832,7 +2832,7 @@ function imprimirSesion(id) {
 
   if (totalDist) html += '<div class="total">Distancia total: '+totalDist+'</div>';
   html += '<div class="footer">ORION Master &bull; '+new Date().toLocaleDateString('es-CL')+' &bull; Piscina 25m</div>';
-  html += '</body></html>';
+  html += '<\/body><\/html>';
 
   var v = window.open('', '_blank', 'width=900,height=800');
   if (v) {
