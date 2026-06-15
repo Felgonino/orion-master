@@ -692,9 +692,16 @@ async function sheetsLoad() {
     clearTimeout(t);
     const j=await r.json();
     if(j.ok&&j.data){ 
-      CACHE=j.data.filter(x=>x.ID&&x.ID!==''&&x.ID!=='ID'&&x.Nadador).map(function(r){
+      var rawData = j.data.filter(x=>x.ID&&x.ID!==''&&x.ID!=='ID'&&x.Nadador).map(function(r){
         if(!r.Pendiente&&!r.Distancia_m&&!r.Ritmo_100m&&!r.Tiempo_Total) r.Pendiente='SI';
         return r;
+      });
+      // Deduplicate: keep only the most recent record per ID
+      var seen = {};
+      CACHE = rawData.filter(function(r){
+        if(seen[r.ID]) return false;
+        seen[r.ID] = true;
+        return true;
       });
       cacheOk=true; 
       syncDot('ok'); 
@@ -1902,7 +1909,7 @@ async function guardarLibrePendiente() {
         }).catch(function(){});
       }
     }
-    CACHE.push({ID:reg.id,Fecha:reg.fecha+'T04:00:00.000Z',Nadador:reg.nadador,Sesion_Plan:nombre,Distancia_m:totalL||'',Ritmo_100m:'',SWOLF:'',FC_Media:'',Pendiente:'SI'});
+    // sheetsSave already adds to CACHE - no duplicate push needed
   }
 
   lov(false);
@@ -2879,4 +2886,16 @@ async function cargarNadadores() {
 initApp();
 </script>
 </body>
-</html>
+</html>function formatShortDate(s) {
+  if (!s) return '';
+  // Handle both 'YYYY-MM-DD' and 'YYYY-MM-DDT...' formats
+  var d = new Date(s);
+  if (isNaN(d.getTime())) {
+    // Try parsing as plain date
+    var parts = String(s).substring(0,10).split('-');
+    if (parts.length === 3) d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  }
+  if (isNaN(d.getTime())) return '';
+  var months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return d.getDate()+' '+months[d.getMonth()];
+}
