@@ -878,7 +878,7 @@ function toggleSC(id) { document.getElementById(id)?.classList.toggle('open'); }
 // CARGAR — STEP 1
 // ═══════════════════════════════════════════════════
 function renderCargar1() {
-  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null; S.libreBloques=null; S.libreNombre=null; S.pendienteId=null; S.pendienteFecha=null; S.libreMedio='piscina25'; S.libreTipoMedio='p'; S.libreTraje=null; S.libreTemp=null;
+  S.nadador=null; S.sesionPlan=null; S.files=[]; S.extracted=null; S.libreBloques=null; S.libreNombre=null; S.pendienteId=null; S.pendienteFecha=null; S.libreMedio='piscina25'; S.libreTipoMedio='p'; S.libreTraje=null; S.libreTemp=null; S.libreCorriente=null; S.libreOleaje=null; S.libreViento=null;
   const sesiones=getAllSesiones().filter(s=>!s.intensidad.includes('🏆'));
 
   // Show pending sessions at top
@@ -1078,6 +1078,13 @@ function retomarLibreConNad(nombre, nadador) {
   });
   var pendId = reg ? reg.ID : null;
   var pendFecha = reg ? reg.Fecha : null;
+  // Restore medio info for OA analysis
+  if (reg && reg.Medio) {
+    var med = reg.Medio;
+    if (med.indexOf('Mar')>=0||med.indexOf('Lago')>=0||med.indexOf('Río')>=0||med.indexOf('Rio')>=0) {
+      S.libreTipoMedio = 'o';
+    } else { S.libreTipoMedio = 'p'; }
+  }
 
   // goTab calls renderCargar1 which resets S — set values AFTER
   goTab('cargar');
@@ -1230,6 +1237,24 @@ function renderLibreBuilder() {
     h+='</div>';
     h+='<div class="lbl">Temp. agua °C <span style="font-weight:400;font-size:11px;color:var(--text3)">(opcional)</span></div>';
     h+='<input type="number" class="nota-inp" value="'+(S.libreTemp||'')+'" placeholder="ej: 14" oninput="S.libreTemp=this.value" style="max-width:100px;margin-bottom:12px">';
+    // Corriente
+    h+='<div class="lbl">Corriente</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+    [['favor','A favor'],['contra','En contra'],['variable','Variable (ida y vuelta)'],['nula','Sin corriente']].forEach(function(o){
+      h+='<button class="estilo-btn'+(S.libreCorriente===o[0]?' on':'')+'" onclick="setOA(this)" data-k="libreCorriente" data-v="'+o[0]+'">'+o[1]+'</button>';
+    });
+    h+='</div>';
+    // Oleaje
+    h+='<div class="lbl">Oleaje</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+    [['calmo','Calmo'],['moderado','Moderado'],['fuerte','Fuerte']].forEach(function(o){
+      h+='<button class="estilo-btn'+(S.libreOleaje===o[0]?' on':'')+'" onclick="setOA(this)" data-k="libreOleaje" data-v="'+o[0]+'">'+o[1]+'</button>';
+    });
+    h+='</div>';
+    // Viento
+    h+='<div class="lbl">Viento</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+    [['nulo','Nulo'],['leve','Leve'],['moderado','Moderado'],['fuerte','Fuerte']].forEach(function(o){
+      h+='<button class="estilo-btn'+(S.libreViento===o[0]?' on':'')+'" onclick="setOA(this)" data-k="libreViento" data-v="'+o[0]+'">'+o[1]+'</button>';
+    });
+    h+='</div>';
   }
 
   // Nombre de la sesión
@@ -1271,7 +1296,19 @@ function renderLibreBloque(b, i) {
 
 function setLibreMedio2(btn){ S.libreMedio=btn.dataset.v; S.libreTipoMedio=btn.dataset.t==='o'?'o':'p'; if(S.libreTipoMedio!=='o'){S.libreTraje=null;S.libreTemp=null;} renderLibreBuilder(); }
 function setTraje2(v){ S.libreTraje=v; renderLibreBuilder(); }
-function getMedioLabel(){ var m={piscina25:'Piscina 25m',piscina50:'Piscina 50m',mar:'Mar',lago:'Lago',rio:'Río'}; var b=m[S.libreMedio]||'Piscina 25m'; if(S.libreTipoMedio==='o'){if(S.libreTraje)b+=S.libreTraje==='si'?' · Con traje':' · Sin traje';if(S.libreTemp)b+=' · '+S.libreTemp+'°C';} return b; }
+function setOA(btn){ S[btn.dataset.k]=btn.dataset.v; renderLibreBuilder(); }
+function getMedioLabel(){
+  var m={piscina25:'Piscina 25m',piscina50:'Piscina 50m',mar:'Mar',lago:'Lago',rio:'Río'};
+  var b=m[S.libreMedio]||'Piscina 25m';
+  if(S.libreTipoMedio==='o'){
+    if(S.libreTraje)b+=S.libreTraje==='si'?' · Con traje':' · Sin traje';
+    if(S.libreTemp)b+=' · '+S.libreTemp+'°C';
+    if(S.libreCorriente)b+=' · Corriente:'+S.libreCorriente;
+    if(S.libreOleaje)b+=' · Oleaje:'+S.libreOleaje;
+    if(S.libreViento)b+=' · Viento:'+S.libreViento;
+  }
+  return b;
+}
 function setLibre(i, campo, val) {
   S.libreBloques[i][campo] = val;
   if (campo === 'dist') {
@@ -1571,11 +1608,41 @@ async function analizarFotos() {
   ].filter(Boolean).join('. ');
 
   // Recent history for comparison
-  const histReciente = CACHE.filter(r=>r.Nadador===S.nadador&&r.Ritmo_100m).slice(-3)
-    .map(r=>'Sesión '+formatShortDate(r.Fecha||'')+': '+r.Distancia_m+'m '+r.Ritmo_100m+'/100m SWOLF '+r.SWOLF).join(' | ');
+  // Filtrar historial por tipo de medio (mar con mar, piscina con piscina)
+  const histReciente = CACHE.filter(function(r){
+    if(r.Nadador!==S.nadador || !r.Ritmo_100m) return false;
+    var rEsOA = r.Medio && (r.Medio.indexOf('Mar')>=0||r.Medio.indexOf('Lago')>=0||r.Medio.indexOf('Río')>=0||r.Medio.indexOf('Rio')>=0);
+    return esOA ? rEsOA : !rEsOA;
+  }).slice(-3)
+    .map(r=>'Sesión '+formatShortDate(r.Fecha||'')+' ('+(r.Medio||'piscina')+'): '+r.Distancia_m+'m '+r.Ritmo_100m+'/100m SWOLF '+r.SWOLF).join(' | ');
+
+  // Detectar medio del entrenamiento para contexto del analisis
+  var medioStr = '';
+  var esOA = false;
+  if (S.sesionPlan === 'LIBRE' || !plan) {
+    medioStr = getMedioLabel();
+    esOA = (S.libreTipoMedio === 'o');
+  } else {
+    medioStr = 'Piscina 25m';
+  }
+
+  var oaGuidance = '';
+  if (esOA) {
+    oaGuidance = 'IMPORTANTE - ESTE ES UN ENTRENAMIENTO EN AGUAS ABIERTAS (' + medioStr + '). ' +
+      'En aguas abiertas NO HAY virajes olimpicos ni fases subacuaticas, lo que reduce la velocidad media vs piscina. ' +
+      'El SWOLF NO es comparable con piscina (no hay empuje de pared cada 25m). ' +
+      'La corriente, el oleaje y el viento afectan directamente el ritmo: nado a favor de corriente es mas rapido, en contra mas lento. ' +
+      'NO penalices ritmos mas lentos ni SWOLF mas altos como fallas tecnicas: son esperables en mar. ' +
+      'Considera el traje de neopreno (mejora flotabilidad y velocidad). ' +
+      'Al comparar con historial, COMPARA SOLO con otros entrenamientos en aguas abiertas, nunca con piscina. ';
+  } else {
+    oaGuidance = 'Este es un entrenamiento en piscina 25m (con virajes y subacuaticos). Compara solo con otros entrenamientos en piscina. ';
+  }
 
   const prompt='Eres ORION Master, coach experto en natacion master. Analiza este entrenamiento con rigor tecnico.\n' +
     'NADADOR: ' + S.nadador + '. ' + (perfil ? 'PERFIL: ' + perfil + '.' : '') + '\n' +
+    'MEDIO: ' + medioStr + '\n' +
+    oaGuidance + '\n' +
     'CONTEXTO ENTRENAMIENTO:\n' + ctx + '\n' +
     (histReciente ? 'HISTORIAL RECIENTE (comparacion): ' + histReciente + '\n' : '') +
     '\nAnaliza las pantallas de Garmin Connect adjuntas y extrae TODOS los datos disponibles.\n' +
@@ -1700,6 +1767,14 @@ async function guardar() {
   var r = S.extracted && S.extracted.resumen ? S.extracted.resumen : {};
   var ev = S.extracted && S.extracted.evaluacion ? S.extracted.evaluacion : {};
   var plan = getSesion(S.sesionPlan);
+  // Determine medio: from pending record, from libre builder, or default piscina
+  var medioVal = 'Piscina 25m';
+  if (S.pendienteId) {
+    var pendRec = CACHE.find(function(x){ return x.ID===S.pendienteId; });
+    if (pendRec && pendRec.Medio) medioVal = pendRec.Medio;
+  } else if (S.sesionPlan==='LIBRE' || !plan) {
+    medioVal = getMedioLabel();
+  }
   // If resuming a pending session, update that record (same ID/fecha)
   var isPendiente = !!(S.pendienteId);
   var reg = {
@@ -1708,7 +1783,7 @@ async function guardar() {
     nadador: S.nadador,
     sesionPlan: isPendiente ? (S.libreNombre||S.sesionPlan) : S.sesionPlan,
     _update: isPendiente,
-    medio: 'Piscina',
+    medio: medioVal,
     resumen: r,
     vueltas: S.extracted ? S.extracted.vueltas||[] : [],
     bloqueStates: S.bloqueStates || [],
@@ -1784,11 +1859,17 @@ async function guardar() {
       '<button class="btn2" onclick="goTab(\'historial\')">&#x1F4C8; Ver historial</button>' +
       '<button class="btn2" onclick="goTab(\'hoy\')">&#x1F3E0; Inicio</button>';
     toast('Guardado en Google Sheets');
-    // Remove pending record from CACHE and add completed one
     if (S.pendienteId) {
       CACHE = CACHE.filter(function(r){ return !(r.ID===S.pendienteId && r.Nadador===S.nadador); });
       S.pendienteId=null; S.pendienteFecha=null;
     }
+    // Add completed record to CACHE so historial updates without reload
+    CACHE = CACHE.filter(function(x){ return x.ID !== reg.id; });
+    CACHE.push({ID:reg.id,Fecha:reg.fecha,Nadador:reg.nadador,Sesion_Plan:reg.sesionPlan,
+      Medio:reg.medio||'',Distancia_m:reg.resumen.distancia_m||'',Ritmo_100m:reg.resumen.ritmo_medio||'',
+      FC_Media:reg.resumen.fc_media||'',FC_Max:reg.resumen.fc_max||'',SWOLF:reg.resumen.swolf_medio||'',
+      TE_Aerobico:reg.resumen.te_aerobico||'',Carga:reg.resumen.carga_ejercicio||'',Pendiente:''});
+    if(typeof HIST_NAD!=='undefined' && HIST_NAD) renderHistorial();
   } else {
     toast('Error al guardar. Verifica conexi&#xF3;n.', 4000);
   }
