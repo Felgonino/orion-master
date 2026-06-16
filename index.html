@@ -1617,26 +1617,39 @@ async function analizarFotos() {
     .map(r=>'Sesión '+formatShortDate(r.Fecha||'')+' ('+(r.Medio||'piscina')+'): '+r.Distancia_m+'m '+r.Ritmo_100m+'/100m SWOLF '+r.SWOLF).join(' | ');
 
   // Detectar medio del entrenamiento para contexto del analisis
-  var medioStr = '';
+  // Prioridad: 1) registro pendiente en CACHE, 2) builder libre, 3) piscina
+  var medioStr = 'Piscina 25m';
   var esOA = false;
-  if (S.sesionPlan === 'LIBRE' || !plan) {
-    medioStr = getMedioLabel();
-    esOA = (S.libreTipoMedio === 'o');
-  } else {
-    medioStr = 'Piscina 25m';
+  var pendRecMedio = null;
+  if (S.pendienteId) {
+    var pr = CACHE.find(function(x){ return x.ID===S.pendienteId; });
+    if (pr && pr.Medio) pendRecMedio = pr.Medio;
   }
+  if (pendRecMedio) {
+    medioStr = pendRecMedio;
+  } else if (S.sesionPlan === 'LIBRE' || !plan) {
+    medioStr = getMedioLabel();
+  }
+  // Detectar OA por el texto del medio (funciona para builder Y para registros guardados)
+  esOA = (medioStr.indexOf('Mar')>=0 || medioStr.indexOf('Lago')>=0 || medioStr.indexOf('Río')>=0 || medioStr.indexOf('Rio')>=0);
 
   var oaGuidance = '';
   if (esOA) {
-    oaGuidance = 'IMPORTANTE - ESTE ES UN ENTRENAMIENTO EN AGUAS ABIERTAS (' + medioStr + '). ' +
-      'En aguas abiertas NO HAY virajes olimpicos ni fases subacuaticas, lo que reduce la velocidad media vs piscina. ' +
-      'El SWOLF NO es comparable con piscina (no hay empuje de pared cada 25m). ' +
-      'La corriente, el oleaje y el viento afectan directamente el ritmo: nado a favor de corriente es mas rapido, en contra mas lento. ' +
-      'NO penalices ritmos mas lentos ni SWOLF mas altos como fallas tecnicas: son esperables en mar. ' +
-      'Considera el traje de neopreno (mejora flotabilidad y velocidad). ' +
-      'Al comparar con historial, COMPARA SOLO con otros entrenamientos en aguas abiertas, nunca con piscina. ';
+    oaGuidance = '=== ENTRENAMIENTO EN AGUAS ABIERTAS (' + medioStr + ') - REGLAS OBLIGATORIAS DE ANALISIS === ' +
+      'Este NO es un entrenamiento de piscina. PROHIBIDO usar conceptos de piscina en el analisis. ' +
+      'REGLAS QUE DEBES SEGUIR: ' +
+      '1) NO menciones virajes, vueltas olimpicas, empuje de pared ni fases subacuaticas: en mar NO EXISTEN. ' +
+      '2) Las "vueltas" que muestra el reloj son tramos arbitrarios de GPS, NO largos de pileta: NO analices variabilidad entre vueltas como falta de pacing. ' +
+      '3) El SWOLF en mar es naturalmente mas alto y NO ES COMPARABLE con piscina ni indica mala tecnica (no hay impulso de pared cada 25m). NO recomiendes bajar SWOLF. ' +
+      '4) El ritmo en mar es mas lento que piscina y es NORMAL. NO lo trates como deficiencia. ' +
+      '5) La CORRIENTE, OLEAJE y VIENTO son los factores dominantes: nado a favor de corriente es mas rapido, en contra mas lento. Si la corriente fue variable (ida y vuelta), la diferencia de ritmo entre tramos se explica por la corriente, NO por fatiga ni falta de pacing. ' +
+      '6) El traje de neopreno mejora flotabilidad y velocidad: tenlo en cuenta. ' +
+      '7) NO recomiendes series estructuradas tipo piramide con descansos cronometrados: en aguas abiertas el trabajo es continuo, por sensacion, con foco en navegacion (sighting), drafting y adaptacion a condiciones. ' +
+      '8) Recomendaciones VALIDAS para mar: tecnica de sighting (levantar vista para orientarse), respiracion bilateral para oleaje, nado en grupo/drafting, adaptacion a corriente, tolerancia al frio. ' +
+      'COMPARA SOLO con otros entrenamientos en aguas abiertas del historial, NUNCA con piscina. ' +
+      'El feedback debe ser de un coach de AGUAS ABIERTAS, no de piscina. ';
   } else {
-    oaGuidance = 'Este es un entrenamiento en piscina 25m (con virajes y subacuaticos). Compara solo con otros entrenamientos en piscina. ';
+    oaGuidance = 'Entrenamiento en PISCINA 25m (con virajes y subacuaticos). Analiza con criterios de piscina y compara solo con otros entrenamientos en piscina. ';
   }
 
   const prompt='Eres ORION Master, coach experto en natacion master. Analiza este entrenamiento con rigor tecnico.\n' +
