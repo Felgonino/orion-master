@@ -608,8 +608,18 @@ function todayStr() { const d=new Date(); return d.getFullYear()+'-'+z(d.getMont
 function z(n){ return String(n).padStart(2,'0'); }
 function genId(nad) {
   const d=new Date(); const ds=d.getFullYear()+z(d.getMonth()+1)+z(d.getDate());
-  const idx=CACHE.filter(r=>r.Fecha===ds&&r.Nadador===nad).length+1;
-  return ds+'_'+z(idx)+(nad==='Felipe'?'F':'S');
+  // Count today's records for this nadador - normalize date formats (Sheets uses ISO, local uses YYYY-MM-DD)
+  const dsDash = d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());
+  const sufijo = (nad==='Felipe'?'F':'S');
+  // Find existing IDs for today to avoid collision
+  const todayIds = CACHE.filter(function(r){
+    var rf = String(r.Fecha||'').substring(0,10);
+    return (rf===dsDash) && r.Nadador===nad && r.ID;
+  }).map(function(r){ return r.ID; });
+  // Find next available number
+  var n = 1;
+  while (todayIds.indexOf(ds+'_'+z(n)+sufijo) >= 0) n++;
+  return ds+'_'+z(n)+sufijo;
 }
 function scClass(tipo){ return {A:'ta',B:'tb2',C:'tc'}[tipo]||''; }
 function blColor(id){ const b=BLOQUES.find(x=>x.id===id); return b?b.color:'var(--navy)'; }
