@@ -1662,10 +1662,29 @@ async function analizarFotos() {
     oaGuidance = 'Entrenamiento en PISCINA 25m (con virajes y subacuaticos). Analiza con criterios de piscina y compara solo con otros entrenamientos en piscina. ';
   }
 
+  // Guia sobre estilos de natacion - JERARQUIA DE VELOCIDAD
+  var estiloGuidance = '=== CONOCIMIENTO OBLIGATORIO SOBRE ESTILOS === ' +
+    'Cada estilo tiene una velocidad intrinseca distinta por FISICA, no por tecnica. Jerarquia de mas rapido a mas lento: ' +
+    '1) CROL/LIBRE: el mas rapido y eficiente (propulsion continua alterna, cuerpo horizontal, baja resistencia). Es la referencia. ' +
+    '2) MARIPOSA: muy rapida en 50m (rivaliza con crol) pero costo energetico altisimo, se degrada rapido en distancias largas. ' +
+    '3) ESPALDA: ligeramente mas lenta que crol (posicion boca arriba limita potencia), propulsion continua alterna. ' +
+    '4) PECHO/BRAZA: EL MAS LENTO por fisica pura, tipicamente 10-15% mas lento que crol. Tiene fase de deslizamiento y recobro donde el cuerpo DESACELERA, mucha resistencia frontal, propulsion discontinua (avanza-frena-avanza). ' +
+    'REGLAS DE ANALISIS POR ESTILO: ' +
+    '- Un ritmo de PECHO siempre sera notablemente mas lento que libre y eso es NORMAL Y CORRECTO, no una falla. Ej: si 50 libre es ~33s, 50 pecho de ~40s es esperable. ' +
+    '- NUNCA compares el ritmo de un estilo con el de otro estilo distinto como si fueran equivalentes. ' +
+    '- NUNCA marques como deficiente un ritmo de pecho/mariposa/espalda usando expectativas de crol. ' +
+    '- Si el bloque indica un estilo especifico (pecho, espalda, mariposa, combinado/IM), AJUSTA tus expectativas de ritmo a ese estilo. ' +
+    '- En COMBINADO/IM (mariposa-espalda-pecho-libre), el ritmo promedio sera mas lento que libre puro por la mezcla de estilos. ' +
+    '- El SWOLF tambien varia por estilo: pecho y mariposa tienen SWOLF naturalmente distinto a crol. ' +
+    '- Al comparar con historial, prioriza comparar mismo estilo con mismo estilo (pecho con pecho, libre con libre). ' +
+    'Si no tienes referencia exacta del estilo en el historial, usa la jerarquia fisica para contextualizar, no penalices. ';
+
+
   const prompt='Eres ORION Master, coach experto en natacion master. Analiza este entrenamiento con rigor tecnico.\n' +
     'NADADOR: ' + S.nadador + '. ' + (perfil ? 'PERFIL: ' + perfil + '.' : '') + '\n' +
     'MEDIO: ' + medioStr + '\n' +
     oaGuidance + '\n' +
+    estiloGuidance + '\n' +
     'CONTEXTO ENTRENAMIENTO:\n' + ctx + '\n' +
     (histReciente ? 'HISTORIAL RECIENTE (comparacion): ' + histReciente + '\n' : '') +
     '\nAnaliza las pantallas de Garmin Connect adjuntas y extrae TODOS los datos disponibles.\n' +
