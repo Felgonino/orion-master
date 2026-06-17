@@ -154,7 +154,18 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
 .bl-hdr{border-radius:10px;padding:12px 14px;margin-bottom:12px;color:#fff}
 
 /* ── LOGIN PIN ── */
-#login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#0D2B55,#1A5276);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px}
+#login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#0A4D8C 0%,#1A7BB8 35%,#2596be 70%,#48C9D8 100%);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;overflow:hidden}
+/* Líneas de agua tipo piscina */
+#login-screen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 58px,rgba(255,255,255,.06) 58px,rgba(255,255,255,.06) 62px);pointer-events:none}
+/* Ondas de agua animadas */
+.pool-wave{position:absolute;left:0;right:0;height:140px;background:radial-gradient(ellipse at center,rgba(255,255,255,.15) 0%,transparent 70%);opacity:.5;animation:waveMove 7s ease-in-out infinite}
+.pool-wave.w1{top:18%;animation-delay:0s}
+.pool-wave.w2{top:48%;animation-delay:2.3s}
+.pool-wave.w3{top:74%;animation-delay:4.6s}
+@keyframes waveMove{0%,100%{transform:translateX(-30px) scaleY(1)}50%{transform:translateX(30px) scaleY(1.3)}}
+/* Reflejos de luz en el agua */
+.pool-shimmer{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.4) 0%,transparent 65%);pointer-events:none;animation:shimmer 5s ease-in-out infinite}
+@keyframes shimmer{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
 #login-screen.hidden{display:none}
 .login-logo{font-size:48px;margin-bottom:8px}
 .login-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
@@ -178,9 +189,16 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
 <body>
 
 <div id="login-screen">
+  <div class="pool-wave w1"></div>
+  <div class="pool-wave w2"></div>
+  <div class="pool-wave w3"></div>
+  <div class="pool-shimmer" style="width:120px;height:120px;top:25%;left:15%"></div>
+  <div class="pool-shimmer" style="width:80px;height:80px;top:60%;right:18%;animation-delay:2s"></div>
+  <div class="pool-shimmer" style="width:100px;height:100px;bottom:20%;left:25%;animation-delay:3.5s"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%">
   <div class="login-logo">🌊</div>
   <div class="login-title">ORION Master</div>
-  <div class="login-sub">Felipe &amp; Sergio · 2026</div>
+  <div class="login-sub">Aplicación creada por Felipe González Inostroza</div>
   <div class="login-who" id="login-who">¿Quién eres?</div>
   <div class="login-swimmers" id="login-swimmers"></div>
   <div class="pin-display" id="pin-display" style="display:none">
@@ -192,12 +210,13 @@ html,body{height:100%;height:-webkit-fill-available;background:#F0F2F5;font-fami
   <div class="pin-pad" id="pin-pad" style="display:none"></div>
   <div class="login-err" id="login-err"></div>
   <div class="login-hint" id="login-hint"></div>
+  </div>
 </div>
 
 <div class="app">
   <div class="tb">
     <div class="tb-logo">🌊</div>
-    <div><div class="tb-t">ORION Master</div><div class="tb-s">Felipe &amp; Sergio · 2026</div></div>
+    <div><div class="tb-t">ORION Master</div><div class="tb-s" id="tb-sub">2026</div></div>
     <div id="sdot" class="sdot" title="Sincronización"></div>
     <button id="btn-logout" onclick="cerrarSesion()" style="display:none;background:rgba(255,255,255,.12);border:none;color:#fff;padding:6px 10px;border-radius:8px;font-size:14px;cursor:pointer;margin-left:8px" title="Cerrar sesión">⏻</button>
   </div>
