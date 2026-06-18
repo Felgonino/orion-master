@@ -1717,12 +1717,12 @@ async function analizarFotos() {
     '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[{"intervalo":1,"tiempo":null,"distancia_m":null,"ritmo":null}],"evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"para_proxima":[]}}';
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 55000);
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
     const resp=await fetch('https://orion-proxy.felgonino.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       signal: controller.signal,
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:4000,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})
     });
     clearTimeout(timeoutId);
     clearInterval(iv); setLoad(100,'Análisis completo ✓','');
@@ -1730,10 +1730,26 @@ async function analizarFotos() {
     const data=await resp.json();
     if(!data.ok) throw new Error(data.error||'Error en proxy');
     if(!data.text) throw new Error('Sin texto en respuesta');
-    const raw = data.text.trim();
-    S.extracted=JSON.parse(raw);
+    var raw = data.text.trim();
+    // Limpiar backticks de markdown si los hubiera
+    raw = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+    // Extraer solo el objeto JSON (desde el primer { hasta el último })
+    var ini = raw.indexOf('{');
+    var fin = raw.lastIndexOf('}');
+    if (ini >= 0 && fin > ini) raw = raw.substring(ini, fin+1);
+    try {
+      S.extracted = JSON.parse(raw);
+    } catch(parseErr) {
+      // Intento de reparar JSON truncado: cerrar arrays/objetos abiertos
+      console.error('JSON parse error, intentando reparar:', parseErr.message);
+      throw new Error('La respuesta de la IA llegó incompleta. Intenta de nuevo con menos fotos de vueltas (sube solo las 2-3 más relevantes).');
+    }
     setTimeout(()=>{ lov(false); renderResultado(); },300);
-  } catch(e){ clearInterval(iv); lov(false); toast('❌ Error: '+e.message,4000); }
+  } catch(e){
+    clearInterval(iv); lov(false);
+    var msg = e.name === 'AbortError' ? 'El análisis tardó demasiado. Intenta con menos fotos o reintenta.' : e.message;
+    toast('❌ '+msg,5000);
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -2546,8 +2562,9 @@ function editarNadador(i) {
 }
 
 function inp(id, label, val, ph) {
+  var safeVal = (val===null||val===undefined) ? '' : String(val);
   return '<div class="lbl" style="margin-top:8px;text-transform:none;letter-spacing:0;color:var(--text2)">'+label+'</div>' +
-    '<input type="text" id="'+id+'" class="nota-inp" value="'+(val||'').replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'">';
+    '<input type="text" id="'+id+'" class="nota-inp" value="'+safeVal.replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'">';
 }
 
 async function guardarNadador(i) {
