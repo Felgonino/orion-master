@@ -1706,15 +1706,15 @@ async function analizarFotos() {
     estiloGuidance + '\n' +
     'CONTEXTO ENTRENAMIENTO:\n' + ctx + '\n' +
     (histReciente ? 'HISTORIAL RECIENTE (comparacion): ' + histReciente + '\n' : '') +
-    '\nAnaliza las pantallas de Garmin Connect adjuntas y extrae TODOS los datos disponibles.\n' +
-    'Luego genera una evaluacion ESPECIFICA para este nadador y esta sesion:\n' +
-    '- puntos_positivos: logros concretos vs los objetivos de cada bloque (no genericos)\n' +
-    '- puntos_mejora: aspectos especificos a corregir basados en los datos reales\n' +
-    '- para_proxima: indicaciones tecnicas precisas para la proxima sesion\n' +
-    'Si hay bloques omitidos, considera eso en el analisis.\n' +
-    'Compara con el historial reciente si esta disponible.\n\n' +
-    'Devuelve SOLO JSON valido sin backticks:\n' +
-    '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[{"intervalo":1,"tiempo":null,"distancia_m":null,"ritmo":null}],"evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"para_proxima":[]}}';
+    '\nAnaliza las pantallas de Garmin Connect adjuntas y extrae los datos del RESUMEN (estadisticas).\n' +
+    'Para las VUELTAS: NO transcribas todas una por una. Solo identifica el patron general (cuantos intervalos, distancias tipicas, rango de ritmos).\n' +
+    'Genera una evaluacion ESPECIFICA y CONCISA para este nadador:\n' +
+    '- puntos_positivos: maximo 4 logros concretos vs objetivos (frases cortas)\n' +
+    '- puntos_mejora: maximo 4 aspectos especificos a corregir (frases cortas)\n' +
+    '- para_proxima: maximo 4 indicaciones tecnicas precisas (frases cortas)\n' +
+    'Cada punto debe ser una frase breve, NO un parrafo largo. Considera bloques omitidos.\n\n' +
+    'Devuelve SOLO JSON valido sin backticks, sin texto antes ni despues:\n' +
+    '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[],"evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"para_proxima":[]}}';
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 90000);
