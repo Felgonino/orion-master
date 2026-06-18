@@ -2518,7 +2518,12 @@ function editarNadador(i) {
   // CAPA 1 — Base
   h += '<div class="card"><div class="cb"><div class="lbl" style="color:var(--navy)">1 · Identificación</div>';
   h += inp('en-nombre','Nombre', n.nombre);
-  if (i < 0) h += inp('en-pin','PIN (4 dígitos)', n.pin);
+  if (i < 0) {
+    h += inp('en-pin','PIN (4 dígitos)', n.pin);
+  } else {
+    h += '<div class="lbl" style="margin-top:8px;text-transform:none;letter-spacing:0;color:var(--text2)">Cambiar PIN <span style="font-weight:400;font-size:11px;color:var(--text3)">(dejar vacío para mantener el actual)</span></div>';
+    h += '<input type="text" id="en-pin" class="nota-inp" value="" placeholder="Nuevo PIN de 4 dígitos" maxlength="4" inputmode="numeric">';
+  }
   h += inp('en-edad','Edad', n.edad, 'ej: 38');
   h += inp('en-cat','Categoría master', n.categoria, 'ej: M35-39');
   h += inp('en-exp','Años de experiencia', n.anos_exp, 'ej: 5');
@@ -2572,8 +2577,16 @@ async function guardarNadador(i) {
   if (!nombre) { toast('Ingresa el nombre'); return; }
 
   var pin;
-  if (i >= 0) { pin = NADADORES[i].pin; }
-  else {
+  if (i >= 0) {
+    // Al editar: si ingresó un PIN nuevo válido, usarlo; si no, mantener el actual
+    var nuevoPin = document.getElementById('en-pin').value.trim();
+    if (nuevoPin) {
+      if (nuevoPin.length !== 4 || isNaN(nuevoPin)) { toast('El nuevo PIN debe ser 4 dígitos'); return; }
+      pin = nuevoPin;
+    } else {
+      pin = NADADORES[i].pin;
+    }
+  } else {
     pin = document.getElementById('en-pin').value.trim();
     if (pin.length !== 4 || isNaN(pin)) { toast('El PIN debe ser 4 dígitos'); return; }
   }
