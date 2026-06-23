@@ -850,6 +850,23 @@ function getBloquesVisibles() {
   return BLOQUES.filter(function(b){ return arch.indexOf(b.id) < 0; });
 }
 
+function esSesionArchivada(sesionId) {
+  var arch = getArchivados();
+  if (!arch.length) return false;
+  // Buscar a qué bloque pertenece la sesión
+  for (var bi=0; bi<BLOQUES.length; bi++) {
+    var b = BLOQUES[bi];
+    for (var wi=0; wi<b.semanas.length; wi++) {
+      for (var si=0; si<b.semanas[wi].sesiones.length; si++) {
+        if (b.semanas[wi].sesiones[si].id === sesionId) {
+          return arch.indexOf(b.id) >= 0;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 function getArchivados() {
   try { return JSON.parse(localStorage.getItem('orion_archivados')||'[]'); }
   catch(e){ return []; }
@@ -1004,7 +1021,13 @@ function renderCargar1() {
   const sesiones=getAllSesiones().filter(s=>!s.intensidad.includes('🏆'));
 
   // Show pending sessions at top
-  var pendCargar = CACHE.filter(function(r){ return r.Pendiente==='SI'||r.Pendiente===true; });
+  var pendCargar = CACHE.filter(function(r){
+    if (!(r.Pendiente==='SI'||r.Pendiente===true)) return false;
+    // Excluir pendientes de sesiones planificadas que estén en bloques archivados
+    var planS = getSesion(r.Sesion_Plan);
+    if (planS && esSesionArchivada(planS.id)) return false;
+    return true;
+  });
   // Deduplicate: for libre sessions, one entry per unique name; for planned, one per sesion+nadador
   var h = '';
   if (pendCargar.length) {
