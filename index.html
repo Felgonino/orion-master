@@ -1198,7 +1198,15 @@ async function sheetsLoad() {
         if(!r.Pendiente&&!r.Distancia_m&&!r.Ritmo_100m&&!r.Tiempo_Total) r.Pendiente='SI';
         return r;
       });
-      var _seen={};CACHE=_raw.filter(function(r){if(_seen[r.ID])return false;_seen[r.ID]=true;return true;});
+      // Deduplicar SOLO filas idénticas (mismo ID+Nadador+Timestamp), nunca por ID solo
+      // porque pueden existir registros legítimos con IDs duplicados de versiones antiguas
+      var _seen={};
+      CACHE=_raw.filter(function(r){
+        var key = r.ID+'|'+r.Nadador+'|'+(r.Timestamp||'')+'|'+(r.Distancia_m||'')+'|'+(r.Sesion_Plan||'');
+        if(_seen[key]) return false;
+        _seen[key]=true;
+        return true;
+      });
       cacheOk=true; 
       syncDot('ok'); 
       // Preselect historial to current user if logged in
