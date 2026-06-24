@@ -3218,42 +3218,98 @@ async function guardarNadador(i) {
 // ═══════════════════════════════════════════════════
 // GLOSARIO — vista
 // ═══════════════════════════════════════════════════
+var GLOS_CATEGORIAS = {
+  'Implementos': ['Aletas','Pull-buoy','Tabla','Palas','Snorkel frontal'],
+  'Técnica de nado': ['DPS (Distancia por Brazada)','Rolido','Agarre del agua','Entrada de mano','Pateo 6 tiempos','Subacuático','IM (Individual Medley / Combinado)','Drill','Glide / Deslizamiento','Transición (IM)'],
+  'Sistemas y tipos de trabajo': ['Aeróbico (A1 / A2)','Umbral anaeróbico (AN1)','CRTP (Capacidad de Repetición en Trabajo de Alta Intensidad)','VO2max','Tempo / Ritmo de carrera','Resistencia de velocidad','Activación / Calentamiento','Afloje / Vuelta a la calma','Broken / Series rotas','Build / Progresivo','Taper / Afinamiento','Tolerancia láctica'],
+  'Competencia y estrategia': ['Tiempo de salida (@ / por)','Descanso fijo','Negativo split','Pirámide','Salida desde bloque','Salida de espaldas','Viraje','Drafting','Pacing / Distribución de esfuerzo','Sighting (Navegación)','Ritmo crucero'],
+};
+var GLOS_CAT_EMOJI = {'Implementos':'🏊','Técnica de nado':'💪','Sistemas y tipos de trabajo':'🔥','Competencia y estrategia':'🏁'};
+
+var GLOS_ABIERTA = null; // categoría desplegada actualmente
+
+function catDeTermino(term) {
+  for (var cat in GLOS_CATEGORIAS) {
+    if (GLOS_CATEGORIAS[cat].indexOf(term) >= 0) return cat;
+  }
+  return 'Otros';
+}
+
 function renderGlosario() {
-  var terminos = [].concat(GLOSARIO).sort(function(a,b){
-    return a.termino.toLowerCase() < b.termino.toLowerCase() ? -1 : 1;
-  });
-
   var h = '<div class="lbl">Glosario de términos técnicos</div>';
-  h += '<div class="note">Definiciones y ejecución de los términos usados en los entrenamientos. ORION agrega nuevos automáticamente al generar programas.</div>';
-
-  // Buscador simple
+  h += '<div class="note">Toca una categoría para ver sus términos. ORION agrega nuevos automáticamente al generar programas.</div>';
   h += '<input type="text" id="glos-buscar" class="nota-inp" placeholder="🔍 Buscar término..." oninput="filtrarGlosario(this.value)" style="margin-bottom:14px">';
-
-  h += '<div id="glos-lista">';
-  terminos.forEach(function(t){
-    h += '<div class="card glos-item" data-term="'+(t.termino||'').toLowerCase()+'" style="margin-bottom:8px"><div class="cb">';
-    h += '<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px">'+t.termino+'</div>';
-    h += '<div style="font-size:12px;color:var(--text);line-height:1.5;margin-bottom:6px">'+t.definicion+'</div>';
-    if (t.ejecucion) {
-      h += '<div style="font-size:12px;color:var(--text2);line-height:1.5;background:var(--gray);border-radius:8px;padding:8px 10px"><b>Cómo se ejecuta:</b> '+t.ejecucion+'</div>';
-    }
-    h += '</div></div>';
-  });
-  h += '</div>';
-
-  // Agregar término manual
-  h += '<button class="btn2" onclick="nuevoTermino()" style="margin-top:6px">➕ Agregar término manualmente</button>';
-
+  h += '<div id="glos-cats"></div>';
+  h += '<div id="glos-resultados"></div>';
   document.getElementById('pg-glosario').innerHTML = h;
+  renderGlosCategorias();
+}
+
+function renderGlosCategorias() {
+  var cont = document.getElementById('glos-cats');
+  if (!cont) return;
+  var h = '';
+  var orden = ['Implementos','Técnica de nado','Sistemas y tipos de trabajo','Competencia y estrategia'];
+  orden.forEach(function(cat){
+    // Contar términos de esta categoría que existen en GLOSARIO
+    var items = GLOSARIO.filter(function(g){ return catDeTermino(g.termino) === cat; });
+    if (!items.length) return;
+    var abierta = (GLOS_ABIERTA === cat);
+    var emoji = GLOS_CAT_EMOJI[cat] || '📖';
+    h += '<div class="card" style="margin-bottom:8px;overflow:hidden">';
+    h += '<div onclick="toggleGlosCat(\''+cat.replace(/'/g,"\\'")+'\')" style="padding:13px 15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:'+(abierta?'var(--azul-l)':'transparent')+'">';
+    h += '<div style="display:flex;align-items:center;gap:9px"><span style="font-size:18px">'+emoji+'</span><span style="font-size:14px;font-weight:700;color:var(--navy)">'+cat+'</span><span style="font-size:11px;color:var(--text3)">('+items.length+')</span></div>';
+    h += '<span style="font-size:16px;color:var(--text3);transform:rotate('+(abierta?'90':'0')+'deg);transition:transform .2s">›</span>';
+    h += '</div>';
+    if (abierta) {
+      h += '<div style="padding:4px 15px 12px">';
+      items.sort(function(a,b){ return a.termino.toLowerCase() < b.termino.toLowerCase() ? -1 : 1; });
+      items.forEach(function(t){
+        h += '<div style="padding:10px 0;border-top:1px solid var(--gray2)">';
+        h += '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">'+t.termino+'</div>';
+        h += '<div style="font-size:12px;color:var(--text2);line-height:1.4;margin-bottom:4px">'+t.definicion+'</div>';
+        if (t.ejecucion) h += '<div style="font-size:11.5px;color:var(--text3);line-height:1.4;font-style:italic">▸ '+t.ejecucion+'</div>';
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  cont.innerHTML = h;
+}
+
+function toggleGlosCat(cat) {
+  GLOS_ABIERTA = (GLOS_ABIERTA === cat) ? null : cat;
+  renderGlosCategorias();
 }
 
 function filtrarGlosario(q) {
-  q = (q||'').toLowerCase().trim();
-  document.querySelectorAll('.glos-item').forEach(function(el){
-    var term = el.getAttribute('data-term') || '';
-    var txt = el.textContent.toLowerCase();
-    el.style.display = (!q || term.indexOf(q) >= 0 || txt.indexOf(q) >= 0) ? '' : 'none';
+  var cats = document.getElementById('glos-cats');
+  var res = document.getElementById('glos-resultados');
+  if (!q || !q.trim()) {
+    cats.style.display = 'block';
+    res.innerHTML = '';
+    return;
+  }
+  cats.style.display = 'none';
+  var ql = q.toLowerCase();
+  var matches = GLOSARIO.filter(function(g){
+    return g.termino.toLowerCase().indexOf(ql) >= 0 || g.definicion.toLowerCase().indexOf(ql) >= 0;
   });
+  var h = '';
+  if (!matches.length) {
+    h = '<div class="note">Sin resultados para "'+q+'"</div>';
+  } else {
+    matches.sort(function(a,b){ return a.termino.toLowerCase() < b.termino.toLowerCase() ? -1 : 1; });
+    matches.forEach(function(t){
+      h += '<div class="card" style="margin-bottom:8px"><div class="cb">';
+      h += '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">'+t.termino+' <span style="font-size:10px;font-weight:400;color:var(--text3)">· '+catDeTermino(t.termino)+'</span></div>';
+      h += '<div style="font-size:12px;color:var(--text2);line-height:1.4;margin-bottom:4px">'+t.definicion+'</div>';
+      if (t.ejecucion) h += '<div style="font-size:11.5px;color:var(--text3);line-height:1.4;font-style:italic">▸ '+t.ejecucion+'</div>';
+      h += '</div></div>';
+    });
+  }
+  res.innerHTML = h;
 }
 
 function nuevoTermino() {
