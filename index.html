@@ -1053,10 +1053,18 @@ function checkPin() {
   const n = NADADORES[loginSel];
   if (pinBuffer === n.pin) {
     USUARIO_ACTUAL = n.nombre;
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('btn-logout').style.display = 'block';
-    document.querySelector('.tb-s').textContent = n.emoji + ' ' + n.nombre + ' · 2026';
-    goTab('hoy');
+    try { document.getElementById('login-screen').classList.add('hidden'); } catch(e){}
+    try { document.getElementById('btn-logout').style.display = 'block'; } catch(e){}
+    try {
+      var tbs = document.querySelector('.tb-s');
+      if (tbs) tbs.textContent = n.emoji + ' ' + n.nombre + ' · 2026';
+    } catch(e){}
+    try {
+      goTab('hoy');
+    } catch(e){
+      console.error('Error al renderizar Hoy:', e);
+      // Aunque falle el render, el usuario ya está dentro
+    }
   } else {
     document.getElementById('login-err').textContent = 'PIN incorrecto';
     pinBuffer = '';
