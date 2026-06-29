@@ -500,11 +500,11 @@ const BLOQUES = [
     fechaFin:'2026-07-23',
     semanas:[
       {
-        id:'B3-W1', nombre:'Semana 1 (30 Jun-6 Jul) — Base + Volumen específico',
+        id:'B3-W1', nombre:'Semana 1 (23-28 Jun) — Base + Volumen específico',
         sesiones:[
           {
             id:'B3-W1-A', tipo:'A', nombre:'Sesión A — Técnica + Velocidad específica',
-            fecha:'2026-06-30', dia:'Mar 30 Jun', intensidad:'⚡ Neuromuscular',
+            fecha:'2026-06-23', dia:'Mar 23 Jun', intensidad:'⚡ Neuromuscular',
             objetivo:'Activar los estilos de competencia (pecho, espalda, IM, libre) con foco técnico y velocidad controlada en distancias cortas.',
             rationale:'Inicio del ciclo hacia el Nacional. La primera semana construye base técnica de los estilos específicos. Series cortas con buena recuperación para fijar patrones correctos antes de subir intensidad.',
             bloques:[
@@ -548,7 +548,7 @@ const BLOQUES = [
           },
           {
             id:'B3-W1-B', tipo:'B', nombre:'Sesión B — Resistencia velocidad + IM',
-            fecha:'2026-07-02', dia:'Jue 2 Jul', intensidad:'🔥 Umbral',
+            fecha:'2026-06-24', dia:'Mié 24 Jun', intensidad:'🔥 Umbral',
             objetivo:'Trabajar resistencia a la velocidad y el 200 IM completo, simulando la exigencia de las pruebas de medio fondo.',
             rationale:'El 200 IM y 200 Espalda exigen sostener velocidad bajo fatiga. Este día construye esa capacidad con series de umbral y trabajo de IM completo.',
             bloques:[
@@ -590,8 +590,8 @@ const BLOQUES = [
               },
               {
                 tipo:'Afloje',
-                desc:'200m suave a elección',
-                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                desc:'300m suave a elección (soltar completamente)',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'',
                 mf:'Soltar completamente',
                 ms:'Recuperar',
@@ -601,7 +601,7 @@ const BLOQUES = [
           },
           {
             id:'B3-W1-C', tipo:'C', nombre:'Sesión C — Fondo aguas abiertas (Mar)',
-            fecha:'2026-07-05', dia:'Sáb 5 Jul', intensidad:'🌊 Aguas abiertas',
+            fecha:'2026-06-28', dia:'Dom 28 Jun', intensidad:'🌊 Aguas abiertas',
             objetivo:'Construir base de fondo para los 3km en aguas abiertas, trabajando nado continuo y adaptación a condiciones de mar.',
             rationale:'Mientras la piscina trabaja velocidad, el sábado mantiene la base aeróbica de aguas abiertas. Nado continuo por tiempo/sensación, no por series — el mar no tiene paredes ni virajes.',
             bloques:[
@@ -637,127 +637,136 @@ const BLOQUES = [
         ]
       },
       {
-        id:'B3-W2', nombre:'Semana 2 (7-13 Jul) — Intensidad específica',
+        id:'B3-W2', nombre:'Semana 2 (29 Jun-5 Jul) — Umbral y contraste de estilos',
         sesiones:[
           {
-            id:'B3-W2-A', tipo:'A', nombre:'Sesión A — Velocidad pura + salidas',
-            fecha:'2026-07-07', dia:'Mar 7 Jul', intensidad:'⚡ Neuromuscular',
-            objetivo:'Máxima velocidad en 50s de pecho y libre, trabajando salidas y primeros metros explosivos.',
-            rationale:'Segunda semana sube la intensidad. Los 50 son pruebas de velocidad pura: la salida y los primeros 15m definen la carrera. Trabajo neuromuscular con recuperación completa.',
+            id:'B3-W2-A', tipo:'A', nombre:'Sesión A — Umbral anaeróbico (mixto)',
+            fecha:'2026-06-29', dia:'Lun 29 Jun · Semana 29 Jun-5 Jul', intensidad:'🔥 Umbral anaeróbico',
+            objetivo:'Trabajar el umbral anaeróbico con contraste de estilos y recuperación activa, mejorando la capacidad de sostener ritmo bajo fatiga controlada.',
+            rationale:'Sesión realizada el 29 jun (2.800m). Calentamiento progresivo con pull y restricción respiratoria, set principal de contraste libre-espalda, y set de umbral en pirámide descendente con recuperación activa (los 25 suaves permiten mantener calidad). Cierre con un 100 a máximo para producir velocidad con fatiga previa.',
             bloques:[
               {
-                tipo:'Calentamiento',
-                desc:'400m mixto suave + 4×25 acelerando',
-                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:4,dist:25,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'}],
+                tipo:'Calentamiento progresivo',
+                desc:'100 suave + 200 pull con respiración cada 5 brazadas + 300 (25 libre / 25 IM order drill) + 4×75 (libre / pateo IM / libre) + 2×50 libre',
+                series:[{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'},{reps:1,dist:200,estilo:'Libre',implemento:'pull-buoy',salida:'',descanso:'15seg'},{reps:1,dist:300,estilo:'Combinado',implemento:'',salida:'',descanso:'20seg'},{reps:4,dist:75,estilo:'Combinado',implemento:'',salida:'',descanso:'20seg'},{reps:2,dist:50,estilo:'Libre',implemento:'',salida:'1:10',descanso:''}],
                 descanso_bloque:'30seg',
-                mf:'Activar sin fatiga',
-                ms:'Despertar la velocidad',
-                ritmo:''
+                mf:'Activar respiración controlada con el pull, soltar hombros',
+                ms:'Técnica fina en los drills de IM',
+                ritmo:'Progresivo'
               },
               {
-                tipo:'Velocidad 50 Pecho',
-                desc:'6×50m Pecho máximo desde salida (desc 1min30). Foco en salida + primer ciclo bajo agua.',
-                series:[{reps:6,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'1min30seg'}],
-                descanso_bloque:'1min',
-                mf:'Brazada subacuática completa tras salida',
-                ms:'Tracción de pecho explosiva',
-                ritmo:'Máximo'
+                tipo:'Set 1 — Contraste libre/espalda',
+                desc:'3×(125 libre @2:10 + 4×50 espalda @70seg) con 40seg entre series + 125 suaves de transición',
+                series:[{reps:3,dist:125,estilo:'Libre',implemento:'',salida:'2:10',descanso:''},{reps:12,dist:50,estilo:'Espalda',implemento:'',salida:'1:10',descanso:''},{reps:1,dist:125,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'40seg entre series',
+                mf:'Sostener el 125 en aeróbico, reorganizar técnica al pasar a espalda',
+                ms:'Aprovechar la espalda para trabajar cambios de ritmo bajo fatiga',
+                ritmo:'Aeróbico-umbral'
               },
               {
-                tipo:'Velocidad 50 Libre',
-                desc:'6×50m Libre máximo (desc 1min30). Sprint puro.',
-                series:[{reps:6,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'1min30seg'}],
-                descanso_bloque:'1min',
-                mf:'Mantener técnica a máxima velocidad',
-                ms:'Cadencia alta sin perder DPS',
+                tipo:'Set 2 — Pirámide umbral con recuperación activa',
+                desc:'100 @1:55 al 80% + 2×25 suaves @40 / 2×75 @1:30 al 80% + 2×25 suaves @40 / 4×50 @60 al 80% + 2×25 suaves @40. Luego 2min descanso.',
+                series:[{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'1:55',descanso:''},{reps:2,dist:25,estilo:'Libre',implemento:'',salida:'40',descanso:''},{reps:2,dist:75,estilo:'Libre',implemento:'',salida:'1:30',descanso:''},{reps:2,dist:25,estilo:'Libre',implemento:'',salida:'40',descanso:''},{reps:4,dist:50,estilo:'Libre',implemento:'',salida:'1:00',descanso:''},{reps:2,dist:25,estilo:'Libre',implemento:'',salida:'40',descanso:''}],
+                descanso_bloque:'2min',
+                mf:'Mantener el 80% constante a medida que baja la distancia, apretar al final',
+                ms:'Los 25 suaves son recuperación real, no nado rápido',
+                ritmo:'80% (umbral)'
+              },
+              {
+                tipo:'Cierre — All out',
+                desc:'1×100 libre a máximo (all out)',
+                series:[{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Producir velocidad máxima con la fatiga acumulada',
+                ms:'Cierre agresivo, dejar todo',
                 ritmo:'Máximo'
+              }
+            ]
+          },
+          {
+            id:'B3-W2-B', tipo:'B', nombre:'Sesión B — Técnica fina + velocidad de pecho',
+            fecha:'', dia:'Semana 29 Jun-5 Jul · día a elección', intensidad:'⚡ Técnica + velocidad',
+            objetivo:'Pulir la técnica de pecho y mariposa con snorkel y palas, y trabajar la velocidad específica del 50/100 pecho.',
+            rationale:'Día de calidad técnica. El snorkel permite concentrarse en la simetría y el timing sin pensar en respirar. Las palas dan conciencia del agarre. Cierra con velocidad pura de pecho para transferir la técnica a la prueba.',
+            bloques:[
+              {
+                tipo:'Calentamiento técnico',
+                desc:'300 libre suave + 200 espalda + 4×50 patada con tabla (alternar pecho/libre)',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'},{reps:1,dist:200,estilo:'Espalda',implemento:'',salida:'',descanso:'20seg'},{reps:4,dist:50,estilo:'Combinado',implemento:'tabla',salida:'',descanso:'15seg'}],
+                descanso_bloque:'30seg',
+                mf:'Entrar en calor sin prisa',
+                ms:'Patada de pecho amplia y simétrica',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Técnica pecho con snorkel',
+                desc:'6×75 pecho con snorkel frontal: foco en timing tirón-patada-deslizamiento, sin preocuparse de la respiración',
+                series:[{reps:6,dist:75,estilo:'Pecho',implemento:'snorkel',salida:'',descanso:'20seg'}],
+                descanso_bloque:'40seg',
+                mf:'Coordinación perfecta: un solo glide largo por ciclo',
+                ms:'Simetría total, aprovechar el snorkel para sentir el eje',
+                ritmo:'Técnico'
+              },
+              {
+                tipo:'Fuerza de agarre con palas',
+                desc:'8×50 con palas: 4 libre + 4 pecho, foco en sentir el agua y traccionar largo',
+                series:[{reps:4,dist:50,estilo:'Libre',implemento:'palas',salida:'',descanso:'20seg'},{reps:4,dist:50,estilo:'Pecho',implemento:'palas',salida:'',descanso:'25seg'}],
+                descanso_bloque:'45seg',
+                mf:'Agarre temprano y tracción completa, no forzar el hombro',
+                ms:'Sentir cada fase de la brazada',
+                ritmo:'Controlado-fuerte'
+              },
+              {
+                tipo:'Velocidad 50 pecho',
+                desc:'6×50 pecho fuerte (sin implemento) @1:30, ritmo de carrera. Aplicar la técnica del snorkel a velocidad.',
+                series:[{reps:6,dist:50,estilo:'Pecho',implemento:'',salida:'1:30',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Mantener el glide aún a máxima velocidad',
+                ms:'Salida explosiva y tracción potente',
+                ritmo:'Ritmo carrera'
               },
               {
                 tipo:'Afloje',
-                desc:'200m suave',
+                desc:'200 suave variado (elección)',
                 series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'',
                 mf:'Soltar',
                 ms:'Recuperar',
-                ritmo:''
-              }
-            ]
-          },
-          {
-            id:'B3-W2-B', tipo:'B', nombre:'Sesión B — Tolerancia láctica + 100 pecho',
-            fecha:'2026-07-09', dia:'Jue 9 Jul', intensidad:'🔥 Umbral',
-            objetivo:'Trabajar tolerancia al lactato para el 100 pecho y 200s, sosteniendo velocidad bajo fatiga.',
-            rationale:'El 100 pecho y los 200 exigen tolerar lactato. Series con recuperación incompleta para acostumbrar al cuerpo a nadar rápido cansado.',
-            bloques:[
-              {
-                tipo:'Calentamiento',
-                desc:'300m progresivo + 100 patada pecho',
-                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:1,dist:100,estilo:'Pecho',implemento:'tabla',salida:'',descanso:''}],
-                descanso_bloque:'45seg',
-                mf:'Activar tren inferior pecho',
-                ms:'Patada simétrica',
-                ritmo:''
-              },
-              {
-                tipo:'100 Pecho roto',
-                desc:'4×100m Pecho como 2×50 con 10seg de pausa en el medio (desc 1min30 entre 100s). Simula ritmo de carrera del 100.',
-                series:[{reps:4,dist:100,estilo:'Pecho',implemento:'',salida:'',descanso:'1min30seg'}],
-                descanso_bloque:'1min',
-                mf:'Segundo 50 igual de fuerte que el primero',
-                ms:'Mantener largo de brazada bajo fatiga',
-                ritmo:'Ritmo 100 carrera'
-              },
-              {
-                tipo:'Tolerancia 200',
-                desc:'3×200m alternando (1 Espalda, 1 IM, 1 Libre) desc 45seg. Ritmo controlado-fuerte.',
-                series:[{reps:1,dist:200,estilo:'Espalda',implemento:'',salida:'',descanso:'45seg'},{reps:1,dist:200,estilo:'Combinado',implemento:'',salida:'',descanso:'45seg'},{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
-                descanso_bloque:'1min',
-                mf:'Distribuir esfuerzo en los 200',
-                ms:'Cierre fuerte cada uno',
-                ritmo:'Controlado-fuerte'
-              },
-              {
-                tipo:'Afloje',
-                desc:'200m suave',
-                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
-                descanso_bloque:'',
-                mf:'Soltar completamente',
-                ms:'Recuperar',
-                ritmo:''
-              }
-            ]
-          },
-          {
-            id:'B3-W2-C', tipo:'C', nombre:'Sesión C — Fondo + cambios de ritmo (Mar)',
-            fecha:'2026-07-12', dia:'Sáb 12 Jul', intensidad:'🌊 Aguas abiertas',
-            objetivo:'Aumentar el volumen de fondo hacia los 3km e introducir cambios de ritmo para simular paso de boyas.',
-            rationale:'Segunda semana de mar sube volumen. Los cambios de ritmo simulan las aceleraciones reales de una competencia de aguas abiertas (salida, boyas, llegada).',
-            bloques:[
-              {
-                tipo:'Entrada',
-                desc:'10min nado continuo suave, sighting regular',
-                series:[],
-                descanso_bloque:'',
-                mf:'Adaptación gradual',
-                ms:'Ritmo cómodo',
                 ritmo:'Suave'
-              },
+              }
+            ]
+          },
+          {
+            id:'B3-W2-C', tipo:'C', nombre:'Sesión C — Fondo aguas abiertas con cambios',
+            fecha:'', dia:'Semana 29 Jun-5 Jul · día a elección (Mar)', intensidad:'🌊 Aguas abiertas',
+            objetivo:'Construir fondo hacia los 3km con cambios de ritmo que simulan las aceleraciones de competencia.',
+            rationale:'El mar mantiene la base aeróbica. Nado continuo con cambios de ritmo cada cierto tiempo para simular el paso de boyas y las aceleraciones reales de una carrera de aguas abiertas. Sin estructura de pileta.',
+            bloques:[
               {
-                tipo:'Fondo con cambios',
-                desc:'2500-3000m continuos. Cada ~8-10min incluir 1-2min más fuerte (simulando paso de boya), luego volver a ritmo crucero.',
+                tipo:'Entrada progresiva',
+                desc:'10-12min de nado continuo suave, sighting cada 6-8 brazadas, adaptación a temperatura',
                 series:[],
                 descanso_bloque:'',
-                mf:'Acelerar sin descontrolar respiración',
-                ms:'Cambios limpios de ritmo, aprovechar drafting',
+                mf:'Calentar gradual, respiración adaptada al oleaje',
+                ms:'Encontrar ritmo crucero cómodo',
+                ritmo:'Suave aeróbico'
+              },
+              {
+                tipo:'Fondo con cambios de ritmo',
+                desc:'2200-2800m continuos. Cada ~8min, acelerar 1-2min (simular paso de boya), luego volver a ritmo crucero. Drafting si nadan juntos.',
+                series:[],
+                descanso_bloque:'',
+                mf:'Acelerar sin descontrolar la respiración, motor constante',
+                ms:'Cambios limpios, aprovechar el drafting',
                 ritmo:'Crucero + cambios'
               },
               {
                 tipo:'Salida',
-                desc:'200m suave de regreso',
+                desc:'200-300m suave de regreso, soltar',
                 series:[],
                 descanso_bloque:'',
-                mf:'Soltar',
-                ms:'Técnica',
+                mf:'Bajar pulsaciones progresivo',
+                ms:'Técnica hasta el final',
                 ritmo:'Suave'
               }
             ]
@@ -765,109 +774,127 @@ const BLOQUES = [
         ]
       },
       {
-        id:'B3-W3', nombre:'Semana 3 (14-20 Jul) — Afinamiento de carrera',
+        id:'B3-W3', nombre:'Semana 3 (6-12 Jul) — Velocidad específica e IM',
         sesiones:[
           {
-            id:'B3-W3-A', tipo:'A', nombre:'Sesión A — Ritmo de carrera específico',
-            fecha:'2026-07-14', dia:'Mar 14 Jul', intensidad:'⚡ Específico',
-            objetivo:'Nadar a ritmo exacto de competencia en cada prueba, fijando sensaciones de carrera.',
-            rationale:'A una semana y media del Nacional, el foco es sentir el ritmo real de carrera. Repeticiones a velocidad objetivo con recuperación amplia para calidad máxima.',
+            id:'B3-W3-A', tipo:'A', nombre:'Sesión A — Velocidad láctica + 200 IM',
+            fecha:'', dia:'Semana 6-12 Jul · día a elección', intensidad:'🔴 Velocidad láctica',
+            objetivo:'Desarrollar tolerancia al lactato y trabajar el 200 IM completo, con aletas para velocidad supra-máxima.',
+            rationale:'Tercera semana sube la intensidad. Las aletas permiten nadar más rápido de lo habitual, educando al cuerpo en velocidades altas. El broken del 200 IM enseña a sostener cada estilo bajo fatiga. Set láctico con recuperación incompleta.',
             bloques:[
               {
-                tipo:'Calentamiento',
-                desc:'400m suave + 4×50 progresivo',
-                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:4,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'}],
-                descanso_bloque:'1min',
-                mf:'Activar sin cansar',
-                ms:'Subir revoluciones gradual',
-                ritmo:''
+                tipo:'Calentamiento con aletas',
+                desc:'400 libre/espalda alterno + 6×50 con aletas progresivos (build de suave a fuerte)',
+                series:[{reps:1,dist:400,estilo:'Combinado',implemento:'',salida:'',descanso:'20seg'},{reps:6,dist:50,estilo:'Libre',implemento:'aletas',salida:'',descanso:'15seg'}],
+                descanso_bloque:'40seg',
+                mf:'Sentir la posición alta del cuerpo con aletas',
+                ms:'Acelerar progresivo, despertar el sistema',
+                ritmo:'Build'
               },
               {
-                tipo:'Ritmo 50s',
-                desc:'2×50 Pecho + 2×50 Libre + 2×50 Espalda, todos a ritmo de carrera con desc 2min (calidad máxima).',
-                series:[{reps:2,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'2min'},{reps:2,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'2min'},{reps:2,dist:50,estilo:'Espalda',implemento:'',salida:'',descanso:'2min'}],
+                tipo:'200 IM broken',
+                desc:'3×200 IM roto (50 de cada estilo con 10seg entre estilos) @descanso 1:30. Trabajar transiciones legales.',
+                series:[{reps:3,dist:200,estilo:'Combinado',implemento:'',salida:'',descanso:'1:30'}],
                 descanso_bloque:'1min',
-                mf:'Tiempo objetivo en cada repetición',
-                ms:'Replicar exactamente el ritmo de competencia',
-                ritmo:'Ritmo carrera'
+                mf:'Transiciones mariposa-espalda y espalda-pecho limpias',
+                ms:'No perder velocidad en los cambios de estilo',
+                ritmo:'Ritmo 200 IM'
               },
               {
-                tipo:'Broken 100/200',
-                desc:'2×100 Pecho roto (50+50 con 15seg) a ritmo objetivo del 100, desc 2min.',
-                series:[{reps:2,dist:100,estilo:'Pecho',implemento:'',salida:'',descanso:'2min'}],
+                tipo:'Set láctico con aletas',
+                desc:'8×75 con aletas @1:00, descenso de tiempos (cada 2 más rápido que las 2 anteriores). Velocidad supra-máxima.',
+                series:[{reps:8,dist:75,estilo:'Libre',implemento:'aletas',salida:'1:00',descanso:''}],
                 descanso_bloque:'1min',
-                mf:'Proyectar el tiempo objetivo del 100',
-                ms:'Sostener técnica a ritmo meta',
-                ritmo:'Ritmo 100 meta'
+                mf:'Cada par de 75 más rápido, tolerar el lactato',
+                ms:'Mantener técnica a velocidad supra-máxima',
+                ritmo:'Descendente'
+              },
+              {
+                tipo:'Velocidad pura',
+                desc:'4×25 máximo desde salida (sin aletas) @1min, todo a tope',
+                series:[{reps:4,dist:25,estilo:'Libre',implemento:'',salida:'1:00',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Explosividad pura, máxima cadencia',
+                ms:'Salida y primeros metros agresivos',
+                ritmo:'Máximo'
               },
               {
                 tipo:'Afloje',
-                desc:'200m suave',
-                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                desc:'300 suave variado con respiración bilateral',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'',
-                mf:'Soltar',
-                ms:'Recuperar',
-                ritmo:''
+                mf:'Soltar lactato, respiración 3x3',
+                ms:'Recuperar completamente',
+                ritmo:'Suave'
               }
             ]
           },
           {
-            id:'B3-W3-B', tipo:'B', nombre:'Sesión B — Simulacro de competencia',
-            fecha:'2026-07-16', dia:'Jue 16 Jul', intensidad:'🏁 Simulacro',
-            objetivo:'Simular las pruebas del Nacional con salidas reales y recuperación de competencia.',
-            rationale:'Ensayo general de las pruebas. Hacer cada distancia a máximo con salida desde poyete y recuperación realista entre pruebas, como será el día del Nacional.',
+            id:'B3-W3-B', tipo:'B', nombre:'Sesión B — Resistencia de espalda + pull',
+            fecha:'', dia:'Semana 6-12 Jul · día a elección', intensidad:'🔥 Resistencia',
+            objetivo:'Construir resistencia específica para el 200 espalda y fortalecer el tren superior con pull-buoy.',
+            rationale:'El 200 espalda necesita resistencia sostenida y un tren superior fuerte. El pull-buoy aísla los brazos para trabajo de fuerza específica. Set principal de espalda en formato negativo split para enseñar a cerrar fuerte.',
             bloques:[
               {
-                tipo:'Calentamiento competencia',
-                desc:'600m: 300 suave + 6×50 acelerando (build) + 100 suave',
-                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:6,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'},{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:''}],
-                descanso_bloque:'2min',
-                mf:'Calentamiento de día de carrera',
-                ms:'Activar todos los sistemas',
-                ritmo:''
+                tipo:'Calentamiento',
+                desc:'300 libre + 150 espalda + 4×50 patada espalda con tabla (boca arriba)',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'},{reps:1,dist:150,estilo:'Espalda',implemento:'',salida:'',descanso:'20seg'},{reps:4,dist:50,estilo:'Espalda',implemento:'tabla',salida:'',descanso:'15seg'}],
+                descanso_bloque:'30seg',
+                mf:'Activar la patada de espalda continua',
+                ms:'Rolido amplio desde el calentamiento',
+                ritmo:'Suave'
               },
               {
-                tipo:'Simulacro pruebas',
-                desc:'50 Pecho máx + 50 Libre máx + 200 IM máx, cada uno desde salida con desc 3-4min (como en competencia).',
-                series:[{reps:1,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'3min'},{reps:1,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'3min'},{reps:1,dist:200,estilo:'Combinado',implemento:'',salida:'',descanso:'4min'}],
-                descanso_bloque:'2min',
-                mf:'Tiempo real de cada prueba, registrar para referencia',
-                ms:'Ejecutar como si fuera el Nacional',
-                ritmo:'Máximo competencia'
+                tipo:'Pull de fuerza',
+                desc:'6×100 con pull-buoy (4 libre + 2 espalda con pull entre piernas) @1:40, foco en tracción larga',
+                series:[{reps:4,dist:100,estilo:'Libre',implemento:'pull-buoy',salida:'1:40',descanso:''},{reps:2,dist:100,estilo:'Espalda',implemento:'pull-buoy',salida:'1:50',descanso:''}],
+                descanso_bloque:'45seg',
+                mf:'Aislar el tren superior, agarre potente',
+                ms:'Mantener cadera alta sin patada',
+                ritmo:'Fuerte sostenido'
               },
               {
-                tipo:'Afloje extendido',
-                desc:'300m suave variado',
-                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                tipo:'200 espalda negative split',
+                desc:'3×200 espalda @descanso 30seg, cada uno con segunda mitad más rápida que la primera',
+                series:[{reps:3,dist:200,estilo:'Espalda',implemento:'',salida:'',descanso:'30seg'}],
+                descanso_bloque:'1min',
+                mf:'Distribuir para cerrar fuerte los últimos 100',
+                ms:'Control de ritmo, acelerar progresivo',
+                ritmo:'Negative split'
+              },
+              {
+                tipo:'Afloje',
+                desc:'200 suave a elección',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'',
-                mf:'Recuperación completa',
-                ms:'Soltar lactato',
-                ritmo:''
+                mf:'Soltar hombros tras el pull',
+                ms:'Recuperar',
+                ritmo:'Suave'
               }
             ]
           },
           {
             id:'B3-W3-C', tipo:'C', nombre:'Sesión C — Simulacro 3K aguas abiertas (Mar)',
-            fecha:'2026-07-19', dia:'Sáb 19 Jul', intensidad:'🌊 Aguas abiertas',
-            objetivo:'Completar los 3km continuos en aguas abiertas a ritmo de competencia, validando la preparación de fondo.',
-            rationale:'Simulacro de la distancia objetivo de aguas abiertas. Nadar los 3km completos a ritmo sostenido valida que la base está lista. Última sesión larga antes del taper.',
+            fecha:'', dia:'Semana 6-12 Jul · día a elección (Mar)', intensidad:'🌊 Aguas abiertas',
+            objetivo:'Completar los 3km continuos a ritmo de competencia, validando la preparación de fondo antes del taper.',
+            rationale:'Simulacro de la distancia objetivo. Nadar los 3km completos a ritmo sostenido confirma que la base aeróbica está lista. Última sesión larga de mar antes de bajar volumen.',
             bloques:[
               {
                 tipo:'Entrada',
-                desc:'10min progresivo, sighting',
+                desc:'10min progresivo, sighting eficiente',
                 series:[],
                 descanso_bloque:'',
-                mf:'Calentar sin gastar',
-                ms:'Ritmo de entrada',
+                mf:'Calentar sin gastar energía',
+                ms:'Ritmo de entrada controlado',
                 ritmo:'Progresivo'
               },
               {
                 tipo:'3K continuos',
-                desc:'3000m continuos a ritmo de competencia de aguas abiertas. Sighting eficiente, drafting, respiración adaptada al oleaje.',
+                desc:'3000m continuos a ritmo de competencia de aguas abiertas. Sighting, drafting, respiración bilateral adaptada al oleaje.',
                 series:[],
                 descanso_bloque:'',
-                mf:'Sostener ritmo objetivo los 3km, motor constante',
-                ms:'Eficiencia máxima, aprovechar drafting de Felipe',
+                mf:'Sostener el ritmo objetivo los 3km, motor constante',
+                ms:'Eficiencia máxima, aprovechar el drafting',
                 ritmo:'Ritmo competencia OA'
               },
               {
@@ -884,48 +911,141 @@ const BLOQUES = [
         ]
       },
       {
-        id:'B3-W4', nombre:'Semana 4 (21-26 Jul) — TAPER + Nacional',
+        id:'B3-W4', nombre:'Semana 4 (13-19 Jul) — Afinamiento pre-taper',
         sesiones:[
           {
-            id:'B3-W4-A', tipo:'A', nombre:'Sesión A — Taper activación',
-            fecha:'2026-07-21', dia:'Mar 21 Jul', intensidad:'⚡ Activación',
-            objetivo:'Mantener la velocidad y sensaciones de carrera con volumen muy reducido. El cuerpo descansa pero el sistema nervioso sigue activo.',
-            rationale:'Taper: bajamos drásticamente el volumen pero mantenemos algo de intensidad. El descanso permite supercompensar y llegar fresco y rápido al Nacional. Menos es más esta semana.',
+            id:'B3-W4-A', tipo:'A', nombre:'Sesión A — Ritmo de carrera (broken)',
+            fecha:'', dia:'Semana 13-19 Jul · día a elección', intensidad:'🏁 Ritmo carrera',
+            objetivo:'Nadar a ritmo exacto de competencia en formato broken, fijando las sensaciones de carrera de cada prueba.',
+            rationale:'A pocos días del Nacional, el foco es la calidad sobre el volumen. Los broken permiten nadar a ritmo de carrera acumulando menos fatiga. Recuperación amplia para máxima calidad en cada repetición.',
             bloques:[
               {
-                tipo:'Calentamiento',
-                desc:'300m suave variado',
-                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'}],
-                descanso_bloque:'30seg',
-                mf:'Soltar, sin esfuerzo',
-                ms:'Sensaciones suaves',
-                ritmo:''
+                tipo:'Calentamiento de carrera',
+                desc:'400 suave + 6×50 build (acelerando) + 4×25 a ritmo de carrera',
+                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:6,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'},{reps:4,dist:25,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'1min',
+                mf:'Subir revoluciones progresivo, activar sin fatigar',
+                ms:'Despertar el ritmo de carrera',
+                ritmo:'Build'
               },
               {
-                tipo:'Activación velocidad',
-                desc:'4×50 a ritmo de carrera (1 por estilo de competencia) con desc 2min. Solo recordar la velocidad.',
-                series:[{reps:1,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'2min'},{reps:1,dist:50,estilo:'Espalda',implemento:'',salida:'',descanso:'2min'},{reps:1,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'2min'},{reps:1,dist:50,estilo:'Combinado',implemento:'',salida:'',descanso:'2min'}],
+                tipo:'100 pecho broken',
+                desc:'3×100 pecho roto (50+50 con 15seg) @descanso 2min, a ritmo objetivo del 100',
+                series:[{reps:3,dist:100,estilo:'Pecho',implemento:'',salida:'',descanso:'2min'}],
                 descanso_bloque:'1min',
-                mf:'Velocidad fácil, sin forzar',
-                ms:'Recordar ritmo de carrera',
+                mf:'Proyectar el tiempo objetivo del 100, segundo 50 igual de fuerte',
+                ms:'Mantener glide y largo de brazada a ritmo meta',
+                ritmo:'Ritmo 100 meta'
+              },
+              {
+                tipo:'200 IM broken',
+                desc:'2×200 IM roto (50 de cada estilo con 10seg) @descanso 2min, ritmo objetivo',
+                series:[{reps:2,dist:200,estilo:'Combinado',implemento:'',salida:'',descanso:'2min'}],
+                descanso_bloque:'1min',
+                mf:'Cada estilo a su ritmo de carrera, transiciones rápidas',
+                ms:'Distribuir el esfuerzo entre los cuatro estilos',
+                ritmo:'Ritmo 200 IM meta'
+              },
+              {
+                tipo:'Velocidad 50',
+                desc:'4×50 a ritmo de carrera (2 libre + 2 pecho) @descanso 2min, calidad máxima',
+                series:[{reps:2,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'2min'},{reps:2,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'2min'}],
+                descanso_bloque:'1min',
+                mf:'Tiempo objetivo exacto, técnica perfecta',
+                ms:'Replicar el ritmo de competencia',
                 ritmo:'Ritmo carrera'
               },
               {
                 tipo:'Afloje',
-                desc:'200m muy suave',
-                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                desc:'300 suave variado',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'',
-                mf:'Terminar fresco',
-                ms:'Sin fatiga',
-                ritmo:''
+                mf:'Recuperación completa',
+                ms:'Soltar',
+                ritmo:'Suave'
               }
             ]
           },
           {
-            id:'B3-W4-COMP', tipo:'A', nombre:'🏆 NACIONAL DE INVIERNO',
-            fecha:'2026-07-23', dia:'23-26 Jul', intensidad:'🏆 Competencia',
+            id:'B3-W4-B', tipo:'B', nombre:'Sesión B — Taper activación',
+            fecha:'', dia:'Semana 13-19 Jul · día a elección', intensidad:'⚡ Activación taper',
+            objetivo:'Mantener velocidad y sensaciones con volumen reducido. El cuerpo descansa pero el sistema nervioso sigue afinado.',
+            rationale:'Inicio del taper. Bajamos el volumen pero mantenemos toques de velocidad a ritmo de carrera. El objetivo es supercompensar y llegar fresco al Nacional. Menos es más esta semana.',
+            bloques:[
+              {
+                tipo:'Calentamiento extendido',
+                desc:'400 libre suave + 200 espalda + 6×50 con aletas relajados (alternar estilos)',
+                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:1,dist:200,estilo:'Espalda',implemento:'',salida:'',descanso:'30seg'},{reps:6,dist:50,estilo:'Combinado',implemento:'aletas',salida:'',descanso:'20seg'}],
+                descanso_bloque:'30seg',
+                mf:'Soltar sin esfuerzo, disfrutar el agua',
+                ms:'Sensaciones suaves y fluidas',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Activación de velocidad',
+                desc:'12×25 a ritmo de carrera (1 por estilo de competencia, repetir) @descanso 1:30, solo recordar la velocidad',
+                series:[{reps:12,dist:25,estilo:'Combinado',implemento:'',salida:'',descanso:'1:30'}],
+                descanso_bloque:'1min',
+                mf:'Velocidad fácil, sin forzar, técnica limpia',
+                ms:'Recordar el ritmo de carrera de cada prueba',
+                ritmo:'Ritmo carrera'
+              },
+              {
+                tipo:'Recordatorio de ritmo',
+                desc:'4×100 (libre, espalda, pecho, IM) a ritmo de carrera @descanso 2min',
+                series:[{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:'2min'},{reps:1,dist:100,estilo:'Espalda',implemento:'',salida:'2min'},{reps:1,dist:100,estilo:'Pecho',implemento:'',salida:'2min'},{reps:1,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Sentir el ritmo objetivo sin gastar',
+                ms:'Calidad sobre cantidad',
+                ritmo:'Ritmo carrera'
+              },
+              {
+                tipo:'Nado técnico suave',
+                desc:'2×100 suave con snorkel (eficiencia y DPS) @descanso 20seg',
+                series:[{reps:2,dist:100,estilo:'Libre',implemento:'snorkel',salida:'',descanso:'20seg'}],
+                descanso_bloque:'30seg',
+                mf:'Máxima eficiencia, menos brazadas',
+                ms:'Técnica perfecta sin esfuerzo',
+                ritmo:'Suave técnico'
+              },
+              {
+                tipo:'Afloje',
+                desc:'200 muy suave, terminar fresco',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Terminar con energía de sobra',
+                ms:'Sin fatiga, listo para competir',
+                ritmo:'Muy suave'
+              }
+            ]
+          },
+          {
+            id:'B3-W4-C', tipo:'C', nombre:'Sesión C — Soltura en mar (opcional)',
+            fecha:'', dia:'Semana 13-19 Jul · día a elección (Mar, opcional)', intensidad:'🌊 Soltura',
+            objetivo:'Mantener el contacto con el agua abierta sin fatiga, soltura y sensaciones antes del Nacional.',
+            rationale:'Sesión opcional y suave de mar. No busca carga sino mantener la familiaridad con las condiciones de aguas abiertas. Nado relajado, disfrutar el agua.',
+            bloques:[
+              {
+                tipo:'Nado de soltura',
+                desc:'1500-2000m continuos suaves en mar, sighting tranquilo, sin cambios de ritmo',
+                series:[],
+                descanso_bloque:'',
+                mf:'Soltura total, disfrutar el agua',
+                ms:'Sensaciones, sin exigencia',
+                ritmo:'Suave'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id:'B3-W5', nombre:'Semana Nacional (23-26 Jul) — Competencia',
+        sesiones:[
+          {
+            id:'B3-W5-COMP', tipo:'A', nombre:'🏆 NACIONAL DE INVIERNO',
+            fecha:'2026-07-23', dia:'23-26 Jul · Piscina 50m', intensidad:'🏆 Competencia',
             objetivo:'Competir las pruebas del Nacional de Invierno en piscina de 50m: 50 y 100 Pecho, 200 IM, 200 Espalda, 50 Libre.',
-            rationale:'El objetivo del ciclo. Calentamiento oficial según horario de cada prueba, ejecutar lo entrenado, confiar en la preparación. Días 23 al 26.',
+            rationale:'El objetivo de todo el ciclo. Calentamiento oficial según horario de cada prueba, ejecutar lo entrenado, confiar en la preparación. Días 23 al 26 de julio.',
             bloques:[
               {
                 tipo:'Calentamiento oficial',
@@ -1124,7 +1244,11 @@ let GLOSARIO = [
   { termino:'Taper / Afinamiento', categoria:'Sistemas y trabajo', definicion:'Reducción progresiva del volumen de entrenamiento en los días previos a una competencia, manteniendo algo de intensidad, para llegar descansado y supercompensar.', ejecucion:'En la última semana baja el volumen total 40-60% pero conserva toques de velocidad a ritmo de carrera. El objetivo es llegar fresco, no construir forma.' },
   { termino:'Tolerancia láctica', categoria:'Sistemas y trabajo', definicion:'Capacidad de sostener velocidad alta mientras se acumula ácido láctico, clave en pruebas de 100-200m donde el esfuerzo es intenso y prolongado.', ejecucion:'Se entrena con series rápidas y recuperación incompleta (ej: 4×100 fuerte con poco descanso), acostumbrando al cuerpo a nadar rápido en estado de fatiga.' },
   { termino:'Ritmo crucero', categoria:'Competencia', definicion:'Ritmo aeróbico sostenible que se mantiene durante un nado largo de aguas abiertas, eficiente y repetible por mucho tiempo.', ejecucion:'Es el ritmo al que puedes nadar relajado y constante durante kilómetros sin agotarte. Sirve de base sobre la cual intercalar cambios de ritmo en competencia.' },
-  { termino:'Transición (IM)', categoria:'Técnica de nado', definicion:'El cambio entre estilos consecutivos en una prueba de combinado (Individual Medley): mariposa→espalda, espalda→pecho, pecho→libre.', ejecucion:'Cada transición tiene reglas de viraje propias. Practícalas para no perder tiempo ni cometer faltas: el cambio espalda-pecho es el más técnico por el viraje permitido.' }
+  { termino:'Transición (IM)', categoria:'Técnica de nado', definicion:'El cambio entre estilos consecutivos en una prueba de combinado (Individual Medley): mariposa→espalda, espalda→pecho, pecho→libre.', ejecucion:'Cada transición tiene reglas de viraje propias. Practícalas para no perder tiempo ni cometer faltas: el cambio espalda-pecho es el más técnico por el viraje permitido.' },
+  { termino:'Recuperación activa', categoria:'Sistemas y tipos de trabajo', definicion:'Nado muy suave intercalado entre repeticiones intensas que permite eliminar lactato y mantener la calidad del trabajo sin detenerse por completo.', ejecucion:'En vez de descansar parado, nada 25-50m muy suaves entre series fuertes. El movimiento ligero ayuda a recuperar mejor que la pausa total, manteniendo el cuerpo activo.' },
+  { termino:'Descenso de tiempos', categoria:'Sistemas y tipos de trabajo', definicion:'Serie en la que cada repetición (o grupo de repeticiones) se nada más rápido que la anterior, terminando a velocidad máxima.', ejecucion:'Ej: 8×75 donde cada par de 75 baja el tiempo respecto al par anterior. Obliga a dosificar al inicio y exigir al final, entrenando el control de ritmo y la tolerancia a la fatiga.' },
+  { termino:'Restricción respiratoria', categoria:'Sistemas y tipos de trabajo', definicion:'Nadar respirando cada cierto número fijo de brazadas (cada 5, 7, etc.) para mejorar el control del CO2, la eficiencia respiratoria y la capacidad pulmonar.', ejecucion:'Mantén un patrón fijo de respiración (ej: cada 5 brazadas) aunque pidas más aire. Desarrolla tolerancia y mejora la economía de oxígeno. Útil en calentamientos con pull.' },
+  { termino:'Velocidad supra-máxima', categoria:'Sistemas y tipos de trabajo', definicion:'Nadar más rápido de lo que permite la propia fuerza, generalmente con aletas, para educar al sistema nervioso en frecuencias y velocidades altas.', ejecucion:'Usa aletas para alcanzar velocidades superiores a las normales manteniendo buena técnica. El cuerpo aprende el patrón motor de ir rápido, que luego se transfiere al nado sin implementos.' }
 ];
 
 
