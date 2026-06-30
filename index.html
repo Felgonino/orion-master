@@ -1721,12 +1721,20 @@ function renderCargar1() {
   });
   h+='</div>';
   h+='<div class="lbl">2 · Sesión realizada</div>';
-  h+='<p style="font-size:12px;color:var(--text2);margin-bottom:10px">Selecciona la sesión del plan que hiciste hoy o recientemente.</p>';
+  h+='<p style="font-size:12px;color:var(--text2);margin-bottom:10px">Selecciona la sesión del plan que hiciste hoy o recientemente. Si no la realizaste, puedes marcarla como no ejecutada.</p>';
   sesiones.forEach(s=>{
     const c=completadas(s.id).length;
-    h+='<div class="sc '+scClass(s.tipo)+'" id="sc2-'+s.id+'" onclick="selSes(\''+s.id+'\')" style="cursor:pointer;margin-bottom:8px">';
-    h+='<div class="sc-h"><div style="flex:1"><h4>'+s.nombre+'</h4><div class="sc-d">'+s.dia+' · '+s.intensidad+' · '+c+'/2 registradas</div></div>';
-    h+='<div id="sel-'+s.id+'" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0"></div></div></div>';
+    var noEjec = esNoEjecutada(s.id, S.nadador);
+    h+='<div class="sc '+scClass(s.tipo)+'" id="sc2-'+s.id+'" style="margin-bottom:8px;'+(noEjec?'opacity:.5':'')+'">';
+    h+='<div class="sc-h" onclick="selSes(\''+s.id+'\')" style="cursor:pointer"><div style="flex:1"><h4>'+s.nombre+(noEjec?' <span style="font-size:10px;color:var(--red)">· no ejecutada</span>':'')+'</h4><div class="sc-d">'+s.dia+' · '+s.intensidad+' · '+c+'/2 registradas</div></div>';
+    h+='<div id="sel-'+s.id+'" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0"></div></div>';
+    // Botón marcar/desmarcar no ejecutada
+    if(noEjec){
+      h+='<div style="text-align:right;margin-top:6px"><button onclick="quitarNoEjecutada(\''+s.id+'\')" style="background:none;border:none;color:var(--navy);font-size:11px;cursor:pointer;text-decoration:underline">↩️ Reactivar esta sesión</button></div>';
+    } else {
+      h+='<div style="text-align:right;margin-top:6px"><button onclick="marcarNoEjecutada(\''+s.id+'\')" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer">✕ No la realicé</button></div>';
+    }
+    h+='</div>';
   });
   h+='<div class="sc" id="sc2-LIBRE" onclick="selSes(\'LIBRE\')" style="cursor:pointer;margin-bottom:16px"><div class="sc-h"><div style="flex:1"><h4>🔓 Sesión libre / no planificada</h4><div class="sc-d">Fuera del plan</div></div><div id="sel-LIBRE" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0"></div></div></div>';
   h+='<button class="btn" id="btn-cont" onclick="renderCargar2()" disabled>📸 Continuar → Subir fotos Garmin</button>';
@@ -1736,6 +1744,104 @@ function renderCargar1() {
 }
 
 function iniciarDesde(id) { goTab('cargar'); setTimeout(()=>selSes(id),120); }
+
+async function guardarAntecedentes() {
+  var checks = document.querySelectorAll('.antec-chk:checked');
+  if (!checks.length) { toast('Marca al menos un antecedente'); return; }
+  var antecedentes = Array.from(checks).map(function(ch){ return decodeURIComponent(ch.dataset.antec); });
+  var sesionNombre = (S.extracted && S.sesionPlan) ? S.sesionPlan : 'Sesión libre';
+  try {
+    toast('Guardando antecedentes...');
+    await fetch('https://orion-proxy.felgonino.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'antecedente',
+        id: Date.now(),
+        fecha: todayStr(),
+        nadador: S.nadador,
+        antecedentes: antecedentes,
+        origen: sesionNombre
+      })
+    });
+    // Actualizar cache local de antecedentes
+    if(!ANTECEDENTES_CACHE[S.nadador]) ANTECEDENTES_CACHE[S.nadador]=[];
+    antecedentes.forEach(function(a){ ANTECEDENTES_CACHE[S.nadador].push(a); });
+    toast('✅ '+antecedentes.length+' antecedente(s) guardado(s)');
+    // Deshabilitar el botón
+    checks.forEach(function(ch){ ch.checked=false; ch.disabled=true; });
+  } catch(e) {
+    toast('❌ Error al guardar: '+e.message);
+  }
+}
+
+// Cache de antecedentes por nadador (se llena al cargar)
+var ANTECEDENTES_CACHE = {};
+async function cargarAntecedentes() {
+  try {
+    const r = await fetch('https://orion-proxy.felgonino.workers.dev'+'?tipo=antecedentes&t='+Date.now(), {cache:'no-cache'});
+    const j = await r.json();
+    if (j.ok && j.antecedentes) {
+      ANTECEDENTES_CACHE = {};
+      j.antecedentes.forEach(function(a){
+        var nad = a.Nadador;
+        if(!ANTECEDENTES_CACHE[nad]) ANTECEDENTES_CACHE[nad]=[];
+        ANTECEDENTES_CACHE[nad].push(a.Antecedente);
+      });
+    }
+  } catch(e){ /* silencioso */ }
+}
+
+async function borrarAntecedente(nadador, antecEncoded) {
+  var antec = decodeURIComponent(antecEncoded);
+  if (!confirm('¿Borrar este antecedente?\n\n"'+antec+'"')) return;
+  try {
+    await fetch('https://orion-proxy.felgonino.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ action:'borrar_antecedente', nadador:nadador, antecedente:antec })
+    });
+    if (ANTECEDENTES_CACHE[nadador]) {
+      ANTECEDENTES_CACHE[nadador] = ANTECEDENTES_CACHE[nadador].filter(function(a){ return a !== antec; });
+    }
+    toast('Antecedente borrado');
+    renderObjetivos();
+  } catch(e) {
+    toast('❌ Error al borrar');
+  }
+}
+
+// ── Sesiones marcadas como NO ejecutadas (por nadador, en localStorage) ──────
+function getNoEjecutadas() {
+  try { return JSON.parse(localStorage.getItem('orion_no_ejecutadas')||'{}'); }
+  catch(e){ return {}; }
+}
+function setNoEjecutadas(obj) {
+  try { localStorage.setItem('orion_no_ejecutadas', JSON.stringify(obj)); } catch(e){}
+}
+function esNoEjecutada(sesionId, nadador) {
+  if (!nadador) return false;
+  var data = getNoEjecutadas();
+  return !!(data[nadador] && data[nadador].indexOf(sesionId) >= 0);
+}
+function marcarNoEjecutada(sesionId) {
+  if (!S.nadador) { toast('Primero selecciona tu nombre arriba'); return; }
+  var data = getNoEjecutadas();
+  if (!data[S.nadador]) data[S.nadador] = [];
+  if (data[S.nadador].indexOf(sesionId) < 0) data[S.nadador].push(sesionId);
+  setNoEjecutadas(data);
+  toast('Sesión marcada como no ejecutada');
+  renderCargar1();
+}
+function quitarNoEjecutada(sesionId) {
+  var data = getNoEjecutadas();
+  if (data[S.nadador]) {
+    data[S.nadador] = data[S.nadador].filter(function(id){ return id !== sesionId; });
+    setNoEjecutadas(data);
+  }
+  toast('Sesión reactivada');
+  renderCargar1();
+}
 
 function selNad(n) {
   S.nadador=n;
@@ -2370,6 +2476,7 @@ async function analizarFotos() {
       let info = b.tipo + ' — ' + fmtEstructura(b);
       const distB = calcDistBloque(b);
       if (distB) info += ' (' + distB + 'm)';
+      if (b.descanso_bloque && b.descanso_bloque !== '—') info += ' · descanso entre series/bloque: ' + b.descanso_bloque;
       if (b.ritmo) info += ' objetivo: ' + b.ritmo;
       if (st.estiloVar) info += ' [estilo cambiado a ' + st.estiloVar + ']';
       if (st.nota) info += ' [nota: ' + st.nota + ']';
@@ -2461,22 +2568,20 @@ async function analizarFotos() {
     'Si no tienes referencia exacta del estilo en el historial, usa la jerarquia fisica para contextualizar, no penalices. ';
 
 
-  const prompt='Eres ORION Master, coach experto en natacion master. Analiza este entrenamiento con rigor tecnico.\n' +
+  const prompt='Eres ORION Master, coach experto en natacion master. Analiza este entrenamiento con rigor de laboratorio, serie por serie.\n' +
     'NADADOR: ' + S.nadador + '. ' + (perfil ? 'PERFIL: ' + perfil + '.' : '') + '\n' +
     'MEDIO: ' + medioStr + '\n' +
     oaGuidance + '\n' +
     estiloGuidance + '\n' +
-    'CONTEXTO ENTRENAMIENTO:\n' + ctx + '\n' +
+    'CONTEXTO ENTRENAMIENTO (incluye los descansos PLANIFICADOS de cada bloque):\n' + ctx + '\n' +
     (histReciente ? 'HISTORIAL RECIENTE (comparacion): ' + histReciente + '\n' : '') +
     '\nAnaliza las pantallas de Garmin Connect adjuntas y extrae los datos del RESUMEN (estadisticas).\n' +
-    'Para las VUELTAS: NO transcribas todas una por una. Solo identifica el patron general (cuantos intervalos, distancias tipicas, rango de ritmos).\n' +
-    'Genera una evaluacion ESPECIFICA y CONCISA para este nadador:\n' +
-    '- puntos_positivos: maximo 4 logros concretos vs objetivos (frases cortas)\n' +
-    '- puntos_mejora: maximo 4 aspectos especificos a corregir (frases cortas)\n' +
-    '- para_proxima: maximo 4 indicaciones tecnicas precisas (frases cortas)\n' +
-    'Cada punto debe ser una frase breve, NO un parrafo largo. Considera bloques omitidos.\n\n' +
+    'REGLA CRITICA SOBRE TIEMPOS MUERTOS: el programa TIENE descansos planificados (40seg entre series, 1-2min entre bloques, etc.). NO interpretes la diferencia entre tiempo total y tiempo en movimiento como "tiempo perdido" o "pausas excesivas" sin antes restar los descansos planificados del programa. Ademas, el nadador a veces NO cierra la actividad del reloj al terminar (la cierra despues de ducharse), por lo que el tiempo total puede estar inflado artificialmente. Si la diferencia total-movimiento es grande, MENCIONALA como dato pero ADVIERTE que probablemente incluye descansos planificados y/o tiempo post-nado, NO la presentes como un problema de recuperacion.\n' +
+    'ANALISIS POR BLOQUES (lo mas importante): para CADA bloque/set del programa, evalua como se comporto el cuerpo usando los tiempos reales de las vueltas. Identifica el ritmo de cada serie/repeticion, detecta patrones (si subio, bajo, se mantuvo), crisis lacticas, y compara contra el objetivo del bloque. Se especifico con numeros reales.\n' +
+    'Para las VUELTAS: NO transcribas todas en el campo vueltas (dejalo []). Usa los tiempos para el analisis por bloques.\n' +
+    'IMPORTANTE sobre "antecedentes_planes": estos NO son ajustes a esta sesion (que ya paso y no se repite), sino OBSERVACIONES que ORION usara al disenar los PROXIMOS planes del nadador. Ej: "Felipe sufre en intermitentes con descanso de 60seg, acumula lactato; en futuros planes dosificar mejor o subir descanso". Son aprendizajes para el futuro, no correcciones del pasado.\n\n' +
     'Devuelve SOLO JSON valido sin backticks, sin texto antes ni despues:\n' +
-    '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[],"evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"para_proxima":[]}}';
+    '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[],"analisis_bloques":[{"bloque":"nombre del bloque/set","desempeno":"analisis con tiempos reales serie por serie, patrones detectados, vs objetivo","valoracion":"good|info|warn|alert"}],"nota_tiempo":"comentario sobre tiempo total vs movimiento considerando descansos planificados y posible tiempo post-nado, o vacio si no aplica","evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"antecedentes_planes":[]}}';
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 90000);
@@ -2484,7 +2589,7 @@ async function analizarFotos() {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       signal: controller.signal,
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:4000,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:5000,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})
     });
     clearTimeout(timeoutId);
     clearInterval(iv); setLoad(100,'Análisis completo ✓','');
@@ -2539,15 +2644,50 @@ function renderResultado() {
     compH+='</div></div>';
   }
 
+  // Análisis por bloques (serie por serie)
+  let blH='';
+  var bloques = ext?.analisis_bloques || [];
+  if(bloques.length){
+    var colorMap = {good:'var(--green)', info:'var(--navy)', warn:'var(--orange)', alert:'#C0392B'};
+    var bgMap = {good:'#D4EDDA', info:'#E6F1FB', warn:'#FAEEDA', alert:'#FCEBEB'};
+    var txtMap = {good:'#1A5C38', info:'#0C447C', warn:'#633806', alert:'#791F1F'};
+    blH='<div class="card" style="margin-bottom:10px"><div class="ch"><h3>📊 Análisis por bloques</h3></div><div class="cb">';
+    bloques.forEach(function(b){
+      var v = b.valoracion || 'info';
+      blH+='<div style="background:'+(bgMap[v]||bgMap.info)+';border-radius:8px;padding:10px 12px;margin-bottom:8px">';
+      blH+='<div style="font-size:12px;font-weight:700;color:'+(txtMap[v]||txtMap.info)+';margin-bottom:4px">'+(b.bloque||'Bloque')+'</div>';
+      blH+='<div style="font-size:12px;color:'+(txtMap[v]||txtMap.info)+';line-height:1.5">'+(b.desempeno||'')+'</div>';
+      blH+='</div>';
+    });
+    blH+='</div></div>';
+  }
+
+  // Nota sobre tiempo total vs movimiento
+  let notaH='';
+  if(ext?.nota_tiempo && ext.nota_tiempo.trim()){
+    notaH='<div class="card" style="margin-bottom:10px;border-left:3px solid var(--navy)"><div class="cb"><div style="font-size:11px;color:var(--text3);margin-bottom:3px">⏱️ Sobre el tiempo</div><div style="font-size:12px;color:var(--text2);line-height:1.5">'+ext.nota_tiempo+'</div></div></div>';
+  }
+
   // Evaluación
   let evH='';
-  if(ev.puntos_positivos?.length||ev.puntos_mejora?.length){
+  if(ev.puntos_positivos?.length||ev.puntos_mejora?.length||ev.antecedentes_planes?.length){
     evH='<div class="card" style="margin-bottom:10px"><div class="ch"><h3>🧠 Análisis coach ORION</h3></div><div class="cb">';
     if(ev.puntos_positivos?.length){ evH+='<div class="lbl" style="color:var(--green)">✅ Logros</div>'; ev.puntos_positivos.forEach(p=>{evH+='<div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--gray2)">· '+p+'</div>';}); evH+='<div class="div"></div>'; }
     if(ev.puntos_mejora?.length){ evH+='<div class="lbl" style="color:var(--orange)">⚠️ A mejorar</div>'; ev.puntos_mejora.forEach(p=>{evH+='<div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--gray2)">· '+p+'</div>';}); evH+='<div class="div"></div>'; }
-    if(ev.para_proxima?.length){ evH+='<div class="lbl" style="color:var(--navy)">🎯 Para la próxima</div>'; ev.para_proxima.forEach(p=>{evH+='<div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--gray2)">· '+p+'</div>';}); }
+    if(ev.antecedentes_planes?.length){
+      evH+='<div class="lbl" style="color:var(--navy)">📌 Antecedentes para futuros planes</div>';
+      evH+='<div style="font-size:10.5px;color:var(--text3);margin-bottom:8px;font-style:italic">Marca los que quieras guardar. ORION los considerará al diseñar tus próximos entrenamientos.</div>';
+      ev.antecedentes_planes.forEach((p,i)=>{
+        evH+='<label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--gray2);cursor:pointer">';
+        evH+='<input type="checkbox" class="antec-chk" data-antec="'+encodeURIComponent(p)+'" style="margin-top:2px;flex-shrink:0">';
+        evH+='<span>'+p+'</span></label>';
+      });
+      evH+='<button class="btn" onclick="guardarAntecedentes()" style="margin-top:10px;font-size:12px">💾 Guardar antecedentes seleccionados</button>';
+    }
     evH+='</div></div>';
   }
+  // Combinar bloques + nota + evaluación
+  evH = blH + notaH + evH;
 
   let h=compH+
     '<div class="card" style="margin-bottom:10px"><div class="ch">'+bx+'<h3 style="flex:1">'+(plan?.nombre||'Sesión libre')+'</h3><span style="font-size:11px;color:var(--text3)">'+today+'</span></div><div class="cb">'+
@@ -2936,10 +3076,10 @@ function buildWAMsg(reg, plan, ev) {
       lines.push('*A mejorar*');
       ev.puntos_mejora.forEach(function(p){ lines.push('! ' + p); });
     }
-    if (ev.para_proxima && ev.para_proxima.length) {
+    if (ev.antecedentes_planes && ev.antecedentes_planes.length) {
       lines.push('');
-      lines.push('*Para la proxima*');
-      ev.para_proxima.forEach(function(p){ lines.push('> ' + p); });
+      lines.push('*Antecedentes para futuros planes*');
+      ev.antecedentes_planes.forEach(function(p){ lines.push('> ' + p); });
     }
   }
 
@@ -3574,6 +3714,27 @@ function renderObjetivos() {
       h += '</div></div>';
     });
   }
+  // Antecedentes acumulados por nadador
+  h += '<div class="lbl" style="margin-top:18px">📌 Antecedentes para futuros planes</div>';
+  h += '<div class="note">Observaciones guardadas desde los análisis. ORION las considera al generar nuevos programas.</div>';
+  var hayAntec = false;
+  NADADORES.forEach(function(n){
+    var lista = ANTECEDENTES_CACHE[n.nombre] || [];
+    if (!lista.length) return;
+    hayAntec = true;
+    h += '<div class="card" style="margin-bottom:8px"><div class="cb">';
+    h += '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">'+(n.emoji||'')+' '+n.nombre+'</div>';
+    lista.forEach(function(a){
+      h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--gray2)">';
+      h += '<span style="flex:1">· '+a+'</span>';
+      h += '<button onclick="borrarAntecedente(\''+n.nombre+'\',\''+encodeURIComponent(a)+'\')" style="background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;flex-shrink:0" title="Borrar">🗑️</button>';
+      h += '</div>';
+    });
+    h += '</div></div>';
+  });
+  if (!hayAntec) {
+    h += '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">Aún no hay antecedentes guardados. Aparecerán aquí cuando los guardes desde un análisis.</div>';
+  }
   document.getElementById('pg-objetivos').innerHTML = h;
   if (OBJ.fecha) { var fEl=document.getElementById('obj-fecha'); if(fEl) fEl.value=OBJ.fecha; }
 }
@@ -3639,6 +3800,13 @@ async function generarPrograma() {
   var histTxt = CACHE.filter(function(r){return r.Ritmo_100m;}).slice(-4)
     .map(function(r){return r.Nadador+':'+r.Distancia_m+'m '+r.Ritmo_100m;}).join(',');
 
+  // Antecedentes acumulados de cada nadador (aprendizajes de análisis previos)
+  var antecTxt = '';
+  NADADORES.forEach(function(n){
+    var lista = ANTECEDENTES_CACHE[n.nombre] || [];
+    if (lista.length) antecTxt += n.nombre+': '+lista.join('; ')+'. ';
+  });
+
   lov(true); setLoad(10,'Generando programa...','Semana por semana');
 
   var todasSemanas = [];
@@ -3653,6 +3821,7 @@ async function generarPrograma() {
       'Coach natacion master. Genera SOLO la semana '+w+' de '+sem+' de un programa de entrenamiento. ' +
       'Pruebas objetivo: '+pruebasTxt+'. Competencia: '+fecha+'. '+dias+' sesiones esta semana. ~2200m/sesion. ' +
       'Nadadores: '+perfilesTxt+'. Historial: '+(histTxt||'ninguno')+'. ' +
+      (antecTxt?'ANTECEDENTES a considerar (aprendizajes de sesiones previas): '+antecTxt+' ':'')+
       (notas?notas+'. ':'')+
       'Felipe: mejorar DPS/eficiencia. Sergio: mejorar agresividad/cierre. ' +
       'ESTRUCTURA: calentamiento 300-400m + principal 1400-1600m + afloje 200m. ' +
@@ -3846,6 +4015,7 @@ async function initApp() {
     if(tab==='hoy'&&USUARIO_ACTUAL) renderHoy();
     if(tab==='historial'&&USUARIO_ACTUAL) renderHistorial();
   }).catch(()=>syncDot('err'));
+  cargarAntecedentes();
 }
 
 async function cargarNadadores() {
