@@ -1767,8 +1767,12 @@ async function guardarAntecedentes() {
     // Actualizar cache local de antecedentes
     if(!ANTECEDENTES_CACHE[S.nadador]) ANTECEDENTES_CACHE[S.nadador]=[];
     antecedentes.forEach(function(a){ ANTECEDENTES_CACHE[S.nadador].push(a); });
-    toast('✅ '+antecedentes.length+' antecedente(s) guardado(s)');
-    // Deshabilitar el botón
+    toast('✅ '+antecedentes.length+' antecedente(s) guardado(s) en tu historial');
+    // Reemplazar el botón y los checks por confirmación visible
+    var btn = document.querySelector('button[onclick="guardarAntecedentes()"]');
+    if (btn) {
+      btn.outerHTML = '<div style="margin-top:10px;padding:10px;background:#D4EDDA;border-radius:8px;color:#1A5C38;font-size:12px;font-weight:600;text-align:center">✅ '+antecedentes.length+' antecedente(s) guardado(s). ORION los considerará en tus próximos planes.</div>';
+    }
     checks.forEach(function(ch){ ch.checked=false; ch.disabled=true; });
   } catch(e) {
     toast('❌ Error al guardar: '+e.message);
@@ -1865,7 +1869,28 @@ function selSes(id) {
   const sel=document.getElementById('sel-'+id);
   if(sc) sc.style.background='var(--azul-l)';
   if(sel){sel.innerHTML='✓';sel.style.borderColor='var(--navy)';sel.style.color='var(--navy)';sel.style.fontWeight='700';}
+  // Fecha de ejecución: por defecto la programada de la sesión, o hoy si no tiene
+  var ses = getSesion(id);
+  var fechaDefault = (ses && ses.fecha) ? ses.fecha : todayStr();
+  S.fechaEjecucion = fechaDefault;
+  mostrarSelectorFecha(fechaDefault);
   checkCont();
+}
+
+function mostrarSelectorFecha(fechaDefault) {
+  var cont = document.getElementById('fecha-ejec-cont');
+  if (!cont) {
+    // Crear el contenedor justo después de la lista de sesiones
+    cont = document.createElement('div');
+    cont.id = 'fecha-ejec-cont';
+    cont.style.cssText = 'margin:14px 0;padding:12px 14px;background:var(--azul-l);border-radius:10px';
+    var ref = document.getElementById('btn-cont');
+    if (ref && ref.parentNode) ref.parentNode.insertBefore(cont, ref);
+  }
+  cont.innerHTML = '<div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px">📅 ¿Qué día realizaste esta sesión?</div>' +
+    '<input type="date" id="fecha-ejec-inp" value="'+fechaDefault+'" onchange="S.fechaEjecucion=this.value" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;font-size:14px">' +
+    '<div style="font-size:10.5px;color:var(--text3);margin-top:5px">Por defecto la fecha programada. Cámbiala si la hiciste otro día.</div>';
+  cont.style.display = 'block';
 }
 
 function checkCont() {
@@ -2758,13 +2783,15 @@ async function guardar() {
   var isPendiente = !!(S.pendienteId);
   var reg = {
     id: isPendiente ? S.pendienteId : genId(S.nadador),
-    fecha: isPendiente && S.pendienteFecha ? String(S.pendienteFecha).substring(0,10) : todayStr(),
+    fecha: isPendiente && S.pendienteFecha ? String(S.pendienteFecha).substring(0,10) : (S.fechaEjecucion || todayStr()),
     nadador: S.nadador,
     sesionPlan: isPendiente ? (S.libreNombre||S.sesionPlan) : S.sesionPlan,
     _update: isPendiente,
     medio: medioVal,
     resumen: r,
     vueltas: S.extracted ? S.extracted.vueltas||[] : [],
+    analisis_bloques: S.extracted ? S.extracted.analisis_bloques||[] : [],
+    nota_tiempo: S.extracted ? S.extracted.nota_tiempo||'' : '',
     bloqueStates: S.bloqueStates || [],
     evaluacion: ev
   };
@@ -3063,6 +3090,24 @@ function buildWAMsg(reg, plan, ev) {
         lines.push('~ ' + b.tipo + (st.estiloVar?' > '+st.estiloVar:'') + (st.nota?' | '+st.nota:''));
       });
     }
+  }
+
+  // Análisis por bloques (serie por serie)
+  var blq = (S.extracted && S.extracted.analisis_bloques) || ext.analisis_bloques;
+  if (blq && blq.length) {
+    lines.push('');
+    lines.push('*Analisis por bloques*');
+    blq.forEach(function(b){
+      lines.push('');
+      lines.push('▸ ' + (b.bloque||'Bloque'));
+      lines.push(b.desempeno||'');
+    });
+  }
+  // Nota sobre el tiempo
+  var notaT = (S.extracted && S.extracted.nota_tiempo) || ext.nota_tiempo;
+  if (notaT && notaT.trim()) {
+    lines.push('');
+    lines.push('⏱️ ' + notaT);
   }
 
   if (ev) {
