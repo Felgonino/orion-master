@@ -292,7 +292,7 @@ const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzY1k8yoabejGIhc03oY
 // ═══════════════════════════════════════════════════
 const BLOQUES = [
   {
-    id:'B1', activo:true, color:'#6C3483',
+    id:'B1', activo:false, color:'#6C3483',
     nombre:'🏁 Competencia 20 Jun — Estilos',
     subtitulo:'50m Libre · 50m Espalda · 100m Combinado',
     fechaFin:'2026-06-20',
@@ -494,7 +494,7 @@ const BLOQUES = [
   },
 
   {
-    id:'B3', activo:false, color:'#C0392B',
+    id:'B3', activo:true, color:'#C0392B',
     nombre:'🏆 Nacional Invierno 23-26 Jul — Piscina 50m',
     subtitulo:'50/100 Pecho · 200 IM · 200 Espalda · 50 Libre + 3K aguas abiertas',
     fechaFin:'2026-07-23',
@@ -2525,7 +2525,7 @@ async function analizarFotos() {
     nadObj.tipo_nadador ? 'Tipo: ' + nadObj.tipo_nadador : '',
     nadObj.fortaleza ? 'Fortaleza: ' + nadObj.fortaleza : '',
     nadObj.debilidad ? 'A mejorar: ' + nadObj.debilidad : '',
-    nadObj.t50_libre ? '50L ref: ' + nadObj.t50_libre : '',
+    nadObj.t50_libre ? '50L ref (SOLO LIBRE/CROL, no usar para otros estilos): ' + nadObj.t50_libre : '',
     nadObj.t400_libre ? '400L ref: ' + nadObj.t400_libre : '',
     nadObj.swolf_ref ? 'SWOLF ref: ' + nadObj.swolf_ref : ''
   ].filter(Boolean).join('. ');
@@ -2590,11 +2590,13 @@ async function analizarFotos() {
     '- En COMBINADO/IM (mariposa-espalda-pecho-libre), el ritmo promedio sera mas lento que libre puro por la mezcla de estilos. ' +
     '- El SWOLF tambien varia por estilo: pecho y mariposa tienen SWOLF naturalmente distinto a crol. ' +
     '- Al comparar con historial, prioriza comparar mismo estilo con mismo estilo (pecho con pecho, libre con libre). ' +
+    '- CRITICO: la referencia "50L ref" del perfil es el tiempo de 50 LIBRE/CROL del nadador. SOLO sirve para contextualizar bloques de LIBRE. JAMAS uses esa referencia de libre para evaluar pecho, espalda, mariposa o IM. Si analizas un bloque de pecho y solo tienes la referencia de libre, NO la uses como comparacion (seria un error grave); en su lugar contextualiza con la jerarquia fisica (pecho es 10-15%+ mas lento que ese libre). Decir que un pecho es "lento vs la referencia" cuando la referencia es de libre es un ERROR CONCEPTUAL prohibido. ' +
     'Si no tienes referencia exacta del estilo en el historial, usa la jerarquia fisica para contextualizar, no penalices. ';
 
 
   const prompt='Eres ORION Master, coach experto en natacion master. Analiza este entrenamiento con rigor de laboratorio, serie por serie.\n' +
     'NADADOR: ' + S.nadador + '. ' + (perfil ? 'PERFIL: ' + perfil + '.' : '') + '\n' +
+    'REGLA ABSOLUTA SOBRE EL NOMBRE: el nadador se llama EXACTAMENTE "' + S.nadador + '". Usa SIEMPRE ese nombre y NUNCA otro. No inventes ni cambies el nombre bajo ninguna circunstancia. Si te refieres al nadador, escribe "' + S.nadador + '".\n' +
     'MEDIO: ' + medioStr + '\n' +
     oaGuidance + '\n' +
     estiloGuidance + '\n' +
@@ -2631,6 +2633,8 @@ async function analizarFotos() {
     if (ini >= 0 && fin > ini) raw = raw.substring(ini, fin+1);
     try {
       S.extracted = JSON.parse(raw);
+      // Corrección de seguridad: reemplazar nombres incorrectos por el del nadador real
+      corregirNombreNadador(S.extracted, S.nadador);
     } catch(parseErr) {
       // Intento de reparar JSON truncado: cerrar arrays/objetos abiertos
       console.error('JSON parse error, intentando reparar:', parseErr.message);
@@ -2647,6 +2651,28 @@ async function analizarFotos() {
 // ═══════════════════════════════════════════════════
 // CARGAR — STEP 4: Resultado
 // ═══════════════════════════════════════════════════
+function corregirNombreNadador(obj, nombreReal) {
+  if (!obj || !nombreReal) return;
+  var otros = NADADORES.map(function(n){ return n.nombre; }).filter(function(n){ return n !== nombreReal; });
+  var alucinados = ['Fernando','Felipe','Sergio','Felippe','Sergi','Fer','Feli'].filter(function(n){ return n !== nombreReal; });
+  var aReemplazar = otros.concat(alucinados).filter(function(v,i,a){ return a.indexOf(v)===i; });
+  function fix(txt) {
+    if (typeof txt !== 'string') return txt;
+    aReemplazar.forEach(function(mal){
+      var re = new RegExp('\\b'+mal+'\\b','g');
+      txt = txt.replace(re, nombreReal);
+    });
+    return txt;
+  }
+  if (obj.analisis_bloques) obj.analisis_bloques.forEach(function(b){ if(b.desempeno) b.desempeno = fix(b.desempeno); if(b.bloque) b.bloque=fix(b.bloque); });
+  if (obj.nota_tiempo) obj.nota_tiempo = fix(obj.nota_tiempo);
+  if (obj.evaluacion) {
+    ['puntos_positivos','puntos_mejora','antecedentes_planes'].forEach(function(k){
+      if (obj.evaluacion[k]) obj.evaluacion[k] = obj.evaluacion[k].map(fix);
+    });
+  }
+}
+
 function renderResultado() {
   const ext=S.extracted; const r=ext?.resumen||{}; const ev=ext?.evaluacion||{};
   const plan=getSesion(S.sesionPlan);
