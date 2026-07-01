@@ -691,11 +691,11 @@ const BLOQUES = [
             bloques:[
               {
                 tipo:'Calentamiento técnico',
-                desc:'300 libre suave + 200 espalda + 4×50 patada con tabla (alternar pecho/libre)',
+                desc:'300 libre suave + 200 espalda + 4×50 patada con tabla (uno de cada estilo: mariposa, espalda, pecho, libre)',
                 series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'},{reps:1,dist:200,estilo:'Espalda',implemento:'',salida:'',descanso:'20seg'},{reps:4,dist:50,estilo:'Combinado',implemento:'tabla',salida:'',descanso:'15seg'}],
                 descanso_bloque:'30seg',
                 mf:'Entrar en calor sin prisa',
-                ms:'Patada de pecho amplia y simétrica',
+                ms:'Patada potente y técnica en los cuatro estilos',
                 ritmo:'Suave'
               },
               {
@@ -2593,6 +2593,15 @@ async function analizarFotos() {
     '- CRITICO: la referencia "50L ref" del perfil es el tiempo de 50 LIBRE/CROL del nadador. SOLO sirve para contextualizar bloques de LIBRE. JAMAS uses esa referencia de libre para evaluar pecho, espalda, mariposa o IM. Si analizas un bloque de pecho y solo tienes la referencia de libre, NO la uses como comparacion (seria un error grave); en su lugar contextualiza con la jerarquia fisica (pecho es 10-15%+ mas lento que ese libre). Decir que un pecho es "lento vs la referencia" cuando la referencia es de libre es un ERROR CONCEPTUAL prohibido. ' +
     'Si no tienes referencia exacta del estilo en el historial, usa la jerarquia fisica para contextualizar, no penalices. ';
 
+  var implementoGuidance = '=== CONOCIMIENTO OBLIGATORIO SOBRE IMPLEMENTOS === ' +
+    'El contexto de cada bloque indica entre parentesis el IMPLEMENTO usado, ej: "4x50m Combinado (tabla)". El implemento CAMBIA RADICALMENTE el ritmo esperado y debes considerarlo SIEMPRE antes de juzgar un tiempo. ' +
+    'TABLA (patada/pateo): son 50m de SOLO PIERNAS, sin brazos. El ritmo es MUCHO mas lento que nado completo (facilmente 2x mas lento) y la variabilidad entre estilos es ENORME: la patada de pecho es lentisima, la de mariposa potente pero agotadora, la de espalda y crol mas rapidas. Si un set de patada incluye "uno de cada estilo" (mariposa, espalda, pecho, libre), la diferencia de tiempo entre repeticiones sera GRANDE y es CORRECTO. Ver tiempos como 2:20, 2:39, 2:20, 2:48 en un 4x50 patada NO es "ritmo erratico" ni un problema: cada estilo de patada tiene velocidad intrinseca distinta. NUNCA marques la variabilidad de un set de patada multi-estilo como falla; al contrario, esa variabilidad refleja la fisica de cada estilo. ' +
+    'PULL-BUOY (solo brazos, piernas flotando): ritmo puede ser similar o incluso mas rapido que nado completo en distancias cortas porque aisla el tren superior; SWOLF distinto. ' +
+    'PALAS (aumentan superficie de traccion): ritmos MAS RAPIDOS que sin palas, mayor propulsion por brazada; es normal y esperado que sea mas veloz. ' +
+    'ALETAS (aumentan propulsion de patada): ritmos MUCHO mas rapidos que sin aletas, velocidad supra-maxima; nunca compares un tiempo con aletas contra uno sin aletas. ' +
+    'SNORKEL FRONTAL (quita la variable respiracion): el nadador se concentra en tecnica; el ritmo puede ser ligeramente distinto pero el foco es tecnico, no de velocidad; NO penalices el ritmo en bloques con snorkel. ' +
+    'REGLA GENERAL: antes de evaluar cualquier tiempo, primero identifica si el bloque usa implemento y ajusta COMPLETAMENTE tus expectativas. Un tiempo "lento" con tabla o "rapido" con aletas es correcto por el implemento, no un merito ni un defecto del nadador. ';
+
 
   const prompt='Eres ORION Master, coach experto en natacion master. Analiza este entrenamiento con rigor de laboratorio, serie por serie.\n' +
     'NADADOR: ' + S.nadador + '. ' + (perfil ? 'PERFIL: ' + perfil + '.' : '') + '\n' +
@@ -2600,6 +2609,7 @@ async function analizarFotos() {
     'MEDIO: ' + medioStr + '\n' +
     oaGuidance + '\n' +
     estiloGuidance + '\n' +
+    implementoGuidance + '\n' +
     'CONTEXTO ENTRENAMIENTO (incluye los descansos PLANIFICADOS de cada bloque):\n' + ctx + '\n' +
     (histReciente ? 'HISTORIAL RECIENTE (comparacion): ' + histReciente + '\n' : '') +
     '\nAnaliza las pantallas de Garmin Connect adjuntas y extrae los datos del RESUMEN (estadisticas).\n' +
