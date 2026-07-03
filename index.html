@@ -770,6 +770,59 @@ const BLOQUES = [
                 ritmo:'Suave'
               }
             ]
+          },
+          {
+            id:'B3-W2-D', tipo:'A', nombre:'Sesión D (extra) — Base aeróbica con Sergio',
+            fecha:'', dia:'Semana 29 Jun-5 Jul · día a elección (con Sergio)', intensidad:'💧 Aeróbico',
+            objetivo:'Construir base aeróbica con trabajo de eficiencia y pacing, ideal para hacer junto a Sergio. Volumen sostenido a ritmo cómodo con contrastes de estilo y control respiratorio.',
+            rationale:'Sesión aeróbica extra para intercalar entre los días intensos. El foco es el motor aeróbico y la eficiencia (clave para Felipe), con ritmo cómodo sostenido. Ideal para nadar con Sergio aprovechando el drafting y comparando pacing. La pirámide enseña control de ritmo y el pull aísla el tren superior para trabajar el agarre.',
+            bloques:[
+              {
+                tipo:'Calentamiento progresivo',
+                desc:'400 libre progresivo (cada 100 más rápido) + 200 espalda suave + 4×50 (25 drill + 25 nado) libre',
+                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:1,dist:200,estilo:'Espalda',implemento:'',salida:'',descanso:'30seg'},{reps:4,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'}],
+                descanso_bloque:'30seg',
+                mf:'Subir el ritmo gradual, activar sin forzar',
+                ms:'Técnica desde el inicio, drill limpio',
+                ritmo:'Progresivo'
+              },
+              {
+                tipo:'Base aeróbica con pull',
+                desc:'6×100 libre con pull-buoy @1:40, respiración progresiva (3-5-7 brazadas). Aislar el tren superior.',
+                series:[{reps:6,dist:100,estilo:'Libre',implemento:'pull-buoy',salida:'1:40',descanso:''}],
+                descanso_bloque:'45seg',
+                mf:'Agarre largo, sentir la tracción; controlar respiración',
+                ms:'Eficiencia máxima, DPS alto con el pull',
+                ritmo:'Aeróbico cómodo'
+              },
+              {
+                tipo:'Contraste aeróbico libre/espalda',
+                desc:'3×(125 libre + 50 espalda) a ritmo cómodo, desc 20seg entre series',
+                series:[{reps:3,dist:125,estilo:'Libre',implemento:'',salida:'',descanso:'10seg'},{reps:3,dist:50,estilo:'Espalda',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'30seg',
+                mf:'Mantener el motor constante al cambiar de estilo',
+                ms:'Rolido amplio en espalda, transición fluida',
+                ritmo:'Aeróbico cómodo'
+              },
+              {
+                tipo:'Pirámide aeróbica (pacing)',
+                desc:'100-150-200-150-100 libre a ritmo CONSTANTE (mismo /100m en toda la pirámide), desc 15seg',
+                series:[{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'},{reps:1,dist:150,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'},{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'},{reps:1,dist:150,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'},{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Mismo ritmo /100m en las 5 distancias: control de pacing',
+                ms:'No acelerar en las cortas, sostener en las largas',
+                ritmo:'Aeróbico constante'
+              },
+              {
+                tipo:'Afloje',
+                desc:'200 suave a elección, respiración bilateral',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Soltar, bajar pulsaciones',
+                ms:'Recuperar, técnica hasta el final',
+                ritmo:'Suave'
+              }
+            ]
           }
         ]
       },
@@ -1248,7 +1301,8 @@ let GLOSARIO = [
   { termino:'Recuperación activa', categoria:'Sistemas y tipos de trabajo', definicion:'Nado muy suave intercalado entre repeticiones intensas que permite eliminar lactato y mantener la calidad del trabajo sin detenerse por completo.', ejecucion:'En vez de descansar parado, nada 25-50m muy suaves entre series fuertes. El movimiento ligero ayuda a recuperar mejor que la pausa total, manteniendo el cuerpo activo.' },
   { termino:'Descenso de tiempos', categoria:'Sistemas y tipos de trabajo', definicion:'Serie en la que cada repetición (o grupo de repeticiones) se nada más rápido que la anterior, terminando a velocidad máxima.', ejecucion:'Ej: 8×75 donde cada par de 75 baja el tiempo respecto al par anterior. Obliga a dosificar al inicio y exigir al final, entrenando el control de ritmo y la tolerancia a la fatiga.' },
   { termino:'Restricción respiratoria', categoria:'Sistemas y tipos de trabajo', definicion:'Nadar respirando cada cierto número fijo de brazadas (cada 5, 7, etc.) para mejorar el control del CO2, la eficiencia respiratoria y la capacidad pulmonar.', ejecucion:'Mantén un patrón fijo de respiración (ej: cada 5 brazadas) aunque pidas más aire. Desarrolla tolerancia y mejora la economía de oxígeno. Útil en calentamientos con pull.' },
-  { termino:'Velocidad supra-máxima', categoria:'Sistemas y tipos de trabajo', definicion:'Nadar más rápido de lo que permite la propia fuerza, generalmente con aletas, para educar al sistema nervioso en frecuencias y velocidades altas.', ejecucion:'Usa aletas para alcanzar velocidades superiores a las normales manteniendo buena técnica. El cuerpo aprende el patrón motor de ir rápido, que luego se transfiere al nado sin implementos.' }
+  { termino:'Velocidad supra-máxima', categoria:'Sistemas y tipos de trabajo', definicion:'Nadar más rápido de lo que permite la propia fuerza, generalmente con aletas, para educar al sistema nervioso en frecuencias y velocidades altas.', ejecucion:'Usa aletas para alcanzar velocidades superiores a las normales manteniendo buena técnica. El cuerpo aprende el patrón motor de ir rápido, que luego se transfiere al nado sin implementos.' },
+  { termino:'Respiración progresiva (3-5-7)', categoria:'Sistemas y tipos de trabajo', definicion:'Patrón de respiración que aumenta el número de brazadas entre cada respiración de forma progresiva (cada 3, luego cada 5, luego cada 7), mejorando el control de CO2 y la capacidad aeróbica.', ejecucion:'En una serie, respira cada 3 brazadas el primer tramo, cada 5 el siguiente y cada 7 el último. Desarrolla tolerancia respiratoria y eficiencia. Común en bloques aeróbicos con pull.' }
 ];
 
 
