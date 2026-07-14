@@ -425,7 +425,7 @@ const BLOQUES = [
                 tipo:'Sensación de IM',
                 desc:'1×100m IM al 80% (cómodo, fluido, transiciones limpias) + 1×50m Libre al 85%. Descanso 2min entre series. Confirmar sensaciones, no testear marcas.',
                 series:[{reps:1,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:'2min'},{reps:1,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:''}],
-                descanso_bloque:'1min',
+                descanso_bloque:'2min30seg',
                 mf:'El 100 IM: nadar relajado, disfrutar el combinado',
                 ms:'El 50 Libre: salir con energía pero sin vaciar el tanque',
                 ritmo:'80-85% esfuerzo'
@@ -848,7 +848,7 @@ const BLOQUES = [
                 tipo:'200 IM broken',
                 desc:'3×200 IM roto (50 de cada estilo con 10seg entre estilos) @descanso 1:30. Trabajar transiciones legales.',
                 series:[{reps:3,dist:200,estilo:'Combinado',implemento:'',salida:'',descanso:'1:30'}],
-                descanso_bloque:'1min',
+                descanso_bloque:'2min',
                 mf:'Transiciones mariposa-espalda y espalda-pecho limpias',
                 ms:'No perder velocidad en los cambios de estilo',
                 ritmo:'Ritmo 200 IM'
@@ -985,7 +985,7 @@ const BLOQUES = [
                 tipo:'100 pecho broken',
                 desc:'3×100 pecho roto (50+50 con 15seg) @descanso 2min, a ritmo objetivo del 100',
                 series:[{reps:3,dist:100,estilo:'Pecho',implemento:'',salida:'',descanso:'2min'}],
-                descanso_bloque:'1min',
+                descanso_bloque:'2min30seg',
                 mf:'Proyectar el tiempo objetivo del 100, segundo 50 igual de fuerte',
                 ms:'Mantener glide y largo de brazada a ritmo meta',
                 ritmo:'Ritmo 100 meta'
@@ -994,7 +994,7 @@ const BLOQUES = [
                 tipo:'200 IM broken',
                 desc:'2×200 IM roto (50 de cada estilo con 10seg) @descanso 2min, ritmo objetivo',
                 series:[{reps:2,dist:200,estilo:'Combinado',implemento:'',salida:'',descanso:'2min'}],
-                descanso_bloque:'1min',
+                descanso_bloque:'2min30seg',
                 mf:'Cada estilo a su ritmo de carrera, transiciones rápidas',
                 ms:'Distribuir el esfuerzo entre los cuatro estilos',
                 ritmo:'Ritmo 200 IM meta'
@@ -1003,7 +1003,7 @@ const BLOQUES = [
                 tipo:'Velocidad 50',
                 desc:'4×50 a ritmo de carrera (2 libre + 2 pecho) @descanso 2min, calidad máxima',
                 series:[{reps:2,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'2min'},{reps:2,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'2min'}],
-                descanso_bloque:'1min',
+                descanso_bloque:'2min30seg',
                 mf:'Tiempo objetivo exacto, técnica perfecta',
                 ms:'Replicar el ritmo de competencia',
                 ritmo:'Ritmo carrera'
@@ -1036,9 +1036,9 @@ const BLOQUES = [
               },
               {
                 tipo:'Activación de velocidad',
-                desc:'12×25 a ritmo de carrera (1 por estilo de competencia, repetir) @descanso 1:30, solo recordar la velocidad',
-                series:[{reps:12,dist:25,estilo:'Combinado',implemento:'',salida:'',descanso:'1:30'}],
-                descanso_bloque:'1min',
+                desc:'3×(4×25 a ritmo de carrera, uno por estilo: mariposa, espalda, pecho, libre) — desc 45seg entre 25s, 1min30 entre series. Recordar la velocidad sin fatigar.',
+                series:[{reps:12,dist:25,estilo:'Combinado',implemento:'',salida:'',descanso:'45seg'}],
+                descanso_bloque:'2min',
                 mf:'Velocidad fácil, sin forzar, técnica limpia',
                 ms:'Recordar el ritmo de carrera de cada prueba',
                 ritmo:'Ritmo carrera'
@@ -1047,7 +1047,7 @@ const BLOQUES = [
                 tipo:'Recordatorio de ritmo',
                 desc:'4×100 (libre, espalda, pecho, IM) a ritmo de carrera @descanso 2min',
                 series:[{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:'2min'},{reps:1,dist:100,estilo:'Espalda',implemento:'',salida:'2min'},{reps:1,dist:100,estilo:'Pecho',implemento:'',salida:'2min'},{reps:1,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:''}],
-                descanso_bloque:'1min',
+                descanso_bloque:'2min30seg',
                 mf:'Sentir el ritmo objetivo sin gastar',
                 ms:'Calidad sobre cantidad',
                 ritmo:'Ritmo carrera'
@@ -1386,7 +1386,7 @@ function fmtEstructura(b) {
       if (s.implemento) txt += ' (' + s.implemento + ')';
       var tiempos = [];
       if (s.salida) tiempos.push('salida ' + s.salida);
-      if (s.descanso) tiempos.push('desc ' + s.descanso);
+      if (s.descanso) tiempos.push('desc ' + s.descanso + ' entre reps');
       if (tiempos.length) txt += ' · ' + tiempos.join(', ');
       return txt;
     }).join('  +  ');
@@ -1627,7 +1627,7 @@ function renderPlan() {
         const distB=calcDistBloque(b);
         h+='<div class="blq"><div class="blq-t">'+b.tipo+(distB!=null?' · '+distB+'m':'')+(b.ritmo?' · 🎯 '+b.ritmo:'')+'</div>';
         h+='<div class="blq-d">'+fmtEstructura(b)+'</div>';
-        if(b.descanso_bloque) h+='<div style="font-size:11px;color:var(--text3);margin-top:3px">⏸ Descanso: '+b.descanso_bloque+'</div>';
+        if(b.descanso_bloque) h+='<div style="font-size:11px;color:var(--text3);margin-top:3px">⏸ Al terminar el bloque: '+b.descanso_bloque+'</div>';
         else if(b.desc2 && b.desc2!=='—') h+='<div style="font-size:11px;color:var(--text3);margin-top:3px">⏸ '+b.desc2+'</div>';
         h+='<div class="blq-f">🔵 Felipe: '+b.mf+'</div>';
         h+='<div class="blq-s">🟢 Sergio: '+b.ms+'</div></div>';
