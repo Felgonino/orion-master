@@ -3972,14 +3972,23 @@ async function generarPrograma() {
     try {
       var resp = await fetch('https://orion-proxy.felgonino.workers.dev',{
         method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({messages:[{role:'user',content:semanaPrompt}]})
+        body:JSON.stringify({max_tokens:8000,messages:[{role:'user',content:semanaPrompt}]})
       });
       var data = await resp.json();
       if(!data.ok||!data.text) throw new Error(data.error||'Sin respuesta semana '+w);
       var raw=data.text.trim();
+      // Limpiar backticks de markdown
+      raw = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
       var s=raw.indexOf('{'), e2=raw.lastIndexOf('}');
-      if(s<0||e2<0) throw new Error('JSON invalido semana '+w);
-      var semData = JSON.parse(raw.substring(s,e2+1));
+      if(s<0||e2<0) throw new Error('La IA no devolvió un plan válido para la semana '+w+'. Reintenta.');
+      var jsonStr = raw.substring(s,e2+1);
+      var semData;
+      try {
+        semData = JSON.parse(jsonStr);
+      } catch(parseErr) {
+        console.error('JSON semana '+w+' malformado:', parseErr.message, jsonStr.substring(0,200));
+        throw new Error('La IA generó un plan incompleto para la semana '+w+'. Intenta de nuevo (a veces pasa); si persiste, reduce a menos días/semana.');
+      }
 
       // Fix session IDs to be unique
       (semData.sesiones||[]).forEach(function(ses,i){
