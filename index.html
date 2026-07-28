@@ -4819,9 +4819,41 @@ function imprimirSesion(id) {
 // INIT
 // ═══════════════════════════════════════════════════
 // Cargar nadadores y competencias desde Sheets, luego mostrar login
+async function cargarNadadores() {
+  var ctrl1 = new AbortController();
+  var t1 = setTimeout(function(){ ctrl1.abort(); }, 8000);
+  try {
+    const r = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=nadadores&t='+Date.now(), {signal:ctrl1.signal});
+    clearTimeout(t1);
+    const j = await r.json();
+    if (j.ok && j.nadadores && j.nadadores.length) {
+      NADADORES = j.nadadores;
+    }
+  } catch(e) { clearTimeout(t1); /* usa los por defecto */ }
+  // Cargar glosario
+  var ctrl2 = new AbortController();
+  var t2 = setTimeout(function(){ ctrl2.abort(); }, 8000);
+  try {
+    const rg = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=glosario&t='+Date.now(), {signal:ctrl2.signal});
+    clearTimeout(t2);
+    const jg = await rg.json();
+    if (jg.ok && jg.glosario && jg.glosario.length) {
+      jg.glosario.forEach(function(g){
+        if (!GLOSARIO.find(function(x){ return x.termino.toLowerCase() === (g.termino||'').toLowerCase(); })) {
+          GLOSARIO.push(g);
+        }
+      });
+    }
+  } catch(e) { clearTimeout(t2); /* usa los base */ }
+}
+
 async function initApp() {
-  await cargarNadadores();
+  // Mostrar el login PRIMERO con los nadadores por defecto (no bloquear por la red)
   renderLogin();
+  // Luego cargar datos del servidor en segundo plano y refrescar
+  cargarNadadores().then(function(){
+    renderLogin(); // refrescar por si llegaron nadadores actualizados del servidor
+  }).catch(function(){});
   // Cargar datos en background
   sheetsLoad().then(()=>{
     const tab=document.querySelector('.tab.on')?.id?.replace('tab-','');
@@ -4829,29 +4861,6 @@ async function initApp() {
     if(tab==='historial'&&USUARIO_ACTUAL) renderHistorial();
   }).catch(()=>syncDot('err'));
   cargarAntecedentes();
-}
-
-async function cargarNadadores() {
-  try {
-    const r = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=nadadores&t='+Date.now());
-    const j = await r.json();
-    if (j.ok && j.nadadores && j.nadadores.length) {
-      NADADORES = j.nadadores;
-    }
-  } catch(e) { /* usa los por defecto */ }
-  // Cargar glosario
-  try {
-    const rg = await fetch('https://orion-proxy.felgonino.workers.dev?tipo=glosario&t='+Date.now());
-    const jg = await rg.json();
-    if (jg.ok && jg.glosario && jg.glosario.length) {
-      // Fusionar con los base sin duplicar
-      jg.glosario.forEach(function(g){
-        if (!GLOSARIO.find(function(x){ return x.termino.toLowerCase() === (g.termino||'').toLowerCase(); })) {
-          GLOSARIO.push(g);
-        }
-      });
-    }
-  } catch(e) { /* usa los base */ }
 }
 
 initApp();
