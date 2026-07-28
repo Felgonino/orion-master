@@ -494,7 +494,7 @@ const BLOQUES = [
   },
 
   {
-    id:'B3', activo:true, color:'#C0392B',
+    id:'B3', activo:false, color:'#C0392B',
     nombre:'🏆 Nacional Invierno 23-26 Jul — Piscina 50m',
     subtitulo:'50/100 Pecho · 200 IM · 200 Espalda · 50 Libre + 3K aguas abiertas',
     fechaFin:'2026-07-23',
@@ -1124,7 +1124,674 @@ const BLOQUES = [
       }
     ]
   },
-];
+
+  {
+    id:'B4', activo:true, color:'#0E6655',
+    nombre:'🏆 Doble Objetivo Ago — Seaman 3K + Piscina Pecho/IM',
+    subtitulo:'Seaman 3K mar (22 ago) · 50/100 Pecho + 100 IM piscina (29 ago)',
+    fechaFin:'2026-08-29',
+    semanas:[
+      {
+        id:'B4-W1', nombre:'Semana 1 (28 Jul-3 Ago) — Base velocidad + fondo',
+        sesiones:[
+          {
+            id:'B4-W1-A', tipo:'A', nombre:'Sesión A — Técnica pecho + IM (piscina)',
+            fecha:'', dia:'Semana 28 Jul-3 Ago · piscina, día a elección', intensidad:'⚡ Técnica + velocidad',
+            objetivo:'Activar la técnica de pecho y las transiciones de IM, base de velocidad para las pruebas de piscina.',
+            rationale:'Primera semana: construir base técnica del pecho (glide, timing) y del IM (transiciones legales). El snorkel permite concentrarse en la mecánica sin la variable respiración. Velocidad controlada al cierre.',
+            bloques:[
+              {
+                tipo:'Calentamiento',
+                desc:'400 libre suave + 200 espalda + 4×50 patada con tabla (uno de cada estilo)',
+                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:1,dist:200,estilo:'Espalda',implemento:'',salida:'',descanso:'30seg'},{reps:4,dist:50,estilo:'Combinado',implemento:'tabla',salida:'',descanso:'20seg'}],
+                descanso_bloque:'40seg',
+                mf:'Entrar en calor, activar patada de los 4 estilos',
+                ms:'Técnica desde el inicio',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Técnica pecho con snorkel',
+                desc:'6×75 pecho con snorkel frontal: foco en timing tirón-patada-glide',
+                series:[{reps:6,dist:75,estilo:'Pecho',implemento:'snorkel',salida:'',descanso:'20seg'}],
+                descanso_bloque:'45seg',
+                mf:'Un solo glide largo por ciclo',
+                ms:'Simetría total',
+                ritmo:'Técnico'
+              },
+              {
+                tipo:'IM por partes',
+                desc:'4×100 IM (25 de cada estilo) desc 30seg, foco en transiciones',
+                series:[{reps:4,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:'30seg'}],
+                descanso_bloque:'1min',
+                mf:'Transiciones limpias mariposa-espalda-pecho-libre',
+                ms:'No perder ritmo en los cambios',
+                ritmo:'Controlado'
+              },
+              {
+                tipo:'Velocidad 50 pecho',
+                desc:'6×50 pecho fuerte, salida 1:20, ritmo de carrera',
+                series:[{reps:6,dist:50,estilo:'Pecho',implemento:'',salida:'1:20',descanso:''}],
+                descanso_bloque:'1min30seg',
+                mf:'Mantener glide a velocidad alta',
+                ms:'Salida explosiva',
+                ritmo:'Ritmo carrera'
+              },
+              {
+                tipo:'Afloje',
+                desc:'200 suave a elección',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Soltar',
+                ms:'Recuperar',
+                ritmo:'Suave'
+              },
+            ]
+          },
+          {
+            id:'B4-W1-B', tipo:'B', nombre:'Sesión B — Umbral + resistencia velocidad (piscina)',
+            fecha:'', dia:'Semana 28 Jul-3 Ago · piscina, día a elección', intensidad:'🔥 Umbral',
+            objetivo:'Trabajar el umbral aeróbico y la resistencia a la velocidad, base para sostener ritmo en el 100 pecho y 100 IM.',
+            rationale:'El 100 pecho y el 100 IM exigen sostener velocidad. Este día combina trabajo de umbral con pull (aísla brazos) y series de resistencia velocidad con contraste de estilos.',
+            bloques:[
+              {
+                tipo:'Calentamiento',
+                desc:'300 libre progresivo + 200 pull-buoy (respiración 3-5-7)',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:1,dist:200,estilo:'Libre',implemento:'pull-buoy',salida:'',descanso:'30seg'}],
+                descanso_bloque:'40seg',
+                mf:'Activar respiración controlada',
+                ms:'Agarre largo con el pull',
+                ritmo:'Progresivo'
+              },
+              {
+                tipo:'Umbral con pull',
+                desc:'7×100 libre con pull-buoy, salida 1:40',
+                series:[{reps:7,dist:100,estilo:'Libre',implemento:'pull-buoy',salida:'1:40',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Ritmo constante, eficiencia máxima',
+                ms:'DPS alto, tracción potente',
+                ritmo:'Umbral'
+              },
+              {
+                tipo:'Resistencia velocidad pecho',
+                desc:'8×50 pecho, salida 1:15, sostener el ritmo',
+                series:[{reps:8,dist:50,estilo:'Pecho',implemento:'',salida:'1:15',descanso:''}],
+                descanso_bloque:'1min30seg',
+                mf:'Mismo tiempo en los 8, no morir al final',
+                ms:'Cierre fuerte cada 50',
+                ritmo:'Fuerte sostenido'
+              },
+              {
+                tipo:'Contraste IM',
+                desc:'4×75 combinado (25 espalda + 25 pecho + 25 libre) desc 20seg',
+                series:[{reps:4,dist:75,estilo:'Combinado',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'1min',
+                mf:'Fluidez en las transiciones de estilo',
+                ms:'Ritmo sostenido en los 3 estilos',
+                ritmo:'Controlado'
+              },
+              {
+                tipo:'Afloje',
+                desc:'250 suave variado',
+                series:[{reps:1,dist:250,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Soltar completamente',
+                ms:'Recuperar',
+                ritmo:'Suave'
+              },
+            ]
+          },
+          {
+            id:'B4-W1-C', tipo:'C', nombre:'Sesión C — Fondo aguas abiertas base (mar)',
+            fecha:'', dia:'Semana 28 Jul-3 Ago · mar, fin de semana', intensidad:'🌊 Aguas abiertas',
+            objetivo:'Construir base aeróbica de aguas abiertas hacia los 3K del Seaman, adaptándose a las condiciones del mar.',
+            rationale:'Primer contacto con el mar del ciclo. Nado continuo suave para adaptar respiración al oleaje y practicar sighting. Base sobre la cual construir volumen las próximas semanas.',
+            bloques:[
+              {
+                tipo:'Entrada progresiva',
+                desc:'10-12min nado continuo suave, sighting cada 6-8 brazadas',
+                series:[],
+                descanso_bloque:'',
+                mf:'Adaptar respiración al oleaje',
+                ms:'Ritmo crucero cómodo',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Fondo continuo',
+                desc:'1800-2200m continuos a ritmo aeróbico, sighting regular',
+                series:[],
+                descanso_bloque:'',
+                mf:'Motor constante, respiración bilateral',
+                ms:'Eficiencia, nado largo y relajado',
+                ritmo:'Aeróbico sostenido'
+              },
+              {
+                tipo:'Salida',
+                desc:'200m suave de regreso',
+                series:[],
+                descanso_bloque:'',
+                mf:'Bajar pulsaciones',
+                ms:'Técnica hasta el final',
+                ritmo:'Suave'
+              },
+            ]
+          },
+        ]
+      },
+      {
+        id:'B4-W2', nombre:'Semana 2 (4-10 Ago) — Intensidad pecho/IM + fondo con cambios',
+        sesiones:[
+          {
+            id:'B4-W2-A', tipo:'A', nombre:'Sesión A — Velocidad láctica pecho + IM',
+            fecha:'', dia:'Semana 4-10 Ago · piscina, día a elección', intensidad:'🔴 Velocidad láctica',
+            objetivo:'Desarrollar tolerancia al lactato en pecho e IM, clave para el 100 de ambas pruebas.',
+            rationale:'Segunda semana sube la intensidad. Broken del 100 pecho e IM para nadar a ritmo de carrera acumulando menos fatiga. Las aletas educan la velocidad supra-máxima.',
+            bloques:[
+              {
+                tipo:'Calentamiento con aletas',
+                desc:'400 libre/espalda alterno + 6×50 con aletas (build progresivo)',
+                series:[{reps:1,dist:400,estilo:'Combinado',implemento:'',salida:'',descanso:'30seg'},{reps:6,dist:50,estilo:'Libre',implemento:'aletas',salida:'',descanso:'15seg'}],
+                descanso_bloque:'45seg',
+                mf:'Sentir la posición alta con aletas',
+                ms:'Acelerar progresivo',
+                ritmo:'Build'
+              },
+              {
+                tipo:'100 pecho broken',
+                desc:'4×100 pecho roto (50+50 con 15seg), salida 2:30, ritmo objetivo del 100',
+                series:[{reps:4,dist:100,estilo:'Pecho',implemento:'',salida:'2:30',descanso:''}],
+                descanso_bloque:'2min30seg',
+                mf:'Segundo 50 igual de fuerte que el primero',
+                ms:'Sostener glide bajo fatiga',
+                ritmo:'Ritmo 100 meta'
+              },
+              {
+                tipo:'100 IM broken',
+                desc:'3×100 IM roto (25 de cada estilo con 5seg), salida 2:30',
+                series:[{reps:3,dist:100,estilo:'Combinado',implemento:'',salida:'2:30',descanso:''}],
+                descanso_bloque:'2min30seg',
+                mf:'Transiciones rápidas, cada estilo a ritmo',
+                ms:'No perder velocidad en cambios',
+                ritmo:'Ritmo 100 IM meta'
+              },
+              {
+                tipo:'Contraste aeróbico',
+                desc:'4×100 (50 espalda + 50 libre) desc 20seg, recuperación activa entre esfuerzos',
+                series:[{reps:4,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'1min',
+                mf:'Motor constante entre estilos',
+                ms:'Rolido en espalda',
+                ritmo:'Aeróbico'
+              },
+              {
+                tipo:'Velocidad pura',
+                desc:'4×25 pecho máximo desde salida, salida 1:00',
+                series:[{reps:4,dist:25,estilo:'Pecho',implemento:'',salida:'1:00',descanso:''}],
+                descanso_bloque:'1min30seg',
+                mf:'Explosividad, salida + primer ciclo subacuático',
+                ms:'Tracción máxima',
+                ritmo:'Máximo'
+              },
+              {
+                tipo:'Afloje',
+                desc:'300 suave respiración bilateral',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Soltar lactato',
+                ms:'Recuperar',
+                ritmo:'Suave'
+              },
+            ]
+          },
+          {
+            id:'B4-W2-B', tipo:'B', nombre:'Sesión B — Capacidad aeróbica + fuerza',
+            fecha:'', dia:'Semana 4-10 Ago · piscina, día a elección', intensidad:'💧 Aeróbico + fuerza',
+            objetivo:'Construir capacidad aeróbica y fuerza de tracción, apoyo para el fondo del Seaman y la potencia de pecho.',
+            rationale:'Día de volumen aeróbico con trabajo de fuerza (palas). Sirve doble propósito: base para el mar y potencia de brazada para pecho. Pirámide de pacing para control de ritmo.',
+            bloques:[
+              {
+                tipo:'Calentamiento',
+                desc:'400 progresivo + 4×50 drill libre',
+                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:4,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'}],
+                descanso_bloque:'40seg',
+                mf:'Subir ritmo gradual',
+                ms:'Drill limpio',
+                ritmo:'Progresivo'
+              },
+              {
+                tipo:'Fuerza con palas',
+                desc:'6×100 con palas (4 libre + 2 pecho), salida 1:45',
+                series:[{reps:4,dist:100,estilo:'Libre',implemento:'palas',salida:'1:45',descanso:''},{reps:2,dist:100,estilo:'Pecho',implemento:'palas',salida:'2:00',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Agarre temprano, tracción completa, cuidar hombro',
+                ms:'Sentir cada fase de la brazada',
+                ritmo:'Fuerte'
+              },
+              {
+                tipo:'Pirámide aeróbica',
+                desc:'100-150-200-150-100 libre a ritmo constante, desc 15seg',
+                series:[{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'},{reps:1,dist:150,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'},{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'},{reps:1,dist:150,estilo:'Libre',implemento:'',salida:'',descanso:'15seg'},{reps:1,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Mismo ritmo/100m en toda la pirámide',
+                ms:'Control de pacing',
+                ritmo:'Aeróbico constante'
+              },
+              {
+                tipo:'Afloje',
+                desc:'200 suave',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Soltar hombros',
+                ms:'Recuperar',
+                ritmo:'Suave'
+              },
+            ]
+          },
+          {
+            id:'B4-W2-C', tipo:'C', nombre:'Sesión C — Fondo con cambios de ritmo (mar)',
+            fecha:'', dia:'Semana 4-10 Ago · mar, fin de semana', intensidad:'🌊 Aguas abiertas',
+            objetivo:'Aumentar el volumen de fondo e introducir cambios de ritmo que simulan las aceleraciones del Seaman.',
+            rationale:'Segunda semana de mar sube volumen hacia los 3K. Los cambios de ritmo simulan salida, paso de boyas y llegada de la competencia. Practicar drafting con Sergio.',
+            bloques:[
+              {
+                tipo:'Entrada',
+                desc:'10min nado continuo suave, sighting',
+                series:[],
+                descanso_bloque:'',
+                mf:'Adaptación gradual',
+                ms:'Ritmo cómodo',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Fondo con cambios',
+                desc:'2400-2800m continuos. Cada ~8min, 1-2min más fuerte (paso de boya), volver a crucero',
+                series:[],
+                descanso_bloque:'',
+                mf:'Acelerar sin descontrolar respiración',
+                ms:'Cambios limpios, drafting',
+                ritmo:'Crucero + cambios'
+              },
+              {
+                tipo:'Salida',
+                desc:'200m suave',
+                series:[],
+                descanso_bloque:'',
+                mf:'Soltar',
+                ms:'Técnica',
+                ritmo:'Suave'
+              },
+            ]
+          },
+        ]
+      },
+      {
+        id:'B4-W3', nombre:'Semana 3 (11-17 Ago) — Afinamiento + simulacro 3K',
+        sesiones:[
+          {
+            id:'B4-W3-A', tipo:'A', nombre:'Sesión A — Ritmo de carrera pecho/IM (broken)',
+            fecha:'', dia:'Semana 11-17 Ago · piscina, día a elección', intensidad:'🏁 Ritmo carrera',
+            objetivo:'Nadar a ritmo exacto de competencia en pecho e IM, fijando sensaciones para la piscina del 29.',
+            rationale:'Semana pico de calidad. Broken a ritmo de carrera con recuperación amplia para máxima calidad. Fija el ritmo objetivo de cada prueba antes del taper.',
+            bloques:[
+              {
+                tipo:'Calentamiento de carrera',
+                desc:'400 suave + 6×50 build + 4×25 a ritmo carrera',
+                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:6,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'},{reps:4,dist:25,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'1min',
+                mf:'Subir revoluciones sin fatigar',
+                ms:'Despertar el ritmo',
+                ritmo:'Build'
+              },
+              {
+                tipo:'100 pecho broken',
+                desc:'3×100 pecho roto (50+50 con 15seg), salida 3:00, ritmo objetivo',
+                series:[{reps:3,dist:100,estilo:'Pecho',implemento:'',salida:'3:00',descanso:''}],
+                descanso_bloque:'3min',
+                mf:'Proyectar el tiempo meta del 100',
+                ms:'Técnica perfecta a ritmo meta',
+                ritmo:'Ritmo 100 meta'
+              },
+              {
+                tipo:'100 IM broken',
+                desc:'2×100 IM roto (25 c/estilo con 5seg), salida 3:00',
+                series:[{reps:2,dist:100,estilo:'Combinado',implemento:'',salida:'3:00',descanso:''}],
+                descanso_bloque:'3min',
+                mf:'Cada estilo a ritmo carrera, transiciones rápidas',
+                ms:'Distribuir esfuerzo',
+                ritmo:'Ritmo IM meta'
+              },
+              {
+                tipo:'Velocidad 50',
+                desc:'8×50 pecho a ritmo carrera, salida 2:00, calidad máxima',
+                series:[{reps:8,dist:50,estilo:'Pecho',implemento:'',salida:'2:30',descanso:''}],
+                descanso_bloque:'2min',
+                mf:'Tiempo objetivo exacto',
+                ms:'Salida explosiva',
+                ritmo:'Ritmo carrera'
+              },
+              {
+                tipo:'Afloje',
+                desc:'300 suave variado',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Recuperación completa',
+                ms:'Soltar',
+                ritmo:'Suave'
+              },
+            ]
+          },
+          {
+            id:'B4-W3-B', tipo:'B', nombre:'Sesión B — Pre-taper Seaman (aeróbico suave)',
+            fecha:'', dia:'Semana 11-17 Ago · piscina, día a elección (antes del Seaman)', intensidad:'💧 Aeróbico suave',
+            objetivo:'Mantener el motor aeróbico con volumen moderado, sin fatiga, preparando el cuerpo para el Seaman del 22.',
+            rationale:'El Seaman es el 22 (semana siguiente). Esta sesión baja la carga manteniendo sensación de agua. Aeróbico suave con foco en eficiencia, sin trabajo láctico que deje fatiga.',
+            bloques:[
+              {
+                tipo:'Calentamiento',
+                desc:'300 suave + 200 espalda',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:1,dist:200,estilo:'Espalda',implemento:'',salida:'',descanso:'30seg'}],
+                descanso_bloque:'40seg',
+                mf:'Soltar sin esfuerzo',
+                ms:'Sensaciones fluidas',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Aeróbico con pull',
+                desc:'8×100 libre con pull-buoy, salida 1:45, respiración 3-5-7',
+                series:[{reps:8,dist:100,estilo:'Libre',implemento:'pull-buoy',salida:'1:45',descanso:''}],
+                descanso_bloque:'1min',
+                mf:'Eficiencia, DPS alto, control respiratorio',
+                ms:'Ritmo cómodo sostenido',
+                ritmo:'Aeróbico cómodo'
+              },
+              {
+                tipo:'Técnica de sighting (simulación)',
+                desc:'8×75 libre con sighting cada 6 brazadas (simular mar), desc 20seg',
+                series:[{reps:8,dist:75,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'1min',
+                mf:'Sighting sin frenar el ritmo',
+                ms:'Coordinar vista con respiración',
+                ritmo:'Aeróbico'
+              },
+              {
+                tipo:'Afloje',
+                desc:'200 suave',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Terminar fresco',
+                ms:'Sin fatiga',
+                ritmo:'Suave'
+              },
+            ]
+          },
+          {
+            id:'B4-W3-C', tipo:'C', nombre:'Sesión C — Simulacro 3K Seaman (mar)',
+            fecha:'', dia:'Semana 11-17 Ago · mar, fin de semana', intensidad:'🌊 Simulacro 3K',
+            objetivo:'Completar los 3K continuos en mar a ritmo de competencia, validando la preparación antes del Seaman.',
+            rationale:'Simulacro clave de la distancia del Seaman. Nadar los 3K completos a ritmo objetivo confirma que la base está lista. Si compites con traje el 22, pruébalo hoy para adaptarte.',
+            bloques:[
+              {
+                tipo:'Entrada',
+                desc:'10min progresivo, sighting eficiente',
+                series:[],
+                descanso_bloque:'',
+                mf:'Calentar sin gastar',
+                ms:'Ritmo de entrada',
+                ritmo:'Progresivo'
+              },
+              {
+                tipo:'3K continuos',
+                desc:'3000m continuos a ritmo de competencia. Sighting, drafting, respiración adaptada. Probar el traje si se usará.',
+                series:[],
+                descanso_bloque:'',
+                mf:'Sostener ritmo objetivo los 3K',
+                ms:'Eficiencia máxima, aprovechar drafting',
+                ritmo:'Ritmo competencia OA'
+              },
+              {
+                tipo:'Salida',
+                desc:'200m suave',
+                series:[],
+                descanso_bloque:'',
+                mf:'Soltar',
+                ms:'Técnica',
+                ritmo:'Suave'
+              },
+            ]
+          },
+        ]
+      },
+      {
+        id:'B4-W4', nombre:'Semana 4 (18-24 Ago) — Seaman 22 + activación piscina',
+        sesiones:[
+          {
+            id:'B4-W4-A', tipo:'A', nombre:'Sesión A — Taper Seaman (activación suave)',
+            fecha:'', dia:'Semana 18-24 Ago · piscina, antes del Seaman 22', intensidad:'⚡ Taper Seaman',
+            objetivo:'Llegar fresco al Seaman del 22 manteniendo sensación de agua, volumen reducido sin fatiga.',
+            rationale:'Taper para el Seaman (sábado 22). Volumen bajo, mantener toque de ritmo sin cansar. El cuerpo descansa para supercompensar y rendir en los 3K.',
+            bloques:[
+              {
+                tipo:'Calentamiento',
+                desc:'300 suave + 4×50 con aletas relajados',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:4,dist:50,estilo:'Libre',implemento:'aletas',salida:'',descanso:'20seg'}],
+                descanso_bloque:'40seg',
+                mf:'Soltar, disfrutar el agua',
+                ms:'Sensaciones suaves',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Ritmo aeróbico suave',
+                desc:'6×150 libre a ritmo cómodo de crucero (como el Seaman), desc 30seg',
+                series:[{reps:6,dist:150,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'}],
+                descanso_bloque:'1min',
+                mf:'Encontrar el ritmo crucero del Seaman',
+                ms:'Eficiencia, respiración cómoda',
+                ritmo:'Ritmo Seaman'
+              },
+              {
+                tipo:'Activación',
+                desc:'4×50 progresivos (suave a fuerte), desc 45seg',
+                series:[{reps:4,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'45seg'}],
+                descanso_bloque:'1min',
+                mf:'Recordar velocidad sin vaciar',
+                ms:'Terminar activado',
+                ritmo:'Build'
+              },
+              {
+                tipo:'Nado técnico suave',
+                desc:'2×100 suave con snorkel (eficiencia)',
+                series:[{reps:2,dist:100,estilo:'Libre',implemento:'snorkel',salida:'',descanso:'20seg'}],
+                descanso_bloque:'30seg',
+                mf:'Eficiencia sin esfuerzo',
+                ms:'Técnica',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Afloje',
+                desc:'200 muy suave',
+                series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Fresco para el Seaman',
+                ms:'Sin fatiga',
+                ritmo:'Muy suave'
+              },
+            ]
+          },
+          {
+            id:'B4-W4-SEAMAN', tipo:'C', nombre:'🏆 SEAMAN 3K (mar, con traje)',
+            fecha:'2026-08-22', dia:'Sáb 22 Ago · Seaman 3K mar', intensidad:'🏆 Competencia OA',
+            objetivo:'Competir los 3K del Seaman en mar con traje, aplicando el ritmo crucero y la estrategia de aguas abiertas entrenada.',
+            rationale:'Primera competencia del ciclo. Calentamiento en agua, sighting eficiente, drafting cuando se pueda, ritmo sostenido. El traje da flotación: aprovéchalo para mantener posición alta.',
+            bloques:[
+              {
+                tipo:'Calentamiento',
+                desc:'10-15min en agua: nado suave + algunas aceleraciones cortas + práctica de sighting',
+                series:[],
+                descanso_bloque:'',
+                mf:'Activar sin gastar, adaptar al agua y el traje',
+                ms:'Sensaciones de carrera',
+                ritmo:'Progresivo'
+              },
+              {
+                tipo:'Competencia 3K',
+                desc:'3000m a ritmo de competencia. Salida controlada, ritmo crucero sostenido, sighting regular, drafting, cierre fuerte',
+                series:[],
+                descanso_bloque:'',
+                mf:'Ritmo constante, motor aeróbico (tu fuerte), no salir demasiado rápido',
+                ms:'Agresividad en la salida y el cierre, aprovechar cada tramo',
+                ritmo:'Máximo sostenible'
+              },
+            ]
+          },
+          {
+            id:'B4-W4-B', tipo:'B', nombre:'Sesión B — Reactivación velocidad pecho/IM',
+            fecha:'', dia:'Semana 18-24 Ago · piscina, después del Seaman', intensidad:'⚡ Reactivación',
+            objetivo:'Reactivar la velocidad de pecho e IM tras el Seaman, pivoteando el foco hacia la piscina del 29.',
+            rationale:'Post-Seaman, el cuerpo viene de fondo aeróbico. Esta sesión reactiva las fibras rápidas y el ritmo de carrera de pecho/IM, sin sobrecargar (el 29 está cerca). Transición de fondo a velocidad.',
+            bloques:[
+              {
+                tipo:'Calentamiento',
+                desc:'400 suave variado + 4×50 build',
+                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:4,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'40seg',
+                mf:'Recuperar sensación de velocidad tras el fondo',
+                ms:'Despertar cadencia',
+                ritmo:'Build'
+              },
+              {
+                tipo:'Velocidad pecho',
+                desc:'8×50 pecho a ritmo de carrera, salida 1:30',
+                series:[{reps:8,dist:50,estilo:'Pecho',implemento:'',salida:'1:30',descanso:''}],
+                descanso_bloque:'1min30seg',
+                mf:'Recuperar el ritmo de carrera del pecho',
+                ms:'Salida y tracción explosivas',
+                ritmo:'Ritmo carrera'
+              },
+              {
+                tipo:'IM corto',
+                desc:'4×100 IM a ritmo controlado, salida 2:15, transiciones',
+                series:[{reps:4,dist:100,estilo:'Combinado',implemento:'',salida:'2:15',descanso:''}],
+                descanso_bloque:'1min30seg',
+                mf:'Reactivar las transiciones de IM',
+                ms:'Fluidez entre estilos',
+                ritmo:'Controlado-fuerte'
+              },
+              {
+                tipo:'Aeróbico regenerativo',
+                desc:'3×100 libre suave (soltar el Seaman) desc 20seg',
+                series:[{reps:3,dist:100,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'45seg',
+                mf:'Regenerar tras el fondo',
+                ms:'Soltar piernas',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Afloje',
+                desc:'300 suave',
+                series:[{reps:1,dist:300,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Soltar',
+                ms:'Recuperar',
+                ritmo:'Suave'
+              },
+            ]
+          },
+        ]
+      },
+      {
+        id:'B4-W5', nombre:'Semana 5 (25-29 Ago) — Taper + Piscina 29',
+        sesiones:[
+          {
+            id:'B4-W5-A', tipo:'A', nombre:'Sesión A — Taper piscina (activación velocidad)',
+            fecha:'', dia:'Semana 25-29 Ago · piscina, antes del 29', intensidad:'⚡ Taper piscina',
+            objetivo:'Llegar fresco y rápido a la competencia de piscina del 29, manteniendo la velocidad de pecho/IM con volumen mínimo.',
+            rationale:'Taper final hacia la piscina. Volumen bajo, velocidad a ritmo de carrera para mantener el sistema nervioso afinado. Menos es más: llegar descansado y explosivo.',
+            bloques:[
+              {
+                tipo:'Calentamiento',
+                desc:'400 suave + 4×50 build',
+                series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:4,dist:50,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'40seg',
+                mf:'Soltar sin esfuerzo',
+                ms:'Sensaciones fluidas',
+                ritmo:'Build'
+              },
+              {
+                tipo:'Activación de carrera',
+                desc:'3×(2×25 a ritmo carrera: pecho y libre) desc 45seg entre 25s, 1min30 entre series',
+                series:[{reps:6,dist:25,estilo:'Combinado',implemento:'',salida:'',descanso:'45seg'}],
+                descanso_bloque:'2min',
+                mf:'Velocidad fácil, técnica limpia',
+                ms:'Recordar ritmo de carrera',
+                ritmo:'Ritmo carrera'
+              },
+              {
+                tipo:'Recordatorio pecho/IM',
+                desc:'2×50 pecho + 1×100 IM a ritmo carrera, desc 2min',
+                series:[{reps:2,dist:50,estilo:'Pecho',implemento:'',salida:'2min',descanso:''},{reps:1,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'2min',
+                mf:'Sentir el ritmo objetivo sin gastar',
+                ms:'Calidad sobre cantidad',
+                ritmo:'Ritmo carrera'
+              },
+              {
+                tipo:'Nado técnico suave',
+                desc:'6×100 suave con snorkel (eficiencia, DPS) desc 20seg',
+                series:[{reps:6,dist:100,estilo:'Libre',implemento:'snorkel',salida:'',descanso:'20seg'}],
+                descanso_bloque:'30seg',
+                mf:'Máxima eficiencia sin esfuerzo',
+                ms:'Técnica perfecta',
+                ritmo:'Suave técnico'
+              },
+              {
+                tipo:'Soltura',
+                desc:'2×100 espalda suave',
+                series:[{reps:2,dist:100,estilo:'Espalda',implemento:'',salida:'',descanso:'20seg'}],
+                descanso_bloque:'',
+                mf:'Soltar hombros',
+                ms:'Relajar',
+                ritmo:'Suave'
+              },
+              {
+                tipo:'Afloje',
+                desc:'250 muy suave',
+                series:[{reps:1,dist:250,estilo:'Libre',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'',
+                mf:'Fresco para competir',
+                ms:'Sin fatiga',
+                ritmo:'Muy suave'
+              },
+            ]
+          },
+          {
+            id:'B4-W5-COMP', tipo:'A', nombre:'🏆 PISCINA — 50/100 Pecho + 100 IM',
+            fecha:'2026-08-29', dia:'Sáb 29 Ago · Piscina', intensidad:'🏆 Competencia',
+            objetivo:'Competir 50 pecho, 100 pecho y 100 IM en piscina, aplicando la velocidad y técnica entrenadas.',
+            rationale:'Objetivo final del ciclo. Calentamiento según horario de cada prueba, ejecutar lo entrenado, salidas explosivas y cierres fuertes. Confiar en la preparación.',
+            bloques:[
+              {
+                tipo:'Calentamiento oficial',
+                desc:'Según horario: 400-600m activación + 4-6×50 build + salidas de práctica',
+                series:[],
+                descanso_bloque:'',
+                mf:'Activación específica antes de cada prueba',
+                ms:'Llegar activado al poyete',
+                ritmo:'Competencia'
+              },
+              {
+                tipo:'Pruebas',
+                desc:'50 Pecho · 100 Pecho · 100 IM (según programa oficial)',
+                series:[],
+                descanso_bloque:'',
+                mf:'Salidas explosivas, glide en pecho, cierres fuertes',
+                ms:'Competir agresivo, confiar en la técnica',
+                ritmo:'Máximo'
+              },
+            ]
+          },
+        ]
+      },
+    ]
+  },];
 
 // ═══════════════════════════════════════════════════
 // NADADORES (perfiles dinámicos)
