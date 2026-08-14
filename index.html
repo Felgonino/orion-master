@@ -169,8 +169,9 @@
         </div>
         <div class="topactions">
           <span class="savebadge" id="saveBadge">Guardado ✓</span>
+          <button class="btn solid" id="btnGuardar">Guardar ficha</button>
           <button class="btn" id="btnPrint">Exportar / Imprimir</button>
-          <button class="btn solid" id="btnDel">Eliminar ficha</button>
+          <button class="btn" id="btnDel" style="border-color:#A63A3A;color:#A63A3A;">Eliminar ficha</button>
         </div>
       </div>
 
@@ -180,6 +181,7 @@
         <button class="tab" data-p="examen">Examen clínico</button>
         <button class="tab" data-p="odonto">Odontograma</button>
         <button class="tab" data-p="perio">Periodontograma</button>
+        <button class="tab" data-p="endo">Endodoncia (ODN422)</button>
         <button class="tab" data-p="plan">Diagnóstico y plan</button>
         <button class="tab" data-p="sesiones">Registro de sesiones</button>
         <button class="tab" data-p="consent">Consentimiento</button>
@@ -213,11 +215,12 @@
               <div class="field"><label>Clínica / Asignatura</label>
                 <select data-f="clinica">
                   <option value="">Seleccionar</option>
-                  <option>Clínica Integral del Adulto</option>
-                  <option>Clínica Integral del Niño / Odontopediatría</option>
+                  <option>Clínica Integral del Adulto, Adulto Mayor y Pacientes con Necesidades Especiales</option>
+                  <option>Clínica Integral del Niño, Adolescente y Pacientes con Necesidades Especiales</option>
+                  <option>Clínica Quirúrgica Integrada</option>
+                  <option>Medicina Estomatológica</option>
+                  <option>Endodoncia (ODN422)</option>
                   <option>Periodoncia</option>
-                  <option>Endodoncia</option>
-                  <option>Cirugía Bucal</option>
                   <option>Ortodoncia y Ortopedia Maxilofacial</option>
                   <option>Rehabilitación Oral</option>
                   <option>Otra</option>
@@ -316,6 +319,173 @@
           </div>
         </div>
 
+        <!-- ENDODONCIA ODN422 -->
+        <div class="panel" data-panel="endo">
+          <div class="card">
+            <h3>Encabezado — Ficha ODN422</h3>
+            <div class="grid3">
+              <div class="field"><label>Fecha</label><input type="date" data-fe="endoFecha"></div>
+              <div class="field"><label>Estudiante</label><input type="text" data-fe="endoEstudiante"></div>
+              <div class="field"><label>Docente</label><input type="text" data-fe="endoDocente"></div>
+              <div class="field"><label>Nombre del paciente</label><input type="text" data-fe="endoPacienteNombre"></div>
+              <div class="field"><label>Rut</label><input type="text" data-fe="endoRut"></div>
+              <div class="field"><label>Edad</label><input type="text" data-fe="endoEdad"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>1. Antecedentes y motivo de consulta</h3>
+            <div class="field full"><label>1.1 Motivo de consulta (en palabras del paciente)</label><textarea data-fe="motivoConsulta"></textarea></div>
+            <div class="grid" style="margin-top:12px;">
+              <div class="field full"><label>1.2 Enfermedades sistémicas</label><textarea data-fe="enfermedadesSistemicas"></textarea></div>
+              <div class="field"><label>Alergias</label><input type="text" data-fe="alergiasEndo"></div>
+              <div class="field"><label>Medicamentos actuales</label><input type="text" data-fe="medicamentosEndo"></div>
+              <div class="field full"><label>Historia del dolor (aparición, tipo, intensidad, estímulos, duración)</label><textarea data-fe="historiaDolor"></textarea></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>2. Examen radiográfico — 2.1 Datos generales</h3>
+            <div class="grid">
+              <div class="field"><label>Diente</label><input type="text" data-fe="diente21"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>2.2 Evaluación coronaria</h3>
+            <div id="grp_corona" class="checks"></div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Profundidad de caries (si aplica)</label>
+              <div id="grp_caries_prof" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div class="grid" style="margin-top:10px;">
+              <div class="field"><label>Tipo de restauración</label><input type="text" data-fe="restauracionTipo"></div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Cámara pulpar</label>
+              <div id="grp_pulpar" class="checks" style="margin-top:6px;"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>2.3 Evaluación radicular</h3>
+            <div class="grid">
+              <div class="field"><label>N.º de raíces visibles</label>
+                <select data-fe="numRaices"><option value="">Seleccionar</option><option>1</option><option>2</option><option>3</option><option>4+</option></select>
+              </div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Morfología radicular</label>
+              <div id="grp_morfo" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Grado de curvatura (si aplica)</label>
+              <div id="grp_curva_grado" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Alteraciones radiculares</label>
+              <div id="grp_alteraciones" class="checks" style="margin-top:6px;"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>2.4 Sistema de conductos radiculares</h3>
+            <div class="grid">
+              <div class="field"><label>N.º de conductos estimados</label>
+                <select data-fe="numConductos"><option value="">Seleccionar</option><option>1</option><option>2</option><option>3</option><option>4+</option></select>
+              </div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Amplitud del conducto</label>
+              <div id="grp_amplitud" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Estado apical</label>
+              <div id="grp_apical_estado" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Endodoncia previa (retratamiento)</label>
+              <div id="grp_endo_previa" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div class="grid" style="margin-top:10px;">
+              <div class="field"><label>Calidad de radiopacidad (si aplica)</label>
+                <select data-fe="radiopacidadCalidad"><option value="">Seleccionar</option><option>Adecuada</option><option>Deficiente</option></select>
+              </div>
+              <div class="field"><label>Tipo de perno/poste (si aplica)</label><input type="text" data-fe="pernoTipo" placeholder="Metálico / Fibra"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>2.5 Evaluación del tejido periapical y periodontal</h3>
+            <div style="margin-top:0;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Espacio del ligamento periodontal</label>
+              <div id="grp_ligamento" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Localización del ensanchamiento (si aplica)</label>
+              <div id="grp_ensanchado_loc" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Lámina dura</label>
+              <div id="grp_lamina" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Zona periapical / perirradicular</label>
+              <div id="grp_periapical" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div class="grid" style="margin-top:10px;">
+              <div class="field"><label>Tamaño lesión radiolúcida (mm, si aplica)</label><input type="text" data-fe="lesionTamano"></div>
+            </div>
+            <div style="margin-top:10px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">Zona de la furca (multirradiculares)</label>
+              <div id="grp_furca" class="checks" style="margin-top:6px;"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>2.6 Relación con estructuras anatómicas adyacentes</h3>
+            <div id="grp_adyacentes" class="checks"></div>
+          </div>
+
+          <div class="card">
+            <h3>2.7 Conclusiones y planificación</h3>
+            <div class="grid">
+              <div class="field"><label>Nivel de dificultad estimado</label>
+                <select data-fe="dificultad"><option value="">Seleccionar</option><option>Baja (rutina)</option><option>Media (moderado)</option><option>Alta — derivar a Especialidad de Endodoncia</option></select>
+              </div>
+            </div>
+            <div class="field full" style="margin-top:10px;"><label>Observaciones adicionales</label><textarea data-fe="observacionesEndo"></textarea></div>
+          </div>
+
+          <div class="card">
+            <h3>3. Examen clínico y pruebas de sensibilidad</h3>
+            <div class="grid">
+              <div class="field"><label>3.1 Diente afectado</label><input type="text" data-fe="dienteAfectado31"></div>
+            </div>
+            <div class="field full" style="margin-top:10px;"><label>3.2 Examen visual / clínico</label><textarea data-fe="examenVisual" placeholder="Caries, restauraciones defectuosas, fístula, aumento de volumen..."></textarea></div>
+            <div style="margin-top:14px;">
+              <label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">3.3 Pruebas clínicas — diente control</label>
+              <table style="margin-top:8px;">
+                <thead><tr><th>Prueba</th><th>Diente afectado</th><th>Diente control</th><th>Observaciones</th></tr></thead>
+                <tbody id="pruebasBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>4. Diagnóstico</h3>
+            <div class="grid">
+              <div class="field"><label>4.1 Diagnóstico clínico</label><input type="text" data-fe="diagClinico"></div>
+              <div class="field"><label>4.2 Diagnóstico pulpar</label><input type="text" data-fe="diagPulpar"></div>
+              <div class="field"><label>4.3 Diagnóstico apical</label><input type="text" data-fe="diagApical"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>5. Plan de tratamiento y pronóstico</h3>
+            <div class="field full"><label>5.1 Plan de tratamiento</label><textarea data-fe="planTratamientoEndo"></textarea></div>
+            <div class="grid" style="margin-top:12px;">
+              <div class="field"><label>5.2 Pronóstico</label>
+                <select data-fe="pronostico"><option value="">Seleccionar</option><option>Favorable</option><option>Dudoso</option><option>Desfavorable</option></select>
+              </div>
+              <div class="field full"><label>Justificación</label><textarea data-fe="justificacionPronostico"></textarea></div>
+            </div>
+            <div style="margin-top:14px;"><label style="font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;">5.3 Derivaciones</label>
+              <div id="grp_derivaciones" class="checks" style="margin-top:6px;"></div>
+            </div>
+            <div class="field full" style="margin-top:10px;"><label>Motivo de derivación</label><textarea data-fe="motivoDerivacion"></textarea></div>
+          </div>
+        </div>
+
+        <!-- /ENDODONCIA -->
+
         <!-- PLAN -->
         <div class="panel" data-panel="plan">
           <div class="card">
@@ -387,6 +557,28 @@ const SESION_CHECKS = [
   'Ficha firmada por docente supervisor'
 ];
 
+// ---- Ficha ODN422 · Módulo de Endodoncia ----
+const ENDO_GROUPS = [
+  {key:'corona', options:['Íntegra','Con Caries','Restauración Presente','Fractura Coronaria Visible']},
+  {key:'caries_prof', options:['Superficial','Media','Profunda/Comunicante']},
+  {key:'pulpar', options:['Obturada','Amplia / Normal','Estrecha / Retraída','Con Mineralización']},
+  {key:'morfo', options:['Recta','Curva']},
+  {key:'curva_grado', options:['Leve','Moderada','Severa / Dilaceración']},
+  {key:'alteraciones', options:['Reabsorción Externa','Reabsorción Interna','Hipercementosis','Fractura Radicular']},
+  {key:'amplitud', options:['Amplio y visible en toda su extensión','Atrésico / Parcialmente visible','Totalmente mineralizado u obliterado']},
+  {key:'apical_estado', options:['Ápice completamente formado (Cerrado)','Ápice inmaduro (Abierto)']},
+  {key:'endo_previa', options:['Presencia de material de obturación','Presencia de perno/poste','Instrumentos fracturados visibles','Escalones o falsas vías (Perforaciones)']},
+  {key:'ligamento', options:['Normal','Ensanchado']},
+  {key:'ensanchado_loc', options:['Apical','Lateral','Furca']},
+  {key:'lamina', options:['Continua / Intacta','Discontinua / Perdida']},
+  {key:'periapical', options:['Normal (Sin alteraciones)','Lesión Radiolúcida','Lesión Radiopaca (Osteítis condensante)']},
+  {key:'furca', options:['Intacta','Con compromiso (radiolucidez)']},
+  {key:'adyacentes', options:['Seno Maxilar','Conducto Dentario Inferior','Agujero Mentoniano','Fosas Nasales']},
+  {key:'derivaciones', options:['Periodoncia','Rehabilitación Oral','Cirugía Maxilofacial','Operatoria','Especialidad de Endodoncia']}
+];
+const PRUEBAS_ROWS = ['Frío','Calor','Percusión Vertical','Percusión Horizontal','Palpación fondo de vestíbulo','Movilidad','Sondaje Periodontal'];
+const PRUEBAS_SIGNO = ['Frío','Calor','Percusión Vertical','Percusión Horizontal','Palpación fondo de vestíbulo']; // usan (+/-)
+
 let state = { patients: [], activeId: null, ficha: null };
 let saveTimer = null;
 
@@ -439,6 +631,11 @@ async function apiPost(body){
 
 function uid(){ return 'p'+Date.now()+Math.random().toString(36).slice(2,7); }
 
+function emptyEndoChecks(){
+  const o = {};
+  ENDO_GROUPS.forEach(g => o[g.key] = []);
+  return o;
+}
 function emptyFicha(){
   return {
     fields: {},
@@ -446,7 +643,12 @@ function emptyFicha(){
     odonto: {},
     perio: SEXTANTES.map(()=>({sondaje:'',sangrado:'',movilidad:'',recesion:''})),
     plan: [],
-    sesiones: []
+    sesiones: [],
+    endo: {
+      fields: {},
+      checks: emptyEndoChecks(),
+      pruebas: PRUEBAS_ROWS.map(()=>({af:'',dc:'',obs:''}))
+    }
   };
 }
 
@@ -460,13 +662,19 @@ async function loadIndex(){
 function normalizeFicha(r){
   const base = emptyFicha();
   if(!r || typeof r !== 'object') return base;
+  const rEndo = (r.endo && typeof r.endo === 'object') ? r.endo : {};
   return {
     fields: Object.assign({}, base.fields, r.fields || {}),
     antecedentes: Array.isArray(r.antecedentes) ? r.antecedentes : base.antecedentes,
     odonto: Object.assign({}, base.odonto, r.odonto || {}),
     perio: (Array.isArray(r.perio) && r.perio.length === base.perio.length) ? r.perio : base.perio,
     plan: Array.isArray(r.plan) ? r.plan : base.plan,
-    sesiones: Array.isArray(r.sesiones) ? r.sesiones : base.sesiones
+    sesiones: Array.isArray(r.sesiones) ? r.sesiones : base.sesiones,
+    endo: {
+      fields: Object.assign({}, base.endo.fields, rEndo.fields || {}),
+      checks: Object.assign({}, base.endo.checks, rEndo.checks || {}),
+      pruebas: (Array.isArray(rEndo.pruebas) && rEndo.pruebas.length === base.endo.pruebas.length) ? rEndo.pruebas : base.endo.pruebas
+    }
   };
 }
 async function loadFicha(id){
@@ -487,11 +695,11 @@ async function saveFicha(){
       renderPtList();
     }
     flashSaved();
-  }catch(e){ console.error(e); }
+  }catch(e){ console.error(e); throw e; }
 }
 function scheduleSave(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveFicha, 500);
+  saveTimer = setTimeout(()=>{ saveFicha().catch(()=>{}); }, 500);
 }
 function flashSaved(){
   const b = document.getElementById('saveBadge');
@@ -565,12 +773,17 @@ function fillForm(){
   document.querySelectorAll('#antecedentes input').forEach(cb=>{
     cb.checked = state.ficha.antecedentes.includes(cb.value);
   });
+  document.querySelectorAll('[data-fe]').forEach(el=>{
+    el.value = state.ficha.endo.fields[el.dataset.fe] || '';
+  });
   document.getElementById('hdrNombre').textContent = f.nombre || 'Paciente sin nombre';
   document.getElementById('hdrSub').textContent = [f.rut, f.clinica, f.alumno? ('Alumno: '+f.alumno):''].filter(Boolean).join(' · ') || '—';
   renderOdonto();
   renderPerio();
   renderPlan();
   renderSesiones();
+  renderEndoChecks();
+  renderPruebas();
 }
 
 function bindFieldListeners(){
@@ -591,6 +804,59 @@ function bindFieldListeners(){
       else{ state.ficha.antecedentes = state.ficha.antecedentes.filter(a=>a!==v); }
       scheduleSave();
     });
+  });
+  document.querySelectorAll('[data-fe]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      state.ficha.endo.fields[el.dataset.fe] = el.value;
+      scheduleSave();
+    });
+    el.addEventListener('change', ()=>{
+      state.ficha.endo.fields[el.dataset.fe] = el.value;
+      scheduleSave();
+    });
+  });
+}
+
+function renderEndoChecks(){
+  ENDO_GROUPS.forEach(g=>{
+    const container = document.getElementById('grp_'+g.key);
+    if(!container) return;
+    container.innerHTML = g.options.map(opt=>`<label><input type="checkbox" value="${escapeHtml(opt)}"> ${escapeHtml(opt)}</label>`).join('');
+    container.querySelectorAll('input').forEach(cb=>{
+      cb.checked = (state.ficha.endo.checks[g.key] || []).includes(cb.value);
+      cb.addEventListener('change', ()=>{
+        const arr = state.ficha.endo.checks[g.key] || (state.ficha.endo.checks[g.key] = []);
+        if(cb.checked){ if(!arr.includes(cb.value)) arr.push(cb.value); }
+        else{ state.ficha.endo.checks[g.key] = arr.filter(v=>v!==cb.value); }
+        scheduleSave();
+      });
+    });
+  });
+}
+
+function renderPruebas(){
+  const body = document.getElementById('pruebasBody');
+  if(!body) return;
+  body.innerHTML = PRUEBAS_ROWS.map((label,i)=>{
+    const row = state.ficha.endo.pruebas[i] || {af:'',dc:'',obs:''};
+    const usaSigno = PRUEBAS_SIGNO.includes(label);
+    const cellInput = (field, val) => usaSigno
+      ? `<select data-prueba="${i}" data-k="${field}"><option value="">—</option><option ${val==='+'?'selected':''}>+</option><option ${val==='-'?'selected':''}>-</option></select>`
+      : `<input type="text" data-prueba="${i}" data-k="${field}" value="${escapeHtml(val)}">`;
+    return `<tr>
+      <td>${label}</td>
+      <td>${cellInput('af', row.af)}</td>
+      <td>${cellInput('dc', row.dc)}</td>
+      <td><input type="text" data-prueba="${i}" data-k="obs" value="${escapeHtml(row.obs)}"></td>
+    </tr>`;
+  }).join('');
+  body.querySelectorAll('[data-prueba]').forEach(el=>{
+    const handler = ()=>{
+      state.ficha.endo.pruebas[el.dataset.prueba][el.dataset.k] = el.value;
+      scheduleSave();
+    };
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
   });
 }
 
@@ -745,6 +1011,19 @@ document.getElementById('tabs').addEventListener('click', (e)=>{
 });
 
 document.getElementById('btnNew').addEventListener('click', newPatient);
+document.getElementById('btnGuardar').addEventListener('click', async ()=>{
+  clearTimeout(saveTimer);
+  const btn = document.getElementById('btnGuardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try{
+    await saveFicha();
+    btn.textContent = 'Guardado ✓';
+  }catch(err){
+    alert('No se pudo guardar: ' + err.message);
+    btn.textContent = 'Guardar ficha';
+  }
+  setTimeout(()=>{ btn.textContent = 'Guardar ficha'; btn.disabled = false; }, 1200);
+});
 document.getElementById('btnPrint').addEventListener('click', ()=>window.print());
 document.getElementById('btnDel').addEventListener('click', async ()=>{
   if(!state.activeId) return;
