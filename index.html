@@ -2166,6 +2166,10 @@ function grupoActual() {
   var n = NADADORES.find(function(x){ return x.nombre === USUARIO_ACTUAL; });
   return n && n.grupo ? n.grupo : 'A';
 }
+function nadadoresDeGrupo() {
+  var g = grupoActual();
+  return NADADORES.filter(function(n){ return !g || (n.grupo||'A') === g; });
+}
 function bloquesDeGrupo() {
   var g = grupoActual();
   // Si no hay grupo (no logueado), mostrar todos; si hay, filtrar
@@ -2749,7 +2753,7 @@ function renderChecklistLibre(bloques) {
     h += '<div class="bcc-hdr" onclick="toggleBloque('+i+')">';
     h += '<div class="bcc-check" id="bcc-chk-'+i+'">&#x2713;</div>';
     h += '<div style="flex:1;min-width:0"><div class="bcc-tipo">'+b.tipo+'</div>';
-    h += '<div class="bcc-desc">'+(b.desc||'')+'</div></div></div>';
+    h += '<div class="bcc-desc">'+(b.desc||fmtEstructura(b))+'</div></div></div>';
     h += '<div class="bcc-opts" id="bcc-opts-'+i+'">';
     h += '<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:600">VARIACIÓN DE ESTILO</div>';
     h += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
@@ -2972,7 +2976,7 @@ function renderCargar2() {
     h += '<div class="bcc-check" id="bcc-chk-' + i + '">✓</div>';
     h += '<div style="flex:1;min-width:0">';
     h += '<div class="bcc-tipo">' + b.tipo + (b.ritmo ? ' · 🎯 ' + b.ritmo : '') + '</div>';
-    h += '<div class="bcc-desc">' + b.desc + '</div>';
+    h += '<div class="bcc-desc">' + (b.desc || fmtEstructura(b)) + '</div>';
     h += '</div></div>';
     // Expanded options (shown when hecho=true)
     h += '<div class="bcc-opts" id="bcc-opts-' + i + '">';
@@ -3077,7 +3081,7 @@ function renderCargar3() {
     if (omitidos.length || variados.length) {
       resumenBloques = '<div style="background:var(--orange-l);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--orange)">';
       resumenBloques += '<div style="font-weight:700;margin-bottom:6px">📋 Ajustes registrados:</div>';
-      omitidos.forEach(b => { resumenBloques += '<div>❌ Omitido: ' + b.tipo + ' — ' + b.desc.substring(0,50) + '</div>'; });
+      omitidos.forEach(b => { resumenBloques += '<div>❌ Omitido: ' + b.tipo + ' — ' + (b.desc||fmtEstructura(b)).substring(0,50) + '</div>'; });
       variados.forEach((b,j) => {
         const idx = plan.bloques.indexOf(b);
         const st = S.bloqueStates[idx];
@@ -3207,10 +3211,14 @@ async function analizarFotos() {
     nadObj.tipo_nadador ? 'Tipo: ' + nadObj.tipo_nadador : '',
     nadObj.fortaleza ? 'Fortaleza: ' + nadObj.fortaleza : '',
     nadObj.debilidad ? 'A mejorar: ' + nadObj.debilidad : '',
+    nadObj.objetivo ? 'Objetivo técnico declarado: ' + nadObj.objetivo : '',
     nadObj.t50_libre ? '50L ref (SOLO LIBRE/CROL, no usar para otros estilos): ' + nadObj.t50_libre : '',
     nadObj.t400_libre ? '400L ref: ' + nadObj.t400_libre : '',
     nadObj.swolf_ref ? 'SWOLF ref: ' + nadObj.swolf_ref : ''
   ].filter(Boolean).join('. ');
+
+  // Antecedentes previos de ESTE nadador (para dar continuidad al coaching: ver si mejoró en lo que antes le costaba)
+  const antecPrevios = (ANTECEDENTES_CACHE[S.nadador] || []).slice(-5);
 
   // Recent history for comparison
   // Filtrar historial por tipo de medio (mar con mar, piscina con piscina)
@@ -3294,13 +3302,15 @@ async function analizarFotos() {
     implementoGuidance + '\n' +
     'CONTEXTO ENTRENAMIENTO (incluye los descansos PLANIFICADOS de cada bloque):\n' + ctx + '\n' +
     (histReciente ? 'HISTORIAL RECIENTE (comparacion): ' + histReciente + '\n' : '') +
+    (antecPrevios.length ? 'ANTECEDENTES PREVIOS DE ESTE NADADOR (aprendizajes de analisis pasados): ' + antecPrevios.join('; ') + '. IMPORTANTE: revisa si esta sesion muestra continuidad, mejora o persistencia de estos puntos. Si un antecedente decia por ejemplo "sufre en intermitentes con descanso 60seg" y hoy hizo un bloque similar, comenta explicitamente si mejoro o no. Da coaching CONTINUO, no analices esta sesion en el vacio.\n' : '') +
     '\nAnaliza las pantallas de Garmin Connect adjuntas y extrae los datos del RESUMEN (estadisticas).\n' +
     'REGLA CRITICA SOBRE TIEMPOS MUERTOS: el programa TIENE descansos planificados (40seg entre series, 1-2min entre bloques, etc.). NO interpretes la diferencia entre tiempo total y tiempo en movimiento como "tiempo perdido" o "pausas excesivas" sin antes restar los descansos planificados del programa. Ademas, el nadador a veces NO cierra la actividad del reloj al terminar (la cierra despues de ducharse), por lo que el tiempo total puede estar inflado artificialmente. Si la diferencia total-movimiento es grande, MENCIONALA como dato pero ADVIERTE que probablemente incluye descansos planificados y/o tiempo post-nado, NO la presentes como un problema de recuperacion.\n' +
     'ANALISIS POR BLOQUES (lo mas importante): para CADA bloque/set del programa, evalua como se comporto el cuerpo usando los tiempos reales de las vueltas. Identifica el ritmo de cada serie/repeticion, detecta patrones (si subio, bajo, se mantuvo), crisis lacticas, y compara contra el objetivo del bloque. Se especifico con numeros reales.\n' +
     'COMO MAPEAR VUELTAS DE GARMIN CON EL PLAN (CRITICO, lee con atencion): Garmin registra CADA repeticion como un INTERVALO/VUELTA separado (cada vez que el nadador para en la pared, se genera una vuelta nueva). Por lo tanto: si el plan dice "3x100 pecho" y en las vueltas ves TRES intervalos consecutivos de 100m (ej: int 8=100m, int 9=100m, int 10=100m), esos TRES intervalos SON las 3 repeticiones del bloque, una por cada repeticion. NO son "un nado continuo" ni "una sola repeticion". Cuenta los intervalos de esa distancia para saber cuantas repeticiones se hicieron. Si el plan pide 3x100 y hay 3 intervalos de 100m, el bloque se CUMPLIO COMPLETO (3 de 3). Solo di que falto una repeticion si el numero de intervalos es MENOR que lo planificado. NUNCA interpretes multiples intervalos de la misma distancia como "nado continuo" o "una repeticion" -- son repeticiones separadas por definicion. Para bloques "broken/rotos" (una distancia dividida con micro-pausas), Garmin puede mostrar la distancia completa o los tramos; usa el contexto del plan para interpretar.\n' +
     'Antes de decir que un bloque quedo incompleto, CUENTA los intervalos de esa distancia en las vueltas y compara con lo planificado. Reportar "solo hizo 1 de 3" cuando en realidad hay 3 intervalos es un ERROR GRAVE.\n' +
     'Para las VUELTAS: extrae los datos CRUDOS de cada intervalo de las fotos de Garmin (intervalo, tiempo, distancia_m, ritmo) en el campo "vueltas". Son datos cortos, NO un analisis. Estos se guardan para seguimiento de evolucion. Usa esos mismos tiempos para el analisis por bloques.\n' +
-    'IMPORTANTE sobre "antecedentes_planes": estos NO son ajustes a esta sesion (que ya paso y no se repite), sino OBSERVACIONES que ORION usara al disenar los PROXIMOS planes del nadador. Ej: "Felipe sufre en intermitentes con descanso de 60seg, acumula lactato; en futuros planes dosificar mejor o subir descanso". Son aprendizajes para el futuro, no correcciones del pasado.\n\n' +
+    'IMPORTANTE sobre "antecedentes_planes": estos NO son ajustes a esta sesion (que ya paso y no se repite), sino OBSERVACIONES que ORION usara al disenar los PROXIMOS planes del nadador. Ej: "Felipe sufre en intermitentes con descanso de 60seg, acumula lactato; en futuros planes dosificar mejor o subir descanso". Son aprendizajes para el futuro, no correcciones del pasado.\n' +
+    (nadObj.objetivo ? 'PERSONALIZACION: el objetivo tecnico declarado de ' + S.nadador + ' es "' + nadObj.objetivo + '". Al menos uno de los "puntos_positivos" o "puntos_mejora" debe conectar explicitamente con ese objetivo (ej: si el objetivo es "menos brazadas, mayor DPS" y la brazada media de hoy fue alta o baja respecto a su referencia, comentalo en relacion directa a esa meta).\n\n' : '\n') +
     'Devuelve SOLO JSON valido sin backticks, sin texto antes ni despues:\n' +
     '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[{"intervalo":1,"tiempo":"0:00","distancia_m":50,"ritmo":"1:40"}],"analisis_bloques":[{"bloque":"nombre del bloque/set","desempeno":"analisis con tiempos reales serie por serie, patrones detectados, vs objetivo","valoracion":"good|info|warn|alert"}],"nota_tiempo":"comentario sobre tiempo total vs movimiento considerando descansos planificados y posible tiempo post-nado, o vacio si no aplica","evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"antecedentes_planes":[]}}';
 
@@ -3470,7 +3480,7 @@ function renderResultado() {
     const variados  = plan.bloques.filter((b,i)=>states[i].hecho&&(states[i].estiloVar||states[i].nota));
     if (omitidos.length || variados.length) {
       h += '<div class="card" style="margin-bottom:10px"><div class="ch"><h3>📋 Ajustes al plan registrados</h3></div><div class="cb">';
-      omitidos.forEach(b => { h += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--gray2)"><span style="color:var(--red);font-size:13px">❌</span><div><div style="font-size:12px;font-weight:600">'+b.tipo+' — Omitido</div><div style="font-size:11px;color:var(--text2)">'+b.desc.substring(0,60)+'</div></div></div>'; });
+      omitidos.forEach(b => { h += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--gray2)"><span style="color:var(--red);font-size:13px">❌</span><div><div style="font-size:12px;font-weight:600">'+b.tipo+' — Omitido</div><div style="font-size:11px;color:var(--text2)">'+(b.desc||fmtEstructura(b)).substring(0,60)+'</div></div></div>'; });
       variados.forEach(b => {
         const idx = plan.bloques.indexOf(b); const st = states[idx];
         h += '<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--gray2)"><span style="color:var(--orange);font-size:13px">✏️</span><div><div style="font-size:12px;font-weight:600">'+b.tipo+(st.estiloVar?' → '+st.estiloVar:'')+'</div>'+(st.nota?'<div style="font-size:11px;color:var(--text2)">'+st.nota+'</div>':'')+'</div></div>';
@@ -3527,7 +3537,7 @@ async function guardar() {
       var det = {
         action:'detalle', sesion_id:reg.id, fecha:reg.fecha,
         nadador:reg.nadador, sesion_plan:reg.sesionPlan,
-        bloque_idx:i+1, bloque_tipo:b.tipo, bloque_desc:b.desc,
+        bloque_idx:i+1, bloque_tipo:b.tipo, bloque_desc:b.desc||fmtEstructura(b),
         ritmo_obj:b.ritmo||'', hecho:st.hecho,
         estilo_var:st.estiloVar||'', nota:st.nota||'',
         meta_f:b.mf, meta_s:b.ms
@@ -3976,6 +3986,73 @@ function ritmoToSec(r) {
 function secToRitmo(s) {
   var m = Math.floor(s/60), sec = Math.round(s-m*60);
   return m+':'+(sec<10?'0':'')+sec;
+}
+
+// Parsea strings de descanso tipo "45seg","1:30","2min","1min30seg" a segundos
+function parseDescansoSeg(t) {
+  if (!t) return null;
+  var s = String(t).trim().toLowerCase();
+  if (s === '' || s === '—') return null;
+  if (s.indexOf('min') >= 0) {
+    var mm = s.match(/([\d.]+)\s*min/);
+    var base = mm ? parseFloat(mm[1]) * 60 : 0;
+    var ss = s.match(/min\s*(\d+)\s*seg/);
+    return base + (ss ? parseInt(ss[1],10) : 0);
+  }
+  if (s.indexOf('seg') >= 0) {
+    var n = s.match(/(\d+)/);
+    return n ? parseInt(n[1],10) : null;
+  }
+  if (s.indexOf(':') >= 0) {
+    var p = s.split(':');
+    var mi = parseInt(p[0],10), se = parseInt(p[1],10);
+    if (isNaN(mi) || isNaN(se)) return null;
+    return mi*60 + se;
+  }
+  var raw = parseInt(s,10);
+  return isNaN(raw) ? null : raw;
+}
+function fmtDescansoSeg(secs) {
+  secs = Math.round(secs);
+  if (secs >= 60) {
+    var m = Math.floor(secs/60), s = secs % 60;
+    return s ? (m+'min'+s+'seg') : (m+'min');
+  }
+  return secs+'seg';
+}
+// Corrige coherencia de descansos de un bloque: descanso_bloque >= max descanso entre reps + 30seg mínimo.
+// Devuelve true si tuvo que corregir algo (para reportarlo).
+function corregirCoherenciaDescanso(bloque) {
+  if (!bloque.series || !bloque.series.length) return false;
+  var maxRep = 0;
+  bloque.series.forEach(function(s){
+    var seg = parseDescansoSeg(s.descanso);
+    if (seg && seg > maxRep) maxRep = seg;
+  });
+  if (!maxRep) return false;
+  var db = parseDescansoSeg(bloque.descanso_bloque);
+  if (db === null || db < maxRep) {
+    bloque.descanso_bloque = fmtDescansoSeg(maxRep + 30);
+    return true;
+  }
+  return false;
+}
+// Audita una sesión generada: corrige descansos, calcula volumen, detecta si está fuera de rango 2000-3000
+// (solo aplica a sesiones de piscina con estructura; las de aguas abiertas -series vacías- no se auditan por volumen)
+function auditarSesionGenerada(ses) {
+  var avisos = [];
+  var esOAsesion = (ses.bloques||[]).every(function(b){ return !b.series || !b.series.length; });
+  (ses.bloques||[]).forEach(function(b){
+    if (corregirCoherenciaDescanso(b)) {
+      avisos.push('Descanso ajustado en "'+(b.tipo||'bloque')+'" de '+ses.nombre);
+    }
+  });
+  var di = calcDistSesion(ses);
+  ses.volumen = di ? di.total : 0;
+  if (!esOAsesion && ses.volumen > 0 && (ses.volumen < 2000 || ses.volumen > 3000)) {
+    avisos.push(ses.nombre+': '+ses.volumen+'m (fuera del rango 2000-3000m, revisar)');
+  }
+  return avisos;
 }
 
 
@@ -4474,16 +4551,22 @@ function renderObjetivos() {
     PROGRAMAS_GEN.forEach(function(p,i){
       h += '<div class="card" style="margin-bottom:8px"><div class="cb">';
       h += '<div style="font-size:13px;font-weight:700;margin-bottom:4px">'+p.nombre+'</div>';
-      h += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+p.subtitulo+'</div>';
+      h += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+p.subtitulo+' · Grupo '+(p.grupo||'A')+'</div>';
+      if (i === PROGRAMAS_GEN.length-1 && PROG_AVISOS.length) {
+        h += '<div style="background:rgba(232,165,75,.12);border:1px solid rgba(232,165,75,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px">';
+        h += '<div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px">⚠️ '+PROG_AVISOS.length+' aviso(s) — revisar antes de entrenar</div>';
+        PROG_AVISOS.forEach(function(a){ h += '<div style="font-size:11px;color:var(--text2);padding:2px 0">· '+a+'</div>'; });
+        h += '</div>';
+      }
       h += '<button class="btn2" onclick="activarProgramaGen('+i+')">▶ Activar en Plan</button>';
       h += '</div></div>';
     });
   }
-  // Antecedentes acumulados por nadador
+  // Antecedentes acumulados por nadador (solo del grupo actual, que es para quien se genera el plan)
   h += '<div class="lbl" style="margin-top:18px">📌 Antecedentes para futuros planes</div>';
-  h += '<div class="note">Observaciones guardadas desde los análisis. ORION las considera al generar nuevos programas.</div>';
+  h += '<div class="note">Observaciones guardadas desde los análisis. ORION las considera al generar nuevos programas para este grupo.</div>';
   var hayAntec = false;
-  NADADORES.forEach(function(n){
+  nadadoresDeGrupo().forEach(function(n){
     var lista = ANTECEDENTES_CACHE[n.nombre] || [];
     if (!lista.length) return;
     hayAntec = true;
@@ -4498,7 +4581,7 @@ function renderObjetivos() {
     h += '</div></div>';
   });
   if (!hayAntec) {
-    h += '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">Aún no hay antecedentes guardados. Aparecerán aquí cuando los guardes desde un análisis.</div>';
+    h += '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">Aún no hay antecedentes guardados para este grupo. Aparecerán aquí cuando los guardes desde un análisis.</div>';
   }
   document.getElementById('pg-objetivos').innerHTML = h;
   if (OBJ.fecha) { var fEl=document.getElementById('obj-fecha'); if(fEl) fEl.value=OBJ.fecha; }
@@ -4553,49 +4636,79 @@ async function generarPrograma() {
   if(!OBJ.pruebas.length){toast('Agrega al menos una prueba');return;}
 
   var pruebasTxt = OBJ.pruebas.map(function(p){return p.dist+'m '+p.estilo;}).join(', ');
-  var perfilesTxt = NADADORES.map(function(n){
-    var d=[];
-    if(n.t50_libre) d.push('50L:'+n.t50_libre);
-    if(n.t400_libre) d.push('400L:'+n.t400_libre);
-    if(n.fortaleza) d.push('F:'+n.fortaleza);
-    if(n.debilidad) d.push('M:'+n.debilidad);
-    return n.nombre+'('+d.join(',')+')';
-  }).join('|');
+  var grupoGen = grupoActual() || 'A';
+  var nadadoresGrupo = nadadoresDeGrupo();
+  if (!nadadoresGrupo.length) nadadoresGrupo = NADADORES; // fallback de seguridad
 
-  var histTxt = CACHE.filter(function(r){return r.Ritmo_100m;}).slice(-4)
-    .map(function(r){return r.Nadador+':'+r.Distancia_m+'m '+r.Ritmo_100m;}).join(',');
+  // Perfil completo y real de cada nadador del grupo (no frases genéricas hardcodeadas)
+  var perfilesTxt = nadadoresGrupo.map(function(n){
+    var d = [];
+    if (n.tipo_nadador) d.push('tipo:'+n.tipo_nadador);
+    if (n.edad) d.push('edad:'+n.edad);
+    if (n.fortaleza) d.push('fortaleza:'+n.fortaleza);
+    if (n.debilidad) d.push('a_mejorar:'+n.debilidad);
+    if (n.objetivo) d.push('objetivo_tecnico:'+n.objetivo);
+    if (n.t50_libre) d.push('ref_50_LIBRE_SOLO(no usar para otros estilos):'+n.t50_libre);
+    if (n.t100_libre) d.push('ref_100_libre:'+n.t100_libre);
+    if (n.t400_libre) d.push('ref_400_libre:'+n.t400_libre);
+    if (n.swolf_ref) d.push('swolf_ref:'+n.swolf_ref);
+    return n.nombre+' ['+(d.join(', ')||'sin datos de perfil aún')+']';
+  }).join(' | ');
 
-  // Antecedentes acumulados de cada nadador (aprendizajes de análisis previos)
+  // Historial reciente SOLO de los nadadores de este grupo
+  var nombresGrupo = nadadoresGrupo.map(function(n){return n.nombre;});
+  var histTxt = CACHE.filter(function(r){return r.Ritmo_100m && nombresGrupo.indexOf(r.Nadador)>=0;}).slice(-6)
+    .map(function(r){return r.Nadador+':'+r.Distancia_m+'m '+r.Ritmo_100m+'/100'+(r.Medio&&r.Medio.indexOf('Piscina')<0?' ('+r.Medio.split('·')[0].trim()+')':'');}).join(', ');
+
+  // Antecedentes acumulados SOLO de los nadadores de este grupo
   var antecTxt = '';
-  NADADORES.forEach(function(n){
+  nadadoresGrupo.forEach(function(n){
     var lista = ANTECEDENTES_CACHE[n.nombre] || [];
     if (lista.length) antecTxt += n.nombre+': '+lista.join('; ')+'. ';
   });
+
+  // ¿Alguna prueba objetivo es de aguas abiertas?
+  var hayOA = OBJ.pruebas.some(function(p){ return p.estilo === 'Fondo OA'; });
 
   lov(true); setLoad(10,'Generando programa...','Semana por semana');
 
   var todasSemanas = [];
   var todosGlos = [];
+  var todosAvisos = [];
   var errorGen = null;
 
   // Generate one week at a time to stay under 30s limit
   for (var w = 1; w <= sem; w++) {
     setLoad(Math.round(10 + (w-1)/sem*80), 'Generando semana '+w+' de '+sem+'...', pruebasTxt);
+    var esUltimaSemana = (w === sem);
+    var faseTexto = esUltimaSemana
+      ? 'Esta es la ULTIMA semana antes de la competencia ('+fecha+'): aplica TAPER — reduce el volumen total ~20-30% respecto a semanas previas, mantén toques de velocidad a ritmo de carrera cortos con buena recuperación, prioriza llegar fresco.'
+      : 'Semana '+w+' de '+sem+': progresión de carga coherente (no bajar intensidad sin motivo, no acumular fatiga sin sentido respecto a la semana anterior).';
 
     var semanaPrompt =
-      'Coach natacion master. Genera SOLO la semana '+w+' de '+sem+' de un programa de entrenamiento. ' +
-      'Pruebas objetivo: '+pruebasTxt+'. Competencia: '+fecha+'. '+dias+' sesiones esta semana. ~2200m/sesion. ' +
-      'Nadadores: '+perfilesTxt+'. Historial: '+(histTxt||'ninguno')+'. ' +
-      (antecTxt?'ANTECEDENTES a considerar (aprendizajes de sesiones previas): '+antecTxt+' ':'')+
-      (notas?notas+'. ':'')+
-      'Felipe: mejorar DPS/eficiencia. Sergio: mejorar agresividad/cierre. ' +
-      'ESTRUCTURA: calentamiento 300-400m + principal 1400-1600m + afloje 200m. ' +
-      'JSON solo la semana, sin texto extra: ' +
-      '{"semana_num":'+w+',"nombre":"Semana '+w+' - descripcion","glosario_nuevos":[],' +
-      '"sesiones":[{"id":"G'+w+'1","tipo":"A","nombre":"...","dia":"Lun...","intensidad":"Aerobico","objetivo":"...","rationale":"...",' +
-      '"bloques":[{"tipo":"Calentamiento","series":[{"reps":1,"dist":300,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"...","ms":"...","ritmo":""},' +
-      '{"tipo":"Principal","series":[{"reps":5,"dist":200,"estilo":"Libre","implemento":"","salida":"2:30","descanso":""}],"descanso_bloque":"30seg","mf":"...","ms":"...","ritmo":"1:45/100"},' +
-      '{"tipo":"Afloje","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"...","ms":"...","ritmo":""}]}]}';
+      'Eres ORION Master, coach experto en natacion master. Genera SOLO la semana '+w+' de '+sem+' de un programa de entrenamiento real y de calidad, no una plantilla generica.\n' +
+      'PRUEBAS OBJETIVO: '+pruebasTxt+'. FECHA DE COMPETENCIA: '+fecha+'. '+dias+' sesiones esta semana.\n' +
+      'NADADORES DE ESTE GRUPO (perfil real, usar SIEMPRE estos datos para personalizar mf/ms y ritmos objetivo, no frases genericas): '+perfilesTxt+'.\n' +
+      'HISTORIAL RECIENTE: '+(histTxt||'sin historial aun')+'.\n' +
+      (antecTxt?'ANTECEDENTES (aprendizajes de analisis previos que DEBEN influir el diseno): '+antecTxt+'\n':'')+
+      (notas?'INDICACIONES DEL COACH: '+notas+'.\n':'')+
+      faseTexto+'\n\n' +
+      '=== REGLAS OBLIGATORIAS (verifica cada una antes de responder) ===\n' +
+      '1. DISTANCIAS: calcula EXCLUSIVAMENTE por aritmetica de series (reps×dist), nunca adivines. Cada sesion de PISCINA (con series estructuradas) debe sumar ENTRE 2000 y 3000 METROS TOTALES sumando todos sus bloques. Verifica la suma antes de responder.\n' +
+      '2. VARIEDAD REAL: cada sesion debe tener identidad propia, distinta de las demas. Usa el arsenal de implementos con proposito (pull-buoy para aislar brazos/eficiencia, palas para fuerza, aletas para velocidad/activacion, tabla para patada, snorkel para foco tecnico). Varia distancias (no siempre redondas), contrastes de estilo, tipos de descanso. NO repliques la misma estructura de sesion a sesion.\n' +
+      '3. DESCANSOS - coherencia obligatoria: cada serie tiene "descanso" (ENTRE REPETICIONES) y cada bloque tiene "descanso_bloque" (AL TERMINAR el bloque completo). descanso_bloque SIEMPRE debe ser >= al descanso entre repeticiones (regla practica: descanso_bloque = descanso_rep + 30seg minimo). Ademas el descanso debe ser PROPORCIONAL a la distancia: 25m -> 20-45seg, 50m -> 30-60seg (hasta 1:30 solo si es sprint maximo), 100m -> 45seg-2min, 200m+ -> 1-3min segun intensidad.\n' +
+      '4. CONVENCION IM: "Combinado" o "IM" = orden Mariposa -> Espalda -> Pecho -> Libre.\n' +
+      '5. FISICA DE ESTILOS: jerarquia de velocidad Crol > Mariposa corto > Espalda > Pecho (pecho ~10-15% mas lento que crol). Al fijar el campo "ritmo" (objetivo) de un bloque, ajustalo SIEMPRE al estilo de ese bloque; NUNCA fijes un ritmo de pecho como si fuera de libre. Si tienes referencia de 50 LIBRE de un nadador, esa referencia es SOLO para bloques de libre.\n' +
+      '6. PERSONALIZACION: los campos "mf" y "ms" (una meta corta por nadador, en el orden de NADADORES DE ESTE GRUPO) deben reflejar el objetivo_tecnico/fortaleza/a_mejorar REAL de cada nadador indicado arriba, no frases genericas. Si un nadador no tiene datos de perfil, dale una meta tecnica razonable para el tipo de bloque.\n' +
+      (hayOA ? '7. SESIONES DE AGUAS ABIERTAS: para las sesiones de mar, usa "series":[] (vacio, nado continuo sin estructura de pileta) y describe el trabajo en el campo "desc" (ej: "2400-2800m continuos a ritmo crucero, sighting regular, cambios de ritmo simulando boyas").\n' : '') +
+      '8. Cada bloque necesita el campo "desc": una descripcion breve en lenguaje natural de que se nada ahi (ej: "6x100 libre con pull-buoy, salida 1:40, respiracion progresiva 3-5-7"), igual al estilo de un plan real armado por un coach.\n' +
+      '9. GLOSARIO: si usas algun termino tecnico que no es basico (ej: "broken", "build", "sighting", "drafting"), agregalo a "glosario_nuevos" con su definicion breve, como lo haria un coach explicando a un nadador nuevo.\n\n' +
+      'Devuelve SOLO JSON valido, sin backticks ni texto extra:\n' +
+      '{"semana_num":'+w+',"nombre":"Semana '+w+' - foco de la semana","glosario_nuevos":[{"termino":"...","definicion":"..."}],' +
+      '"sesiones":[{"id":"G'+w+'1","tipo":"A","nombre":"Sesion A - nombre descriptivo","dia":"Lun...","intensidad":"...","objetivo":"objetivo especifico de esta sesion","rationale":"por que esta sesion tiene esta estructura, en el contexto de la semana",' +
+      '"bloques":[{"tipo":"Calentamiento","desc":"texto natural de que se nada","series":[{"reps":1,"dist":300,"estilo":"Libre","implemento":"","salida":"","descanso":"30seg"}],"descanso_bloque":"40seg","mf":"meta especifica nadador 1","ms":"meta especifica nadador 2","ritmo":"Suave"},' +
+      '{"tipo":"Principal","desc":"texto natural","series":[{"reps":5,"dist":200,"estilo":"Libre","implemento":"","salida":"2:30","descanso":""}],"descanso_bloque":"1min30seg","mf":"...","ms":"...","ritmo":"1:45/100"},' +
+      '{"tipo":"Afloje","desc":"200 suave","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"Soltar","ms":"Recuperar","ritmo":"Suave"}]}]}';
 
     try {
       var resp = await fetch('https://orion-proxy.felgonino.workers.dev',{
@@ -4618,11 +4731,11 @@ async function generarPrograma() {
         throw new Error('La IA generó un plan incompleto para la semana '+w+'. Intenta de nuevo (a veces pasa); si persiste, reduce a menos días/semana.');
       }
 
-      // Fix session IDs to be unique
+      // Fix session IDs, auditar coherencia de descansos y volumen
       (semData.sesiones||[]).forEach(function(ses,i){
         ses.id = 'G'+w+'S'+(i+1);
-        var di = calcDistSesion(ses);
-        ses.volumen = di ? di.total : 0;
+        var avisos = auditarSesionGenerada(ses);
+        todosAvisos = todosAvisos.concat(avisos);
       });
 
       todasSemanas.push({
@@ -4652,15 +4765,23 @@ async function generarPrograma() {
     fechaFin: fecha,
     color: '#CA6F1E',
     activo: false,
+    grupo: grupoGen,
     semanas: todasSemanas
   };
 
   var glosAdd = agregarTerminosGlosario(todosGlos);
   PROGRAMAS_GEN.push(prog);
   lov(false);
-  toast(glosAdd ? 'Programa generado (glosario actualizado)' : 'Programa generado');
+  if (todosAvisos.length) {
+    console.warn('Avisos de generación:', todosAvisos);
+    toast('Programa generado con '+todosAvisos.length+' aviso(s) — revisa antes de usar', 5000);
+  } else {
+    toast(glosAdd ? 'Programa generado (glosario actualizado)' : 'Programa generado ✓ sin advertencias');
+  }
+  PROG_AVISOS = todosAvisos;
   renderObjetivos();
 }
+var PROG_AVISOS = [];
 
 
 function activarProgramaGen(i) {
@@ -4695,7 +4816,7 @@ function imprimirSesion(id) {
         if(sr.descanso)t+=' desc.'+sr.descanso;
         waTxt+='   - '+t+'\n';
       });
-    } else if(b.desc) waTxt+='   '+b.desc+'\n';
+    } else if(b.desc||fmtEstructura(b)) waTxt+='   '+(b.desc||fmtEstructura(b))+'\n';
     if(b.ritmo)waTxt+='   Ritmo: '+b.ritmo+'\n';
     waTxt+='\n';
   });
@@ -4758,8 +4879,8 @@ function imprimirSesion(id) {
         if(ts.length)p.push('<span class="sd"> &mdash; '+ts.join(' &middot; ')+'<\/span>');
         p.push('<\/div>');
       });
-    } else if(b.desc){
-      p.push('<div class="ser">'+b.desc+'<\/div>');
+    } else if(b.desc||fmtEstructura(b)){
+      p.push('<div class="ser">'+(b.desc||fmtEstructura(b))+'<\/div>');
     }
     if(b.descanso_bloque&&b.descanso_bloque!=='—'){
       p.push('<div class="desc-b">&#x23F8; Descanso entre bloques: '+b.descanso_bloque+'<\/div>');
