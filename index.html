@@ -4244,20 +4244,30 @@ function renderNadadores() {
 
 function nuevoNadador() { editarNadador(-1); }
 
+var EDITANDO_GRUPO = 'A';
 function editarNadador(i) {
   // Permiso: solo puede editar el suyo (salvo crear nuevo)
   if (i >= 0 && NADADORES[i].nombre !== USUARIO_ACTUAL) {
     toast('Solo puedes editar tu propio perfil');
     return;
   }
-  var n = i >= 0 ? NADADORES[i] : { nombre:'', pin:'', color:'#CA6F1E', emoji:'🟠',
+  var n = i >= 0 ? NADADORES[i] : { nombre:'', pin:'', color:'#CA6F1E', emoji:'🟠', grupo: grupoActual()||'A',
     edad:'', categoria:'', anos_exp:'', respiracion:'', brazada_dom:'',
     estatura:'', envergadura:'', t50_libre:'', t50_espalda:'', t100_libre:'',
     t400_libre:'', swolf_ref:'', oa_ritmo:'', oa_mejor_dist:'', oa_condiciones:'',
     fortaleza:'', debilidad:'', objetivo:'', tipo_nadador:'', extras:'' };
+  EDITANDO_GRUPO = n.grupo || 'A';
   var titulo = i >= 0 ? 'Editar '+n.nombre : 'Nuevo nadador';
 
   var h = '<div class="lbl">'+titulo+'</div>';
+
+  // CAPA 0 — Grupo de entrenamiento
+  h += '<div class="card"><div class="cb"><div class="lbl" style="color:var(--orange)">0 · Grupo de entrenamiento</div>';
+  h += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">Nadadores del mismo grupo comparten los mismos planes. Usa un grupo distinto para quien entrena por separado.</div>';
+  h += '<div style="display:flex;gap:8px">';
+  h += '<button type="button" id="grp-A" class="estilo-btn'+(EDITANDO_GRUPO==='A'?' on':'')+'" onclick="setGrupoEdit(\'A\')" style="flex:1;padding:10px">Grupo A</button>';
+  h += '<button type="button" id="grp-B" class="estilo-btn'+(EDITANDO_GRUPO==='B'?' on':'')+'" onclick="setGrupoEdit(\'B\')" style="flex:1;padding:10px">Grupo B</button>';
+  h += '</div></div></div>';
 
   // CAPA 1 — Base
   h += '<div class="card"><div class="cb"><div class="lbl" style="color:var(--teal)">1 · Identificación</div>';
@@ -4315,6 +4325,12 @@ function inp(id, label, val, ph) {
   return '<div class="lbl" style="margin-top:8px;text-transform:none;letter-spacing:0;color:var(--text2)">'+label+'</div>' +
     '<input type="text" id="'+id+'" class="nota-inp" value="'+safeVal.replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'">';
 }
+function setGrupoEdit(g) {
+  EDITANDO_GRUPO = g;
+  var a = document.getElementById('grp-A'), b = document.getElementById('grp-B');
+  if (a) a.className = 'estilo-btn'+(g==='A'?' on':'');
+  if (b) b.className = 'estilo-btn'+(g==='B'?' on':'');
+}
 
 async function guardarNadador(i) {
   var nombre = document.getElementById('en-nombre').value.trim();
@@ -4344,6 +4360,7 @@ async function guardarNadador(i) {
     nombre: nombre, pin: pin,
     color: i>=0 ? NADADORES[i].color : colores[NADADORES.length % colores.length],
     emoji: i>=0 ? NADADORES[i].emoji : emojis[NADADORES.length % emojis.length],
+    grupo: EDITANDO_GRUPO || 'A',
     edad: gv('en-edad'), categoria: gv('en-cat'), anos_exp: gv('en-exp'),
     respiracion: gv('en-resp'), brazada_dom: gv('en-brz'),
     estatura: gv('en-est'), envergadura: gv('en-env'),
