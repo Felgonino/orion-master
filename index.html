@@ -4088,7 +4088,7 @@ function repararJSONTruncado(raw) {
   }
 }
 
-function auditarSesionGenerada(ses) {
+function auditarSesionGenerada(ses, esTaper) {
   var avisos = [];
   var esOAsesion = (ses.bloques||[]).every(function(b){ return !b.series || !b.series.length; });
   (ses.bloques||[]).forEach(function(b){
@@ -4098,7 +4098,11 @@ function auditarSesionGenerada(ses) {
   });
   var di = calcDistSesion(ses);
   ses.volumen = di ? di.total : 0;
-  if (!esOAsesion && ses.volumen > 0 && (ses.volumen < 2000 || ses.volumen > 3200)) {
+  // En semana de taper el volumen bajo es intencional: solo marcar si excede el máximo, no si es bajo.
+  var fueraDeRango = esTaper
+    ? (ses.volumen > 3200)
+    : (ses.volumen < 2000 || ses.volumen > 3200);
+  if (!esOAsesion && ses.volumen > 0 && fueraDeRango) {
     avisos.push(ses.nombre+': '+ses.volumen+'m (fuera del rango 2000-3200m, revisar)');
   }
   return avisos;
@@ -4905,6 +4909,7 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
       '4. CONVENCION IM: "Combinado" o "IM" = orden Mariposa -> Espalda -> Pecho -> Libre.\n' +
       '5. FISICA DE ESTILOS: jerarquia de velocidad Crol > Mariposa corto > Espalda > Pecho (pecho ~10-15% mas lento que crol). Al fijar el campo "ritmo" (objetivo) de un bloque, ajustalo SIEMPRE al estilo de ese bloque; NUNCA fijes un ritmo de pecho como si fuera de libre. Si tienes referencia de 50 LIBRE de un nadador, esa referencia es SOLO para bloques de libre.\n' +
       '6. PERSONALIZACION: los campos "mf" y "ms" (una meta corta por nadador, en el orden de NADADORES DE ESTE GRUPO) deben reflejar el objetivo_tecnico/fortaleza/a_mejorar REAL de cada nadador indicado arriba, no frases genericas.\n' +
+      '6b. PROHIBIDO INVENTAR TAPER: en el "nombre" de la sesion NUNCA escribas "taper", "final", "definitiva" ni sugieras que la competencia esta cerca, A MENOS que el REPARTO DE SESIONES arriba diga explicitamente "TAPER" para ese proposito. Si el reparto no lo indica, la competencia de ese objetivo esta lejos todavia; nombra la sesion segun su contenido tecnico real (ej: "Velocidad y explosividad", "Activacion de piernas"), nunca sugiriendo cercania a competencia que no corresponde.\n' +
       '7. SESIONES DE AGUAS ABIERTAS: para las sesiones marcadas medio "Aguas abiertas" en el reparto, usa "series":[] (vacio, nado continuo sin estructura de pileta) y describe el trabajo en el campo "desc" (ej: "2400-2800m continuos a ritmo crucero, sighting regular, cambios de ritmo simulando boyas").\n' +
       '8. Cada bloque necesita el campo "desc": UNA FRASE CORTA (máximo 15 palabras) en lenguaje natural de que se nada ahi. Se breve, no un parrafo.\n' +
       '9. GLOSARIO: si usas algun termino tecnico que no es basico, agregalo a "glosario_nuevos" con su definicion en UNA frase breve.\n' +
@@ -4950,7 +4955,13 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
 
       (semData.sesiones||[]).forEach(function(ses,i){
         ses.id = 'G'+w+'S'+(i+1);
-        var avisos = auditarSesionGenerada(ses);
+        var planA = sesionesEnum[i];
+        var esTaperSes = false;
+        if (planA) {
+          var objA2 = cfg.objetivos.find(function(o){ return o.id===planA.objetivoId; });
+          if (objA2) esTaperSes = (objA2.semanasHasta - (w-1)) <= 1;
+        }
+        var avisos = auditarSesionGenerada(ses, esTaperSes);
         todosAvisos = todosAvisos.concat(avisos);
       });
 
