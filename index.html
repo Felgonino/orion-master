@@ -4718,8 +4718,9 @@ async function generarPrograma() {
       '5. FISICA DE ESTILOS: jerarquia de velocidad Crol > Mariposa corto > Espalda > Pecho (pecho ~10-15% mas lento que crol). Al fijar el campo "ritmo" (objetivo) de un bloque, ajustalo SIEMPRE al estilo de ese bloque; NUNCA fijes un ritmo de pecho como si fuera de libre. Si tienes referencia de 50 LIBRE de un nadador, esa referencia es SOLO para bloques de libre.\n' +
       '6. PERSONALIZACION: los campos "mf" y "ms" (una meta corta por nadador, en el orden de NADADORES DE ESTE GRUPO) deben reflejar el objetivo_tecnico/fortaleza/a_mejorar REAL de cada nadador indicado arriba, no frases genericas. Si un nadador no tiene datos de perfil, dale una meta tecnica razonable para el tipo de bloque.\n' +
       (hayOA ? '7. SESIONES DE AGUAS ABIERTAS: para las sesiones de mar, usa "series":[] (vacio, nado continuo sin estructura de pileta) y describe el trabajo en el campo "desc" (ej: "2400-2800m continuos a ritmo crucero, sighting regular, cambios de ritmo simulando boyas").\n' : '') +
-      '8. Cada bloque necesita el campo "desc": una descripcion breve en lenguaje natural de que se nada ahi (ej: "6x100 libre con pull-buoy, salida 1:40, respiracion progresiva 3-5-7"), igual al estilo de un plan real armado por un coach.\n' +
-      '9. GLOSARIO: si usas algun termino tecnico que no es basico (ej: "broken", "build", "sighting", "drafting"), agregalo a "glosario_nuevos" con su definicion breve, como lo haria un coach explicando a un nadador nuevo.\n\n' +
+      '8. Cada bloque necesita el campo "desc": UNA FRASE CORTA (máximo 15 palabras) en lenguaje natural de que se nada ahi (ej: "6x100 libre con pull-buoy, salida 1:40"). Se breve, no un parrafo.\n' +
+      '9. GLOSARIO: si usas algun termino tecnico que no es basico (ej: "broken", "build", "sighting", "drafting"), agregalo a "glosario_nuevos" con su definicion en UNA frase breve.\n' +
+      '10. BREVEDAD OBLIGATORIA en todos los campos de texto ("objetivo", "rationale", "mf", "ms"): UNA FRASE CORTA cada uno, nunca un parrafo. La prioridad es la precision de los datos numericos (series, distancias, descansos), no la extension del texto. Responder rapido y conciso es tan importante como responder correcto.\n\n' +
       'Devuelve SOLO JSON valido, sin backticks ni texto extra:\n' +
       '{"semana_num":'+w+',"nombre":"Semana '+w+' - foco de la semana","glosario_nuevos":[{"termino":"...","definicion":"..."}],' +
       '"sesiones":[{"id":"G'+w+'1","tipo":"A","nombre":"Sesion A - nombre descriptivo","dia":"Lun...","intensidad":"...","objetivo":"objetivo especifico de esta sesion","rationale":"por que esta sesion tiene esta estructura, en el contexto de la semana",' +
@@ -4729,12 +4730,12 @@ async function generarPrograma() {
 
     try {
       var ctrlGen = new AbortController();
-      var timeoutGen = setTimeout(function(){ ctrlGen.abort(); }, 55000);
+      var timeoutGen = setTimeout(function(){ ctrlGen.abort(); }, 75000);
       var resp;
       try {
         resp = await fetch('https://orion-proxy.felgonino.workers.dev',{
           method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({max_tokens:8000,messages:[{role:'user',content:semanaPrompt}]}),
+          body:JSON.stringify({max_tokens:5000,messages:[{role:'user',content:semanaPrompt}]}),
           signal: ctrlGen.signal
         });
       } finally {
@@ -4771,7 +4772,7 @@ async function generarPrograma() {
       todosGlos = todosGlos.concat(semData.glosario_nuevos||[]);
     } catch(e) {
       errorGen = (e.name === 'AbortError')
-        ? 'La semana '+w+' tardó demasiado en generarse (más de 55seg). Puede ser sobrecarga momentánea del servidor. Intenta de nuevo; si persiste, reduce días/semana o número de semanas.'
+        ? 'La semana '+w+' tardó demasiado en generarse (más de 75seg). Puede ser sobrecarga momentánea del servidor. Intenta de nuevo; si persiste, reduce días/semana o número de semanas.'
         : e.message;
       break;
     }
