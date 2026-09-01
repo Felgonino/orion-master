@@ -4585,39 +4585,48 @@ async function guardarGlosarioRemoto() {
 // ═══════════════════════════════════════════════════
 // OBJETIVOS — Generador de programas con IA
 // ═══════════════════════════════════════════════════
-const OBJ = { modo:'auto', pruebas:[{estilo:'Libre', dist:'50'}], nombre:'', fecha:'',
-  semanasObjetivo:'8', semanasAhora:'2',
-  propositos:[{nombre:'Piscina', medio:'Piscina', diasIni:'3', diasFin:'3'}],
+const OBJ = { modo:'auto', nombre:'',
+  objetivos:[{id:'o1', nombre:'', fecha:'', pruebas:[{estilo:'Libre', dist:'50'}]}],
+  semanasAhora:'2',
+  propositos:[{nombre:'Piscina', medio:'Piscina', diasIni:'3', diasFin:'3', objetivoId:'o1'}],
   notas:'' };
+
+// Semanas que faltan hasta una fecha (redondeado hacia arriba, mínimo 1)
+function semanasHastaFecha(fechaStr) {
+  if (!fechaStr) return 1;
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  var f = new Date(fechaStr+'T00:00:00');
+  var dias = Math.round((f - hoy) / 86400000);
+  return Math.max(1, Math.ceil(dias / 7));
+}
 
 function renderObjetivos() {
   var h = '<div class="lbl">Generar nuevo programa con ORION IA</div>';
-  h += '<div class="note">Define las pruebas objetivo y cómo quieres repartir los días de entrenamiento. ORION arma un plan que trabaja todo en conjunto. ~$0.02 USD por semana generada.</div>';
+  h += '<div class="note">Agrega una tarjeta de "Objetivo" por cada competencia (con su propia fecha y pruebas), y luego reparte los días de entrenamiento entre propósitos, indicando a qué objetivo sirve cada uno. ~$0.02 USD por semana generada.</div>';
   h += '<div class="card"><div class="cb">';
   h += '<div class="lbl">Modo</div><div class="r2" style="margin-bottom:14px">';
   h += '<div class="pill on" id="obj-auto" onclick="objSet(\'modo\',\'auto\')"><em>🤖</em><b>Automático</b><small>ORION arma todo</small></div>';
   h += '<div class="pill" id="obj-manual" onclick="objSet(\'modo\',\'manual\')"><em>✏️</em><b>Guiado</b><small>Yo defino base</small></div>';
   h += '</div>';
-  h += '<div class="lbl">Nombre del objetivo <span style="font-weight:400;color:var(--text3)">(opcional, puede ser multipropósito)</span></div>';
-  h += '<input type="text" id="obj-nombre" class="nota-inp" style="margin-bottom:12px" value="'+(OBJ.nombre||'')+'" placeholder="ej: Doble objetivo — Seaman 3K + Pecho piscina">';
-  h += '<div class="lbl">Pruebas objetivo <span style="font-weight:400;color:var(--text3)">(una o más)</span></div>';
-  h += '<div id="obj-pruebas-list" style="margin-bottom:10px">';
-  OBJ.pruebas.forEach(function(p,i){ h += renderObjetivoPrueba(p,i); });
-  h += '</div>';
-  h += '<button class="btn2" onclick="addPrueba()" style="margin-bottom:14px">➕ Agregar prueba</button>';
-  h += '<div class="lbl">Fecha de competencia</div>';
-  h += '<input type="date" id="obj-fecha" class="nota-inp" style="margin-bottom:12px">';
-  h += '<div class="r2" style="margin-bottom:6px">';
-  h += '<div><div class="lbl">Semanas hasta el objetivo</div><input type="number" id="obj-sem-total" class="nota-inp" value="'+(OBJ.semanasObjetivo||8)+'" min="1" max="20"></div>';
-  h += '<div><div class="lbl">Generar ahora</div><input type="number" id="obj-sem-ahora" class="nota-inp" value="'+(OBJ.semanasAhora||2)+'" min="1" max="6"></div>';
-  h += '</div>';
-  h += '<div style="font-size:11px;color:var(--text3);margin-bottom:14px">Puedes generar solo una parte del plan y más adelante presionar "Continuar programa" con los resultados reales ya cargados.</div>';
+  h += '<div class="lbl">Nombre general del plan <span style="font-weight:400;color:var(--text3)">(opcional)</span></div>';
+  h += '<input type="text" id="obj-nombre" class="nota-inp" style="margin-bottom:14px" value="'+(OBJ.nombre||'')+'" placeholder="ej: Doble objetivo — Seaman 3K + Pecho piscina">';
 
-  h += '<div class="lbl">Propósitos de entrenamiento <span style="font-weight:400;color:var(--text3)">(reparte los días de la semana)</span></div>';
+  h += '<div class="lbl">Objetivos de competencia <span style="font-weight:400;color:var(--text3)">(cada uno con su fecha)</span></div>';
+  h += '<div id="obj-objetivos-list" style="margin-bottom:8px">';
+  OBJ.objetivos.forEach(function(o,i){ h += renderObjetivoCard(o,i); });
+  h += '</div>';
+  h += '<button class="btn2" onclick="addObjetivo()" style="margin-bottom:16px">➕ Agregar otro objetivo (otra fecha)</button>';
+
+  h += '<div class="lbl">Propósitos de entrenamiento <span style="font-weight:400;color:var(--text3)">(reparte los días, indicando a qué objetivo sirve cada uno)</span></div>';
   h += '<div id="obj-propositos-list" style="margin-bottom:8px">';
   OBJ.propositos.forEach(function(p,i){ h += renderObjetivoProposito(p,i); });
   h += '</div>';
   h += '<button class="btn2" onclick="addProposito()" style="margin-bottom:14px">➕ Agregar propósito</button>';
+
+  var semObjCalc = Math.max.apply(null, OBJ.objetivos.map(function(o){ return semanasHastaFecha(o.fecha); }));
+  h += '<div class="lbl">Generar ahora <span style="font-weight:400;color:var(--text3)">(de '+semObjCalc+' semanas calculadas hasta el objetivo más lejano)</span></div>';
+  h += '<input type="number" id="obj-sem-ahora" class="nota-inp" style="margin-bottom:6px" value="'+Math.min(OBJ.semanasAhora||2,semObjCalc)+'" min="1" max="6">';
+  h += '<div style="font-size:11px;color:var(--text3);margin-bottom:14px">Lotes chicos generan más rápido y con menos riesgo de cortes. Luego usa "Continuar programa" con los resultados reales ya cargados.</div>';
 
   h += '<div id="obj-manual-extra" style="display:'+(OBJ.modo==='manual'?'block':'none')+'">';
   h += '<div class="lbl">Indicaciones adicionales</div>';
@@ -4639,7 +4648,9 @@ function renderObjetivos() {
         PROG_AVISOS.forEach(function(a){ h += '<div style="font-size:11px;color:var(--text2);padding:2px 0">· '+a+'</div>'; });
         h += '</div>';
       }
-      h += '<button class="btn2" onclick="activarProgramaGen('+i+')">▶ Activar en Plan</button>';
+      h += '<button class="btn2" onclick="togglePreviewPrograma('+i+')" id="prev-btn-'+i+'">👁 '+(PROG_PREVIEW_OPEN===i?'Ocultar detalle':'Ver detalle antes de aceptar')+'</button>';
+      h += '<div id="prev-cont-'+i+'">'+(PROG_PREVIEW_OPEN===i?renderPreviewPrograma(p):'')+'</div>';
+      h += '<button class="btn2" onclick="activarProgramaGen('+i+')" style="margin-top:6px">▶ Activar en Plan</button>';
       if (falta > 0) {
         h += '<button class="btn2" onclick="continuarPrograma('+i+',false)" style="margin-top:6px;border-color:var(--orange);color:var(--orange)">⏭ Continuar programa (+'+Math.min(2,falta)+' semana'+(Math.min(2,falta)>1?'s':'')+')</button>';
       }
@@ -4671,25 +4682,44 @@ function renderObjetivos() {
   if (OBJ.fecha) { var fEl=document.getElementById('obj-fecha'); if(fEl) fEl.value=OBJ.fecha; }
 }
 
-function renderObjetivoPrueba(p, i) {
-  var estilos = ['Libre','Espalda','Pecho','Mariposa','Combinado','Fondo OA'];
-  var distancias = ['50','100','200','400','800','1500','3000','5000'];
-  var h = '<div class="card" style="margin-bottom:8px;border-left:3px solid var(--teal)"><div class="cb">';
+// Tarjeta de un OBJETIVO de competencia: nombre, fecha propia, y sus pruebas anidadas.
+function renderObjetivoCard(o, idx) {
+  var semFalta = semanasHastaFecha(o.fecha);
+  var h = '<div class="card" style="margin-bottom:8px;border-left:3px solid var(--purple)"><div class="cb">';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-  h += '<span style="font-size:12px;font-weight:700;color:var(--teal)">Prueba '+(i+1)+'</span>';
-  if(i>0) h += '<button onclick="rmPrueba('+i+')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px">✕</button>';
+  h += '<span style="font-size:12px;font-weight:700;color:var(--purple)">Objetivo '+(idx+1)+'</span>';
+  if(idx>0) h += '<button onclick="rmObjetivo('+idx+')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px">✕</button>';
   h += '</div>';
-  h += '<div class="lbl" style="margin-top:0">Estilo</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">';
-  estilos.forEach(function(e){ h += "<button class='estilo-btn"+(p.estilo===e?" on":"")+"' onclick='setPrueba("+i+",\"estilo\",\""+e+"\")'>"+e+"</button>"; });
-  h += '</div><div class="lbl">Distancia</div><div style="display:flex;flex-wrap:wrap;gap:5px">';
-  distancias.forEach(function(d){ h += "<button class='estilo-btn"+(p.dist===d?" on":"")+"' onclick='setPrueba("+i+",\"dist\",\""+d+"\")'>"+d+"m</button>"; });
-  h += '</div></div></div>';
+  h += '<input type="text" class="nota-inp" style="margin-bottom:8px" value="'+(o.nombre||'').replace(/"/g,'&quot;')+'" placeholder="ej: Seaman 3K / Piscina Pecho" onchange="setObjetivoField('+idx+',\'nombre\',this.value)">';
+  h += '<div class="lbl" style="margin-top:0">Fecha de esta competencia</div>';
+  h += '<input type="date" class="nota-inp" style="margin-bottom:4px" value="'+(o.fecha||'')+'" onchange="setObjetivoField('+idx+',\'fecha\',this.value)">';
+  if (o.fecha) h += '<div style="font-size:10.5px;color:var(--text3);margin-bottom:8px">Faltan '+semFalta+' semana(s) desde hoy</div>'; else h += '<div style="margin-bottom:8px"></div>';
+  h += '<div class="lbl">Pruebas de este objetivo</div>';
+  (o.pruebas||[]).forEach(function(p,pi){ h += renderObjetivoPrueba(p, idx, pi); });
+  h += '<button class="btn2" onclick="addPruebaTo('+idx+')" style="margin-top:4px">➕ Agregar prueba a este objetivo</button>';
+  h += '</div></div>';
   return h;
 }
 
-// Propósito de entrenamiento: define un foco (ej: "Piscina - Pecho" o "Aguas abiertas - Fondo")
-// con cuántos días/semana se le dedica al inicio del plan y al final (permite variar por fase, ej:
-// más piscina al inicio, más mar cerca de la competencia).
+function renderObjetivoPrueba(p, objIdx, i) {
+  var estilos = ['Libre','Espalda','Pecho','Mariposa','Combinado','Fondo OA'];
+  var distancias = ['50','100','200','400','800','1500','3000','5000'];
+  var h = '<div style="background:var(--gray);border-radius:8px;padding:8px;margin-bottom:6px">';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+  h += '<span style="font-size:11px;font-weight:700;color:var(--teal)">Prueba '+(i+1)+'</span>';
+  if(i>0) h += '<button onclick="rmPruebaFrom('+objIdx+','+i+')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px">✕</button>';
+  h += '</div>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px">';
+  estilos.forEach(function(e){ h += "<button class='estilo-btn"+(p.estilo===e?" on":"")+"' onclick='setPruebaIn("+objIdx+","+i+",\"estilo\",\""+e+"\")'>"+e+"</button>"; });
+  h += '</div><div style="display:flex;flex-wrap:wrap;gap:5px">';
+  distancias.forEach(function(d){ h += "<button class='estilo-btn"+(p.dist===d?" on":"")+"' onclick='setPruebaIn("+objIdx+","+i+",\"dist\",\""+d+"\")'>"+d+"m</button>"; });
+  h += '</div></div>';
+  return h;
+}
+
+// Propósito de entrenamiento: define un foco (ej: "Piscina - Pecho" o "Aguas abiertas - Fondo"),
+// A QUÉ OBJETIVO sirve, con cuántos días/semana se le dedica al inicio del plan y al final (permite
+// variar por fase, ej: más piscina al inicio, más mar cerca de la competencia).
 function renderObjetivoProposito(p, i) {
   var h = '<div class="card" style="margin-bottom:8px;border-left:3px solid var(--orange)"><div class="cb">';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
@@ -4697,7 +4727,13 @@ function renderObjetivoProposito(p, i) {
   if(i>0) h += '<button onclick="rmProposito('+i+')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px">✕</button>';
   h += '</div>';
   h += '<input type="text" class="nota-inp" style="margin-bottom:8px" value="'+(p.nombre||'').replace(/"/g,'&quot;')+'" placeholder="ej: Piscina - Pecho / Fondo aguas abiertas" onchange="setProposito('+i+',\'nombre\',this.value)">';
-  h += '<div class="lbl" style="margin-top:0">Medio</div><div style="display:flex;gap:6px;margin-bottom:8px">';
+  h += '<div class="lbl" style="margin-top:0">Sirve al objetivo</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
+  OBJ.objetivos.forEach(function(o,oi){
+    var label = o.nombre || ('Objetivo '+(oi+1));
+    h += "<button class='estilo-btn"+(p.objetivoId===o.id?" on":"")+"' onclick='setProposito("+i+",\"objetivoId\",\""+o.id+"\")'>"+label+"</button>";
+  });
+  h += '</div>';
+  h += '<div class="lbl">Medio</div><div style="display:flex;gap:6px;margin-bottom:8px">';
   ['Piscina','Aguas abiertas'].forEach(function(m){ h += "<button class='estilo-btn"+(p.medio===m?" on":"")+"' onclick='setProposito("+i+",\"medio\",\""+m+"\")' style='flex:1'>"+m+"</button>"; });
   h += '</div>';
   h += '<div class="r2">';
@@ -4710,6 +4746,33 @@ function renderObjetivoProposito(p, i) {
 }
 
 var PROGRAMAS_GEN = [];
+var PROG_PREVIEW_OPEN = null;
+
+function togglePreviewPrograma(i) {
+  PROG_PREVIEW_OPEN = (PROG_PREVIEW_OPEN === i) ? null : i;
+  renderObjetivos();
+}
+
+// Vista de solo lectura del contenido completo de un programa generado, para revisar antes de aceptar.
+function renderPreviewPrograma(prog) {
+  var h = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">';
+  prog.semanas.forEach(function(w){
+    h += '<div style="font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 6px">'+w.nombre+'</div>';
+    (w.sesiones||[]).forEach(function(s){
+      var di = calcDistSesion(s);
+      var distTxt = (di && di.total>0) ? di.total+'m' : 'continuo/mar';
+      h += '<div style="background:var(--gray);border-radius:8px;padding:8px 10px;margin-bottom:6px">';
+      h += '<div style="font-size:12px;font-weight:700;color:var(--text)">'+s.nombre+'</div>';
+      h += '<div style="font-size:10.5px;color:var(--text3);margin-bottom:5px">'+(s.dia||'')+' · '+(s.intensidad||'')+' · '+distTxt+'</div>';
+      (s.bloques||[]).forEach(function(b){
+        h += '<div style="font-size:11px;color:var(--text2);padding:2px 0">· <b>'+(b.tipo||'')+':</b> '+(b.desc||fmtEstructura(b))+(b.descanso_bloque?' — al terminar: '+b.descanso_bloque:'')+'</div>';
+      });
+      h += '</div>';
+    });
+  });
+  h += '</div>';
+  return h;
+}
 
 function objSet(key,val) {
   OBJ[key]=val;
@@ -4719,23 +4782,36 @@ function objSet(key,val) {
     document.getElementById('obj-manual-extra').style.display=val==='manual'?'block':'none';
   }
 }
-function addPrueba(){
-  OBJ.pruebas.push({estilo:'Libre',dist:'50'});
+function addObjetivo(){
+  var nuevoId = 'o'+(OBJ.objetivos.length+1)+'_'+Date.now();
+  OBJ.objetivos.push({id:nuevoId, nombre:'', fecha:'', pruebas:[{estilo:'Libre',dist:'50'}]});
   renderObjetivos();
 }
-function rmPrueba(i){ OBJ.pruebas.splice(i,1); renderObjetivos(); }
-function setPrueba(i,campo,val){
-  OBJ.pruebas[i][campo]=val;
-  document.getElementById('obj-pruebas-list').innerHTML=OBJ.pruebas.map(function(p,idx){return renderObjetivoPrueba(p,idx);}).join('');
+function rmObjetivo(i){
+  var idRemovido = OBJ.objetivos[i].id;
+  OBJ.objetivos.splice(i,1);
+  // Reasignar propósitos huérfanos al primer objetivo restante
+  OBJ.propositos.forEach(function(p){ if(p.objetivoId===idRemovido) p.objetivoId = OBJ.objetivos[0].id; });
+  renderObjetivos();
+}
+function setObjetivoField(i,campo,val){ OBJ.objetivos[i][campo]=val; if(campo==='fecha') renderObjetivos(); }
+function addPruebaTo(objIdx){
+  OBJ.objetivos[objIdx].pruebas.push({estilo:'Libre',dist:'50'});
+  renderObjetivos();
+}
+function rmPruebaFrom(objIdx,i){ OBJ.objetivos[objIdx].pruebas.splice(i,1); renderObjetivos(); }
+function setPruebaIn(objIdx,i,campo,val){
+  OBJ.objetivos[objIdx].pruebas[i][campo]=val;
+  document.getElementById('obj-objetivos-list').innerHTML=OBJ.objetivos.map(function(o,idx){return renderObjetivoCard(o,idx);}).join('');
 }
 function addProposito(){
-  OBJ.propositos.push({nombre:'',medio:'Piscina',diasIni:'1',diasFin:'1'});
+  OBJ.propositos.push({nombre:'',medio:'Piscina',diasIni:'1',diasFin:'1',objetivoId:OBJ.objetivos[0].id});
   renderObjetivos();
 }
 function rmProposito(i){ OBJ.propositos.splice(i,1); renderObjetivos(); }
 function setProposito(i,campo,val){
   OBJ.propositos[i][campo]=val;
-  if (campo==='medio') { document.getElementById('obj-propositos-list').innerHTML=OBJ.propositos.map(function(p,idx){return renderObjetivoProposito(p,idx);}).join(''); }
+  document.getElementById('obj-propositos-list').innerHTML=OBJ.propositos.map(function(p,idx){return renderObjetivoProposito(p,idx);}).join('');
 }
 
 // Calcula cuántos días/semana corresponde a cada propósito en la semana `semanaNum` (1-indexed),
@@ -4746,9 +4822,10 @@ function asignacionSemana(propositos, semanaNum, semanasObjetivo) {
   return propositos.map(function(p){
     var ini = parseInt(p.diasIni,10) || 0, fin = parseInt(p.diasFin,10) || ini;
     var dias = Math.round(ini + (fin - ini) * frac);
-    return { nombre: p.nombre || (p.medio||'Piscina'), medio: p.medio || 'Piscina', dias: dias };
+    return { nombre: p.nombre || (p.medio||'Piscina'), medio: p.medio || 'Piscina', dias: dias, objetivoId: p.objetivoId };
   }).filter(function(a){ return a.dias > 0; });
 }
+
 
 // Motor compartido de generación: genera las semanas [desdeW..hastaW] de un plan, dado su config.
 // Lo usan tanto generarPrograma() (primera tanda) como continuarPrograma() (tandas siguientes).
@@ -4789,34 +4866,38 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
   var totalW = hastaW - desdeW + 1;
 
   for (var w = desdeW; w <= hastaW; w++) {
-    setLoad(Math.round(10 + (w-desdeW)/totalW*80), 'Generando semana '+w+' de '+cfg.semanasObjetivo+'...', cfg.pruebasTxt);
+    setLoad(Math.round(10 + (w-desdeW)/totalW*80), 'Generando semana '+w+' de '+cfg.semanasObjetivo+'...', cfg.objetivos.map(function(o){return o.nombre;}).join(' + '));
 
     var asign = asignacionSemana(cfg.propositos, w, cfg.semanasObjetivo);
-    if (!asign.length) asign = [{nombre:'Piscina', medio:'Piscina', dias:3}];
+    if (!asign.length) asign = [{nombre:'Piscina', medio:'Piscina', dias:3, objetivoId:cfg.objetivos[0].id}];
 
     var sesionesEnum = [];
     asign.forEach(function(a){
       for (var k=0;k<a.dias;k++) sesionesEnum.push(a);
     });
     var repartoTxt = sesionesEnum.map(function(a,idx){
-      return 'Sesion '+(idx+1)+': proposito "'+a.nombre+'" (medio: '+a.medio+(a.medio==='Aguas abiertas' ? ', usa series:[] vacio, nado continuo sin estructura de pileta' : ', estructura completa 2000-3000m')+')';
+      var objA = cfg.objetivos.find(function(o){ return o.id===a.objetivoId; }) || cfg.objetivos[0];
+      var faltanA = objA.semanasHasta - (w-1);
+      var estadoA = faltanA <= 0 ? 'objetivo ya se compitio, sesion de mantenimiento' : ('faltan '+faltanA+' semana(s) para "'+objA.nombre+'"'+(faltanA<=1?' — TAPER para este proposito':''));
+      return 'Sesion '+(idx+1)+': proposito "'+a.nombre+'" (medio: '+a.medio+(a.medio==='Aguas abiertas' ? ', usa series:[] vacio, nado continuo sin estructura de pileta' : ', estructura completa 2000-3000m')+', '+estadoA+')';
     }).join('. ');
 
-    var esUltimaSemanaObjetivo = (w === parseInt(cfg.semanasObjetivo,10));
-    var faseTexto = esUltimaSemanaObjetivo
-      ? 'Esta es la ULTIMA semana antes de la competencia ('+cfg.fecha+'): aplica TAPER — reduce el volumen total ~20-30% respecto a semanas previas, mantén toques de velocidad a ritmo de carrera cortos con buena recuperación, prioriza llegar fresco.'
-      : 'Semana '+w+' de '+cfg.semanasObjetivo+' hacia el objetivo: progresión de carga coherente (no bajar intensidad sin motivo, no acumular fatiga sin sentido respecto a la semana anterior).';
+    var objetivosTxt = cfg.objetivos.map(function(o){
+      var faltan = o.semanasHasta - (w-1);
+      var estado = faltan <= 0 ? 'ya se compitio (semana posterior, mantenimiento)' : (faltan+' semana(s) restantes'+(faltan<=1?' — esta semana va TAPER para este objetivo (bajar volumen ~20-30%, priorizar frescura)':''));
+      return '"'+o.nombre+'" ('+o.pruebasTxt+', fecha '+o.fecha+'): '+estado;
+    }).join(' | ');
 
     var semanaPrompt =
       'Eres ORION Master, coach experto en natacion master. Genera SOLO la semana '+w+' de '+cfg.semanasObjetivo+' de un programa de entrenamiento real y de calidad, no una plantilla generica.\n' +
-      (cfg.nombre ? 'NOMBRE DEL OBJETIVO: '+cfg.nombre+' (puede ser multiproposito).\n' : '') +
-      'PRUEBAS OBJETIVO: '+cfg.pruebasTxt+'. FECHA DE COMPETENCIA: '+cfg.fecha+'.\n' +
-      'REPARTO EXACTO DE SESIONES ESTA SEMANA (genera EXACTAMENTE estas '+sesionesEnum.length+' sesiones, una por cada linea, en este orden): '+repartoTxt+'.\n' +
+      (cfg.nombre ? 'NOMBRE GENERAL DEL PLAN: '+cfg.nombre+'.\n' : '') +
+      'OBJETIVOS DE COMPETENCIA (cada uno con su propia fecha y estado esta semana): '+objetivosTxt+'.\n' +
+      'REPARTO EXACTO DE SESIONES ESTA SEMANA (genera EXACTAMENTE estas '+sesionesEnum.length+' sesiones, una por cada linea, en este orden, respetando el estado/taper de cada objetivo indicado): '+repartoTxt+'.\n' +
       'NADADORES DE ESTE GRUPO (perfil real, usar SIEMPRE estos datos para personalizar mf/ms y ritmos objetivo, no frases genericas): '+perfilesTxt+'.\n' +
       'HISTORIAL RECIENTE: '+(histTxt||'sin historial aun')+'.\n' +
       (antecTxt?'ANTECEDENTES (aprendizajes de analisis previos que DEBEN influir el diseno): '+antecTxt+'\n':'')+
       (cfg.notas?'INDICACIONES DEL COACH: '+cfg.notas+'.\n':'')+
-      faseTexto+'\n\n' +
+      '\n' +
       '=== REGLAS OBLIGATORIAS (verifica cada una antes de responder) ===\n' +
       '1. DISTANCIAS: calcula EXCLUSIVAMENTE por aritmetica de series (reps×dist), nunca adivines. Cada sesion de PISCINA (con series estructuradas) debe sumar ENTRE 2000 y 3000 METROS TOTALES sumando todos sus bloques. Verifica la suma antes de responder. Las sesiones de "Aguas abiertas" NO llevan esta restriccion (usan series:[] vacio).\n' +
       '2. VARIEDAD REAL: cada sesion debe tener identidad propia, distinta de las demas. Usa el arsenal de implementos con proposito (pull-buoy para aislar brazos/eficiencia, palas para fuerza, aletas para velocidad/activacion, tabla para patada, snorkel para foco tecnico). Varia distancias (no siempre redondas), contrastes de estilo, tipos de descanso. NO repliques la misma estructura de sesion a sesion.\n' +
@@ -4891,18 +4972,29 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
 }
 
 async function generarPrograma() {
-  var fecha = document.getElementById('obj-fecha').value;
   var nombreObj = document.getElementById('obj-nombre') ? document.getElementById('obj-nombre').value : '';
-  var semObjetivo = parseInt(document.getElementById('obj-sem-total').value || '8');
-  var semAhora = Math.min(parseInt(document.getElementById('obj-sem-ahora').value || '2'), semObjetivo);
   var notas = document.getElementById('obj-notas') ? document.getElementById('obj-notas').value : '';
-  OBJ.fecha=fecha; OBJ.nombre=nombreObj; OBJ.semanasObjetivo=semObjetivo; OBJ.semanasAhora=semAhora; OBJ.notas=notas;
-  if(!fecha){toast('Selecciona la fecha de competencia');return;}
-  if(!OBJ.pruebas.length){toast('Agrega al menos una prueba');return;}
+  OBJ.nombre=nombreObj; OBJ.notas=notas;
+
+  if (OBJ.objetivos.some(function(o){return !o.fecha;})) { toast('Cada objetivo necesita su fecha de competencia'); return; }
+  if (OBJ.objetivos.some(function(o){return !o.pruebas.length;})) { toast('Cada objetivo necesita al menos una prueba'); return; }
   if(!OBJ.propositos.length){toast('Agrega al menos un propósito de entrenamiento');return;}
 
-  var pruebasTxt = OBJ.pruebas.map(function(p){return p.dist+'m '+p.estilo;}).join(', ');
-  var cfg = { pruebasTxt:pruebasTxt, fecha:fecha, notas:notas, semanasObjetivo:semObjetivo, propositos:OBJ.propositos, nombre:nombreObj };
+  // Armar objetivos con su texto de pruebas y semanas restantes calculadas HOY (fijas para todo este programa)
+  var objetivosCfg = OBJ.objetivos.map(function(o){
+    return {
+      id: o.id, nombre: o.nombre || o.pruebas.map(function(p){return p.dist+'m '+p.estilo;}).join('+'),
+      fecha: o.fecha,
+      pruebasTxt: o.pruebas.map(function(p){return p.dist+'m '+p.estilo;}).join(', '),
+      semanasHasta: semanasHastaFecha(o.fecha)
+    };
+  });
+  var semObjetivo = Math.max.apply(null, objetivosCfg.map(function(o){return o.semanasHasta;}));
+  var semAhora = Math.min(parseInt(document.getElementById('obj-sem-ahora').value || '2'), semObjetivo);
+  OBJ.semanasAhora = semAhora;
+
+  var cfg = { objetivos:objetivosCfg, notas:notas, semanasObjetivo:semObjetivo, propositos:OBJ.propositos, nombre:nombreObj };
+  var resumenTxt = objetivosCfg.map(function(o){return o.nombre+' ('+o.pruebasTxt+', '+o.fecha+')';}).join(' + ');
 
   lov(true); setLoad(10,'Generando programa...','Semana por semana');
   var r = await generarSemanasIA(cfg, 1, semAhora);
@@ -4917,9 +5009,9 @@ async function generarPrograma() {
   try {
     var prog = {
       id: 'GEN'+Date.now(),
-      nombre: nombreObj || ('Plan '+pruebasTxt),
-      subtitulo: pruebasTxt+' · '+fecha,
-      fechaFin: fecha,
+      nombre: nombreObj || resumenTxt,
+      subtitulo: resumenTxt,
+      fechaFin: objetivosCfg[objetivosCfg.length-1].fecha,
       color: '#CA6F1E',
       activo: false,
       grupo: r.grupo,
