@@ -4046,7 +4046,7 @@ function corregirCoherenciaDescanso(bloque) {
   }
   return false;
 }
-// Audita una sesión generada: corrige descansos, calcula volumen, detecta si está fuera de rango 2000-3000
+// Audita una sesión generada: corrige descansos, calcula volumen, detecta si está fuera de rango 2000-3200
 // (solo aplica a sesiones de piscina con estructura; las de aguas abiertas -series vacías- no se auditan por volumen)
 // Intenta reparar un JSON truncado (respuesta cortada a mitad de camino por limite de tokens).
 // Estrategia: recorrer el string llevando una pila de brackets/llaves abiertos (respetando strings/escapes),
@@ -4098,8 +4098,8 @@ function auditarSesionGenerada(ses) {
   });
   var di = calcDistSesion(ses);
   ses.volumen = di ? di.total : 0;
-  if (!esOAsesion && ses.volumen > 0 && (ses.volumen < 2000 || ses.volumen > 3000)) {
-    avisos.push(ses.nombre+': '+ses.volumen+'m (fuera del rango 2000-3000m, revisar)');
+  if (!esOAsesion && ses.volumen > 0 && (ses.volumen < 2000 || ses.volumen > 3200)) {
+    avisos.push(ses.nombre+': '+ses.volumen+'m (fuera del rango 2000-3200m, revisar)');
   }
   return avisos;
 }
@@ -4879,7 +4879,7 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
       var objA = cfg.objetivos.find(function(o){ return o.id===a.objetivoId; }) || cfg.objetivos[0];
       var faltanA = objA.semanasHasta - (w-1);
       var estadoA = faltanA <= 0 ? 'objetivo ya se compitio, sesion de mantenimiento' : ('faltan '+faltanA+' semana(s) para "'+objA.nombre+'"'+(faltanA<=1?' — TAPER para este proposito':''));
-      return 'Sesion '+(idx+1)+': proposito "'+a.nombre+'" (medio: '+a.medio+(a.medio==='Aguas abiertas' ? ', usa series:[] vacio, nado continuo sin estructura de pileta' : ', estructura completa 2000-3000m')+', '+estadoA+')';
+      return 'Sesion '+(idx+1)+': proposito "'+a.nombre+'" (medio: '+a.medio+(a.medio==='Aguas abiertas' ? ', usa series:[] vacio, nado continuo sin estructura de pileta' : ', estructura completa 2000-3200m')+', '+estadoA+')';
     }).join('. ');
 
     var objetivosTxt = cfg.objetivos.map(function(o){
@@ -4899,7 +4899,7 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
       (cfg.notas?'INDICACIONES DEL COACH: '+cfg.notas+'.\n':'')+
       '\n' +
       '=== REGLAS OBLIGATORIAS (verifica cada una antes de responder) ===\n' +
-      '1. DISTANCIAS: calcula EXCLUSIVAMENTE por aritmetica de series (reps×dist), nunca adivines. Cada sesion de PISCINA (con series estructuradas) debe sumar ENTRE 2000 y 3000 METROS TOTALES sumando todos sus bloques. Verifica la suma antes de responder. Las sesiones de "Aguas abiertas" NO llevan esta restriccion (usan series:[] vacio).\n' +
+      '1. DISTANCIAS: calcula EXCLUSIVAMENTE por aritmetica de series (reps×dist), nunca adivines. Cada sesion de PISCINA (con series estructuradas) debe sumar ENTRE 2000 y 3200 METROS TOTALES (nunca mas de 3200m) sumando todos sus bloques. Verifica la suma antes de responder. Las sesiones de "Aguas abiertas" NO llevan esta restriccion (usan series:[] vacio).\n' +
       '2. VARIEDAD REAL: cada sesion debe tener identidad propia, distinta de las demas. Usa el arsenal de implementos con proposito (pull-buoy para aislar brazos/eficiencia, palas para fuerza, aletas para velocidad/activacion, tabla para patada, snorkel para foco tecnico). Varia distancias (no siempre redondas), contrastes de estilo, tipos de descanso. NO repliques la misma estructura de sesion a sesion.\n' +
       '3. DESCANSOS - coherencia obligatoria: cada serie tiene "descanso" (ENTRE REPETICIONES) y cada bloque tiene "descanso_bloque" (AL TERMINAR el bloque completo). descanso_bloque SIEMPRE debe ser >= al descanso entre repeticiones (regla practica: descanso_bloque = descanso_rep + 30seg minimo). Ademas el descanso debe ser PROPORCIONAL a la distancia: 25m -> 20-45seg, 50m -> 30-60seg (hasta 1:30 solo si es sprint maximo), 100m -> 45seg-2min, 200m+ -> 1-3min segun intensidad.\n' +
       '4. CONVENCION IM: "Combinado" o "IM" = orden Mariposa -> Espalda -> Pecho -> Libre.\n' +
