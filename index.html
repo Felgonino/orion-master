@@ -2491,6 +2491,44 @@ async function cargarAntecedentes() {
   } catch(e){ /* silencioso */ }
 }
 
+// ── Persistencia de programas generados/activados en Sheets ──────────────
+// Sin esto, un programa generado con IA vive solo en la memoria del navegador
+// y se pierde por completo al recargar la página o cambiar de dispositivo.
+async function guardarProgramaRemoto(prog, estado) {
+  try {
+    await fetch('https://orion-proxy.felgonino.workers.dev', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'guardar_programa', id:prog.id, grupo:prog.grupo||'A', estado:estado, json:JSON.stringify(prog) })
+    });
+  } catch(e) { console.warn('No se pudo guardar el programa remotamente:', e.message); }
+}
+async function borrarProgramaRemoto(id) {
+  try {
+    await fetch('https://orion-proxy.felgonino.workers.dev', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'borrar_programa', id:id })
+    });
+  } catch(e) { console.warn('No se pudo borrar el programa remotamente:', e.message); }
+}
+// Al iniciar la app: recuperar programas guardados (pendientes y activos) para que no se pierdan al recargar.
+async function cargarProgramasRemoto() {
+  try {
+    const r = await fetch('https://orion-proxy.felgonino.workers.dev'+'?tipo=programas&t='+Date.now(), {cache:'no-cache'});
+    const j = await r.json();
+    if (!j.ok || !j.programas) return;
+    j.programas.forEach(function(row){
+      var prog;
+      try { prog = JSON.parse(row.json); } catch(e) { return; }
+      if (!prog || !prog.id) return;
+      if (row.estado === 'activo') {
+        if (!BLOQUES.find(function(b){ return b.id===prog.id; })) BLOQUES.push(prog);
+      } else {
+        if (!PROGRAMAS_GEN.find(function(p){ return p.id===prog.id; })) PROGRAMAS_GEN.push(prog);
+      }
+    });
+  } catch(e){ /* silencioso: sin conexión, se sigue con lo que haya en memoria */ }
+}
+
 async function borrarAntecedente(nadador, antecEncoded) {
   var antec = decodeURIComponent(antecEncoded);
   if (!confirm('¿Borrar este antecedente?\n\n"'+antec+'"')) return;
@@ -4621,9 +4659,11 @@ function renderObjetivos() {
   }
 
   // ── Programas pendientes de aceptar (generados pero no activados) ────────
-  if (PROGRAMAS_GEN.length) {
+  var pendientesGrupo = PROGRAMAS_GEN.filter(function(p){ return (p.grupo||'A')===grupoActual(); });
+  if (pendientesGrupo.length) {
     h += '<div class="lbl">Programas por confirmar</div>';
     PROGRAMAS_GEN.forEach(function(p,i){
+      if ((p.grupo||'A') !== grupoActual()) return;
       var totalSem = p.semanasObjetivo || p.semanas.length;
       var falta = totalSem - p.semanas.length;
       h += '<div class="card" style="margin-bottom:8px;border-left:3px solid var(--orange)"><div class="cb">';
@@ -4779,6 +4819,7 @@ function togglePreviewPrograma(i) {
 function descartarProgramaGen(i) {
   var p = PROGRAMAS_GEN[i];
   if (!confirm('¿Descartar "'+p.nombre+'"? No se puede deshacer.')) return;
+  borrarProgramaRemoto(p.id);
   PROGRAMAS_GEN.splice(i,1);
   if (PROG_PREVIEW_OPEN === i) PROG_PREVIEW_OPEN = null;
   toast('Programa descartado');
@@ -4862,6 +4903,57 @@ function asignacionSemana(propositos, semanaNum, semanasObjetivo) {
 // Motor compartido de generación: genera las semanas [desdeW..hastaW] de un plan, dado su config.
 // Lo usan tanto generarPrograma() (primera tanda) como continuarPrograma() (tandas siguientes).
 // cfg = { pruebasTxt, fecha, notas, semanasObjetivo, propositos, nombre }
+// Extrae el objeto de error real de Anthropic sin importar si viene envuelto {type:'error',error:{...}} o directo.
+function innerAnthropicError(err) {
+  if (!err) return null;
+  if (typeof err === 'string') return {type:'string', message:err};
+  if (err.error && err.error.type) return err.error;
+  if (err.type) return err;
+  return null;
+}
+function extraerMensajeError(err) {
+  var inner = innerAnthropicError(err);
+  if (!inner) return typeof err === 'string' ? err : JSON.stringify(err);
+  var mapa = {
+    'overloaded_error': 'El servidor de IA está saturado en este momento. Se reintentó automáticamente sin éxito — espera un par de minutos e intenta de nuevo.',
+    'rate_limit_error': 'Se alcanzó el límite de solicitudes por ahora. Espera un momento y reintenta.',
+    'invalid_request_error': 'Solicitud inválida: ' + (inner.message||''),
+    'authentication_error': 'Error de autenticación con el servidor de IA (revisar API key del Worker).'
+  };
+  return mapa[inner.type] || inner.message || JSON.stringify(err);
+}
+// Llama al Worker con reintento automático (con espera creciente) si Anthropic responde "saturado".
+// No reintenta si se agota el tiempo (timeout ya es generoso) ni más de 3 veces en total.
+async function fetchClaudeConReintento(prompt, timeoutMs) {
+  var intentos = 0, maxIntentos = 3;
+  while (true) {
+    intentos++;
+    var ctrl = new AbortController();
+    var t = setTimeout(function(){ ctrl.abort(); }, timeoutMs);
+    try {
+      var resp = await fetch('https://orion-proxy.felgonino.workers.dev', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({max_tokens:7000, messages:[{role:'user', content:prompt}]}),
+        signal: ctrl.signal
+      });
+      clearTimeout(t);
+      var data = await resp.json();
+      var inner = innerAnthropicError(data.error);
+      var esSobrecarga = inner && (inner.type==='overloaded_error' || inner.type==='rate_limit_error');
+      if (!data.ok && esSobrecarga && intentos < maxIntentos) {
+        await new Promise(function(r){ setTimeout(r, 4000*intentos); }); // espera 4s, luego 8s
+        continue;
+      }
+      return data;
+    } catch(e) {
+      clearTimeout(t);
+      if (e.name === 'AbortError') throw e; // no reintentar timeouts
+      if (intentos < maxIntentos) { await new Promise(function(r){ setTimeout(r, 3000); }); continue; }
+      throw e;
+    }
+  }
+}
+
 async function generarSemanasIA(cfg, desdeW, hastaW) {
   var grupoGen = grupoActual() || 'A';
   var nadadoresGrupo = nadadoresDeGrupo();
@@ -4950,20 +5042,8 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
       '{"tipo":"Afloje","desc":"200 suave","series":[{"reps":1,"dist":200,"estilo":"Libre","implemento":"","salida":"","descanso":""}],"descanso_bloque":"","mf":"Soltar","ms":"Recuperar","ritmo":"Suave"}]}]}';
 
     try {
-      var ctrlGen = new AbortController();
-      var timeoutGen = setTimeout(function(){ ctrlGen.abort(); }, 75000);
-      var resp;
-      try {
-        resp = await fetch('https://orion-proxy.felgonino.workers.dev',{
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({max_tokens:7000,messages:[{role:'user',content:semanaPrompt}]}),
-          signal: ctrlGen.signal
-        });
-      } finally {
-        clearTimeout(timeoutGen);
-      }
-      var data = await resp.json();
-      if(!data.ok||!data.text) throw new Error(data.error||'Sin respuesta semana '+w);
+      var data = await fetchClaudeConReintento(semanaPrompt, 75000);
+      if(!data.ok||!data.text) throw new Error(extraerMensajeError(data.error)||'Sin respuesta semana '+w);
       var raw=data.text.trim();
       raw = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
       var s=raw.indexOf('{'), e2=raw.lastIndexOf('}');
@@ -5061,6 +5141,7 @@ async function generarPrograma() {
 
     var glosAdd = agregarTerminosGlosario(r.glosarioNuevos);
     PROGRAMAS_GEN.push(prog);
+    guardarProgramaRemoto(prog, 'pendiente');
     if (r.avisos.length) {
       console.warn('Avisos de generación:', r.avisos);
       toast('Programa generado con '+r.avisos.length+' aviso(s) — revisa antes de usar', 5000);
@@ -5098,6 +5179,7 @@ async function continuarPrograma(progOrBloqueId, esActivado) {
 
   prog.semanas = prog.semanas.concat(r.semanas);
   var glosAdd = agregarTerminosGlosario(r.glosarioNuevos);
+  guardarProgramaRemoto(prog, esActivado ? 'activo' : 'pendiente');
   if (r.avisos.length) {
     toast('Continuado con '+r.avisos.length+' aviso(s) — revisa antes de usar', 5000);
   } else {
@@ -5112,9 +5194,12 @@ var PROG_AVISOS = [];
 
 function activarProgramaGen(i) {
   var prog=PROGRAMAS_GEN[i];
-  BLOQUES.forEach(function(b){b.activo=false;});
+  var g = prog.grupo || 'A';
+  // Solo desactivar otros bloques DEL MISMO GRUPO (no tocar el plan activo de otro grupo)
+  BLOQUES.forEach(function(b){ if((b.grupo||'A')===g) b.activo=false; });
   prog.activo=true;
   if(!BLOQUES.find(function(b){return b.id===prog.id;})) BLOQUES.push(prog);
+  guardarProgramaRemoto(prog, 'activo');
   toast('Programa activado en Plan');
   goTab('plan');
 }
@@ -5269,6 +5354,13 @@ async function initApp() {
     if(tab==='historial'&&USUARIO_ACTUAL) renderHistorial();
   }).catch(()=>syncDot('err'));
   cargarAntecedentes();
+  // Recuperar programas generados/activados guardados en Sheets (sin esto se pierden al recargar)
+  cargarProgramasRemoto().then(function(){
+    if (!USUARIO_ACTUAL) return;
+    const tab=document.querySelector('.tab.on')?.id?.replace('tab-','');
+    if(tab==='plan') renderPlan();
+    if(tab==='objetivos') renderObjetivos();
+  });
 }
 
 initApp();
