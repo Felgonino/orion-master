@@ -4970,10 +4970,21 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
     if (n.t100_libre) d.push('ref_100_libre:'+n.t100_libre);
     if (n.t400_libre) d.push('ref_400_libre:'+n.t400_libre);
     if (n.swolf_ref) d.push('swolf_ref:'+n.swolf_ref);
+    if (n.oa_ritmo) d.push('ref_RITMO_AGUAS_ABIERTAS_SOLO(usar SOLO para sesiones de aguas abiertas, NUNCA extrapolar de referencias de piscina):'+n.oa_ritmo+'/100m');
+    if (n.oa_mejor_dist) d.push('mejor_distancia_OA_completada:'+n.oa_mejor_dist);
+    if (n.oa_condiciones) d.push('experiencia_condiciones_OA:'+n.oa_condiciones);
     return n.nombre+' ['+(d.join(', ')||'sin datos de perfil aún')+']';
   }).join(' | ');
 
   var nombresGrupo = nadadoresGrupo.map(function(n){return n.nombre;});
+
+  // Resultados REALES de competencias en aguas abiertas (mar/lago/río) de este grupo — referencia obligatoria de ritmo OA
+  var competOATxt = COMPETENCIAS.filter(function(c){
+    return nombresGrupo.indexOf(c.Nadador)>=0 && c.Medio && /mar|lago|r[ií]o/i.test(c.Medio);
+  }).slice(-6).map(function(c){
+    return c.Nadador+': '+c.Distancia+'m en '+c.Tiempo+' ('+c.Ritmo+'/100m) — '+(c.Nombre||'competencia')+(c.Condiciones?' ['+c.Condiciones+']':'');
+  }).join(' | ');
+
   var histTxt = CACHE.filter(function(r){return r.Ritmo_100m && nombresGrupo.indexOf(r.Nadador)>=0;}).slice(-6)
     .map(function(r){return r.Nadador+':'+r.Distancia_m+'m '+r.Ritmo_100m+'/100'+(r.Medio&&r.Medio.indexOf('Piscina')<0?' ('+r.Medio.split('·')[0].trim()+')':'');}).join(', ');
 
@@ -5019,10 +5030,12 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
       'REPARTO EXACTO DE SESIONES ESTA SEMANA (genera EXACTAMENTE estas '+sesionesEnum.length+' sesiones, una por cada linea, en este orden, respetando el estado/taper de cada objetivo indicado): '+repartoTxt+'.\n' +
       'NADADORES DE ESTE GRUPO (perfil real, usar SIEMPRE estos datos para personalizar mf/ms y ritmos objetivo, no frases genericas): '+perfilesTxt+'.\n' +
       'HISTORIAL RECIENTE: '+(histTxt||'sin historial aun')+'.\n' +
+      (competOATxt?'RESULTADOS REALES DE COMPETENCIAS EN AGUAS ABIERTAS (referencia OBLIGATORIA para fijar cualquier ritmo de sesion en mar/lago/rio, mas confiable que cualquier extrapolacion): '+competOATxt+'.\n':'')+
       (antecTxt?'ANTECEDENTES (aprendizajes de analisis previos que DEBEN influir el diseno): '+antecTxt+'\n':'')+
       (cfg.notas?'INDICACIONES DEL COACH: '+cfg.notas+'.\n':'')+
       '\n' +
       '=== REGLAS OBLIGATORIAS (verifica cada una antes de responder) ===\n' +
+      '0. RITMO EN AGUAS ABIERTAS: JAMAS calcules o extrapoles un ritmo de mar/lago/rio a partir de referencias de PISCINA (50L, 100L, etc.) -- son fisiologicamente distintos (oleaje, corriente, temperatura, traje, sighting). Usa EXCLUSIVAMENTE los "RESULTADOS REALES DE COMPETENCIAS EN AGUAS ABIERTAS" de arriba (o el "ref_RITMO_AGUAS_ABIERTAS" del perfil) para fijar el "ritmo" de una sesion OA. Un ritmo de "crucero" o "moderado" en una sesion de entrenamiento DEBE ser MAS LENTO que el mejor ritmo de carrera real del nadador en OA, nunca igual o mas rapido. Si no hay ningun dato real de OA disponible para un nadador, usa un rango conservador generico (1:45-2:00/100m para fondo OA a ritmo comodo) y ACLARALO en el campo "desc" como estimacion sin historial, nunca inventes un numero preciso sin base.\n' +
       '1. DISTANCIAS: calcula EXCLUSIVAMENTE por aritmetica de series (reps×dist), nunca adivines. Cada sesion de PISCINA (con series estructuradas) debe sumar ENTRE 2000 y 3200 METROS TOTALES (nunca menos de 2000m, nunca mas de 3200m) sumando todos sus bloques. Verifica la suma antes de responder. ESTO APLICA TAMBIEN a sesiones de velocidad/sprints/potencia: aunque el foco sea calidad y no cantidad, DEBES completar el volumen minimo de 2000m agregando calentamiento tecnico, series aerobicas de relleno, pull o afloje suficiente alrededor del trabajo de velocidad -- un dia de velocidad NUNCA es excusa para bajar de 2000m. La UNICA excepcion valida al minimo de 2000m es una sesion marcada explicitamente TAPER en el reparto (competencia a 1 semana o menos para ese proposito); fuera de eso, SIEMPRE 2000-3200m. Las sesiones de "Aguas abiertas" NO llevan esta restriccion (usan series:[] vacio).\n' +
       '2. VARIEDAD REAL: cada sesion debe tener identidad propia, distinta de las demas. Usa el arsenal de implementos con proposito (pull-buoy para aislar brazos/eficiencia, palas para fuerza, aletas para velocidad/activacion, tabla para patada, snorkel para foco tecnico). Varia distancias (no siempre redondas), contrastes de estilo, tipos de descanso. NO repliques la misma estructura de sesion a sesion.\n' +
       '3. DESCANSOS - coherencia obligatoria: cada serie tiene "descanso" (ENTRE REPETICIONES) y cada bloque tiene "descanso_bloque" (AL TERMINAR el bloque completo). descanso_bloque SIEMPRE debe ser >= al descanso entre repeticiones (regla practica: descanso_bloque = descanso_rep + 30seg minimo). Ademas el descanso debe ser PROPORCIONAL a la distancia: 25m -> 20-45seg, 50m -> 30-60seg (hasta 1:30 solo si es sprint maximo), 100m -> 45seg-2min, 200m+ -> 1-3min segun intensidad.\n' +
