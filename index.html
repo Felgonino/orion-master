@@ -4605,7 +4605,50 @@ function semanasHastaFecha(fechaStr) {
 }
 
 function renderObjetivos() {
-  var h = '<div class="lbl">Generar nuevo programa con ORION IA</div>';
+  var h = '';
+
+  // ── Estado actual: plan activo del grupo (si existe) ──────────────────────
+  var blActivo = BLOQUES.find(function(b){ return (b.grupo||'A')===grupoActual() && b.activo && b.configGen; });
+  if (blActivo) {
+    var faltaActivo = (blActivo.semanasObjetivo||blActivo.semanas.length) - blActivo.semanas.length;
+    h += '<div class="card" style="margin-bottom:12px;border-left:3px solid var(--teal)"><div class="cb">';
+    h += '<div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">📋 Plan activo de este grupo</div>';
+    h += '<div style="font-size:13px;font-weight:700;margin-bottom:2px">'+blActivo.nombre+'</div>';
+    h += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+blActivo.subtitulo+' · Semana '+blActivo.semanas.length+' de '+(blActivo.semanasObjetivo||blActivo.semanas.length)+'</div>';
+    h += '<button class="btn2" onclick="goTab(\'plan\')">Ver en Plan</button>';
+    if (faltaActivo > 0) h += '<button class="btn2" onclick="continuarPrograma(\''+blActivo.id+'\',true)" style="margin-top:6px;border-color:var(--orange);color:var(--orange)">⏭ Continuar (+'+Math.min(2,faltaActivo)+' semana'+(Math.min(2,faltaActivo)>1?'s':'')+')</button>';
+    h += '</div></div>';
+  }
+
+  // ── Programas pendientes de aceptar (generados pero no activados) ────────
+  if (PROGRAMAS_GEN.length) {
+    h += '<div class="lbl">Programas por confirmar</div>';
+    PROGRAMAS_GEN.forEach(function(p,i){
+      var totalSem = p.semanasObjetivo || p.semanas.length;
+      var falta = totalSem - p.semanas.length;
+      h += '<div class="card" style="margin-bottom:8px;border-left:3px solid var(--orange)"><div class="cb">';
+      h += '<div style="font-size:13px;font-weight:700;margin-bottom:4px">'+p.nombre+'</div>';
+      h += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+p.subtitulo+' · Grupo '+(p.grupo||'A')+' · Semana '+p.semanas.length+' de '+totalSem+'</div>';
+      if (i === PROGRAMAS_GEN.length-1 && PROG_AVISOS.length) {
+        h += '<div style="background:rgba(232,165,75,.12);border:1px solid rgba(232,165,75,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px">';
+        h += '<div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px">⚠️ '+PROG_AVISOS.length+' aviso(s) — revisar antes de entrenar</div>';
+        PROG_AVISOS.forEach(function(a){ h += '<div style="font-size:11px;color:var(--text2);padding:2px 0">· '+a+'</div>'; });
+        h += '</div>';
+      }
+      h += '<button class="btn2" onclick="togglePreviewPrograma('+i+')" id="prev-btn-'+i+'">👁 '+(PROG_PREVIEW_OPEN===i?'Ocultar detalle':'Ver detalle antes de aceptar')+'</button>';
+      h += '<div id="prev-cont-'+i+'">'+(PROG_PREVIEW_OPEN===i?renderPreviewPrograma(p):'')+'</div>';
+      h += '<button class="btn2" onclick="activarProgramaGen('+i+')" style="margin-top:6px">▶ Activar en Plan</button>';
+      if (falta > 0) {
+        h += '<button class="btn2" onclick="continuarPrograma('+i+',false)" style="margin-top:6px;border-color:var(--orange);color:var(--orange)">⏭ Continuar programa (+'+Math.min(2,falta)+' semana'+(Math.min(2,falta)>1?'s':'')+')</button>';
+      }
+      h += '<button class="btn2" onclick="descartarProgramaGen('+i+')" style="margin-top:6px;border-color:var(--red);color:var(--red)">🗑 Descartar este programa</button>';
+      h += '</div></div>';
+    });
+    h += '<div style="margin:16px 0;border-top:1px solid var(--border)"></div>';
+  }
+
+  // ── Formulario para generar un programa nuevo ─────────────────────────────
+  h += '<div class="lbl">Generar nuevo programa con ORION IA</div>';
   h += '<div class="note">Agrega una tarjeta de "Objetivo" por cada competencia (con su propia fecha y pruebas), y luego reparte los días de entrenamiento entre propósitos, indicando a qué objetivo sirve cada uno. ~$0.02 USD por semana generada.</div>';
   h += '<div class="card"><div class="cb">';
   h += '<div class="lbl">Modo</div><div class="r2" style="margin-bottom:14px">';
@@ -4638,29 +4681,6 @@ function renderObjetivos() {
   h += '</div>';
   h += '<button class="btn" onclick="generarPrograma()" style="margin-top:8px">🤖 Generar programa con ORION</button>';
   h += '</div></div>';
-  if (PROGRAMAS_GEN.length) {
-    h += '<div class="lbl" style="margin-top:6px">Programas generados</div>';
-    PROGRAMAS_GEN.forEach(function(p,i){
-      var totalSem = p.semanasObjetivo || p.semanas.length;
-      var falta = totalSem - p.semanas.length;
-      h += '<div class="card" style="margin-bottom:8px"><div class="cb">';
-      h += '<div style="font-size:13px;font-weight:700;margin-bottom:4px">'+p.nombre+'</div>';
-      h += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+p.subtitulo+' · Grupo '+(p.grupo||'A')+' · Semana '+p.semanas.length+' de '+totalSem+'</div>';
-      if (i === PROGRAMAS_GEN.length-1 && PROG_AVISOS.length) {
-        h += '<div style="background:rgba(232,165,75,.12);border:1px solid rgba(232,165,75,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px">';
-        h += '<div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px">⚠️ '+PROG_AVISOS.length+' aviso(s) — revisar antes de entrenar</div>';
-        PROG_AVISOS.forEach(function(a){ h += '<div style="font-size:11px;color:var(--text2);padding:2px 0">· '+a+'</div>'; });
-        h += '</div>';
-      }
-      h += '<button class="btn2" onclick="togglePreviewPrograma('+i+')" id="prev-btn-'+i+'">👁 '+(PROG_PREVIEW_OPEN===i?'Ocultar detalle':'Ver detalle antes de aceptar')+'</button>';
-      h += '<div id="prev-cont-'+i+'">'+(PROG_PREVIEW_OPEN===i?renderPreviewPrograma(p):'')+'</div>';
-      h += '<button class="btn2" onclick="activarProgramaGen('+i+')" style="margin-top:6px">▶ Activar en Plan</button>';
-      if (falta > 0) {
-        h += '<button class="btn2" onclick="continuarPrograma('+i+',false)" style="margin-top:6px;border-color:var(--orange);color:var(--orange)">⏭ Continuar programa (+'+Math.min(2,falta)+' semana'+(Math.min(2,falta)>1?'s':'')+')</button>';
-      }
-      h += '</div></div>';
-    });
-  }
   // Antecedentes acumulados por nadador (solo del grupo actual, que es para quien se genera el plan)
   h += '<div class="lbl" style="margin-top:18px">📌 Antecedentes para futuros planes</div>';
   h += '<div class="note">Observaciones guardadas desde los análisis. ORION las considera al generar nuevos programas para este grupo.</div>';
@@ -4754,6 +4774,14 @@ var PROG_PREVIEW_OPEN = null;
 
 function togglePreviewPrograma(i) {
   PROG_PREVIEW_OPEN = (PROG_PREVIEW_OPEN === i) ? null : i;
+  renderObjetivos();
+}
+function descartarProgramaGen(i) {
+  var p = PROGRAMAS_GEN[i];
+  if (!confirm('¿Descartar "'+p.nombre+'"? No se puede deshacer.')) return;
+  PROGRAMAS_GEN.splice(i,1);
+  if (PROG_PREVIEW_OPEN === i) PROG_PREVIEW_OPEN = null;
+  toast('Programa descartado');
   renderObjetivos();
 }
 
