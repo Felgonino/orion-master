@@ -2521,7 +2521,14 @@ async function cargarProgramasRemoto() {
       try { prog = JSON.parse(row.json); } catch(e) { return; }
       if (!prog || !prog.id) return;
       if (row.estado === 'activo') {
-        if (!BLOQUES.find(function(b){ return b.id===prog.id; })) BLOQUES.push(prog);
+        if (!BLOQUES.find(function(b){ return b.id===prog.id; })) {
+          // Al cargar un plan persistido como ACTIVO, desactivar cualquier otro bloque del mismo
+          // grupo (incluidos los hardcodeados en el código) para que no queden dos "activos" a la vez.
+          var g = prog.grupo || 'A';
+          BLOQUES.forEach(function(b){ if((b.grupo||'A')===g) b.activo=false; });
+          prog.activo = true;
+          BLOQUES.push(prog);
+        }
       } else {
         if (!PROGRAMAS_GEN.find(function(p){ return p.id===prog.id; })) PROGRAMAS_GEN.push(prog);
       }
