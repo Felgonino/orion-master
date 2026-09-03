@@ -2251,20 +2251,22 @@ function renderPlan() {
   bl.semanas.forEach(sem=>{
     h+='<div class="lbl">'+sem.nombre+'</div>';
     sem.sesiones.forEach(s=>{
+      // Fragmento huérfano sin identidad propia (sin nombre ni día): no es una sesión real, se omite en vez de crashear.
+      if (!s || (!s.nombre && !s.dia)) return;
       const comp=completadas(s.id);
       const compReal=comp.filter(function(r){return !r.Pendiente||r.Pendiente===''||r.Pendiente==='NO';});
       const compPend=comp.filter(function(r){return r.Pendiente==='SI'||r.Pendiente===true;});
       const done=compReal.length>=2;
       const hasPending=compPend.length>0;
-      const isComp=s.intensidad.includes('🏆');
+      const isComp=(s.intensidad||'').includes('🏆');
       const distInfo=calcDistSesion(s);
       const distLabel = distInfo ? (' · '+distInfo.total+'m'+(distInfo.completo?'':'+')) : '';
       h+='<div class="sc '+scClass(s.tipo)+' '+(done?'done':'')+'" style="'+(isComp?'border-left-color:#F1C40F':hasPending?'border-left-color:var(--orange)':'')+'">';
-      h+='<div class="sc-h" onclick="toggleSC(\'sb-'+s.id+'\')"><div style="flex:1"><h4>'+s.nombre+' '+(done?'✅':'')+'</h4><div class="sc-d">'+s.dia+distLabel+' · '+s.intensidad+'</div></div><span style="font-size:11px;color:var(--text3)">▼</span></div>';
+      h+='<div class="sc-h" onclick="toggleSC(\'sb-'+s.id+'\')"><div style="flex:1"><h4>'+(s.nombre||'Sesión')+' '+(done?'✅':'')+'</h4><div class="sc-d">'+(s.dia||'')+distLabel+' · '+(s.intensidad||'')+'</div></div><span style="font-size:11px;color:var(--text3)">▼</span></div>';
       h+='<div class="sc-b" id="sb-'+s.id+'">';
-      h+='<p style="font-size:12px;color:var(--text2);margin-bottom:6px">'+s.objetivo+'</p>';
+      h+='<p style="font-size:12px;color:var(--text2);margin-bottom:6px">'+(s.objetivo||'')+'</p>';
       if(s.rationale) h+='<div style="background:var(--gold);border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:#7D6608;line-height:1.5"><b>¿Por qué esta sesión?</b> '+s.rationale+'</div>';
-      s.bloques.forEach(b=>{
+      (s.bloques||[]).forEach(b=>{
         const distB=calcDistBloque(b);
         h+='<div class="blq"><div class="blq-t">'+b.tipo+(distB!=null?' · '+distB+'m':'')+(b.ritmo?' · 🎯 '+b.ritmo:'')+'</div>';
         h+='<div class="blq-d">'+fmtEstructura(b)+'</div>';
@@ -2520,6 +2522,19 @@ async function cargarProgramasRemoto() {
       var prog;
       try { prog = JSON.parse(row.json); } catch(e) { return; }
       if (!prog || !prog.id) return;
+      // Reparar sesiones mal formadas (fragmentos huerfanos, bloques faltantes) al cargar,
+      // por si el plan quedo guardado con un problema de una generacion anterior.
+      var huboReparo = false;
+      (prog.semanas||[]).forEach(function(w){
+        var antes = (w.sesiones||[]).length;
+        var saneadas = sanearSesiones(w.sesiones);
+        if (saneadas.length !== antes || JSON.stringify(saneadas) !== JSON.stringify(w.sesiones)) huboReparo = true;
+        w.sesiones = saneadas;
+      });
+      if (huboReparo) {
+        console.warn('Programa "'+prog.nombre+'" reparado automaticamente al cargar (sesion mal formada detectada).');
+        guardarProgramaRemoto(prog, row.estado); // persistir la version corregida
+      }
       if (row.estado === 'activo') {
         if (!BLOQUES.find(function(b){ return b.id===prog.id; })) {
           // Al cargar un plan persistido como ACTIVO, desactivar cualquier otro bloque del mismo
@@ -3003,7 +3018,7 @@ function renderCargar2() {
   if (!plan) { renderLibreBuilder(); return; }
 
   // Init bloque states: {hecho, estilo_variacion, nota}
-  S.bloqueStates = plan.bloques.map(b => ({
+  S.bloqueStates = (plan.bloques||[]).map(b => ({
     hecho: true,
     estiloVar: '',
     nota: ''
@@ -3022,7 +3037,7 @@ function renderCargar2() {
   h += '<div class="lbl">Bloques del entrenamiento</div>';
   h += '<div id="blq-list">';
 
-  plan.bloques.forEach((b, i) => {
+  (plan.bloques||[]).forEach((b, i) => {
     const estilos = ['Libre','Espalda','Pecho','Mariposa','Combinado'];
     h += '<div class="blq-check-card" id="bcc-' + i + '">';
     // Header row: checkbox + tipo + desc breve
@@ -3234,8 +3249,8 @@ async function analizarFotos() {
     // Build rich context: plan + bloques + perfil del nadador + historial reciente
   let ctx = 'Sesion libre sin plan especifico.';
   if (plan) {
-    const states = S.bloqueStates || plan.bloques.map(()=>({hecho:true,estiloVar:'',nota:''}));
-    const bloqueInfo = plan.bloques.map((b,i) => {
+    const states = S.bloqueStates || (plan.bloques||[]).map(()=>({hecho:true,estiloVar:'',nota:''}));
+    const bloqueInfo = (plan.bloques||[]).map((b,i) => {
       const st = states[i];
       if (!st.hecho) return b.tipo + ': OMITIDO';
       let info = b.tipo + ' — ' + fmtEstructura(b);
@@ -4131,6 +4146,30 @@ function repararJSONTruncado(raw) {
   } catch(e) {
     return null;
   }
+}
+
+// Repara un patrón real observado: la IA a veces genera una sesion SIN "bloques" seguida de
+// un objeto "huerfano" que solo tiene bloques+id+volumen (el contenido que debio ir en la sesion anterior).
+// Sin esto, cualquier pantalla que recorra s.bloques.forEach() sobre la sesion incompleta puede fallar.
+function sanearSesiones(sesiones) {
+  if (!Array.isArray(sesiones)) return [];
+  var limpio = [];
+  for (var i = 0; i < sesiones.length; i++) {
+    var ses = sesiones[i];
+    if (!ses) continue;
+    if (!ses.bloques) {
+      var next = sesiones[i+1];
+      // Fragmento huerfano: tiene bloques pero no nombre/dia (le pertenecen a esta sesion)
+      if (next && next.bloques && !next.nombre && !next.dia) {
+        ses.bloques = next.bloques;
+        i++; // saltar el fragmento ya absorbido
+      } else {
+        ses.bloques = []; // sin dato recuperable: dejar vacío en vez de undefined (evita crashes)
+      }
+    }
+    limpio.push(ses);
+  }
+  return limpio;
 }
 
 function auditarSesionGenerada(ses, esTaper) {
@@ -5081,6 +5120,7 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
         todosAvisos.push('Semana '+w+': respuesta cortada por límite de extensión, se recuperaron '+semData.sesiones.length+' de '+sesionesEnum.length+' sesión(es) planificadas. Revisa si faltan días.');
       }
 
+      semData.sesiones = sanearSesiones(semData.sesiones);
       (semData.sesiones||[]).forEach(function(ses,i){
         ses.id = 'G'+w+'S'+(i+1);
         var planA = sesionesEnum[i];
@@ -5236,7 +5276,7 @@ function imprimirSesion(id) {
 
   // Build WhatsApp text summary
   var waTxt = 'ORION Master - '+s.nombre+'\n'+s.dia+(tot?' | '+tot:'')+'\nObjetivo: '+s.objetivo+'\n\n';
-  s.bloques.forEach(function(b,i){
+  (s.bloques||[]).forEach(function(b,i){
     var dB=calcDistBloque(b);
     waTxt+=(i+1)+'. '+b.tipo+(dB?' ('+dB+'m)':'')+'\n';
     if(b.series&&b.series.length){
@@ -5294,7 +5334,7 @@ function imprimirSesion(id) {
   p.push('<div class="obj"><b>Objetivo:<\/b> '+s.objetivo+'<\/div>');
 
   // Bloques with full detail
-  s.bloques.forEach(function(b,i){
+  (s.bloques||[]).forEach(function(b,i){
     var dB=calcDistBloque(b);
     p.push('<div class="blq">');
     p.push('<div class="bh"><span>'+(i+1)+'. '+b.tipo+(dB?' &mdash; '+dB+'m':'')+'<\/span>'+(b.ritmo?'<span class="rtag">'+b.ritmo+'<\/span>':'')+'<\/div>');
