@@ -1808,8 +1808,8 @@ const BLOQUES = [
           {
             id:'B5-W1-A', tipo:'A', nombre:'Sesión 1 — Línea base: técnica de pecho + test de marcas',
             fecha:'2026-10-05', dia:'Lun 5 Oct', intensidad:'📊 Test + técnica',
-            objetivo:'Fijar la línea base de 50 pecho y 100 IM con técnica fresca de pecho, 12 días antes de la Copa.',
-            rationale:'No hay tiempos oficiales de estas dos pruebas en la base de entrenamiento: el test del lunes fija la referencia para calcular los ritmos de la semana 2. Técnica primero para que el test salga limpio.',
+            objetivo:'Medir el estado actual en 100 IM y 50 pecho contra tus marcas de competencia, 12 días antes de la Copa.',
+            rationale:'Marcas reales: Felipe 50 pecho 44,15 (29-08) y 100 IM 1:30,31 (20-06); Sergio 50 pecho 37,2 (29-08) y 100 IM 1:18,19 (20-06). El test fija el punto de partida y los ritmos de la semana 2. Primero IM y después pecho: Felipe pierde ~6% en el IM cuando viene tras pecho intenso.',
             bloques:[
               {
                 tipo:'Calentamiento progresivo',
@@ -1825,26 +1825,26 @@ const BLOQUES = [
                 desc:'4×100 pecho con snorkel: tirón, patada y deslizamiento sin apuro.',
                 series:[{reps:4,dist:100,estilo:'Pecho',implemento:'snorkel',salida:'',descanso:'25seg'}],
                 descanso_bloque:'1min',
-                mf:'Deslizamiento completo tras cada patada; cuenta brazadas por largo y mantenlas.',
+                mf:'Glide explosivo y recobro rápido: es el mecanismo del pecho que más te limita; cuenta brazadas y mantenlas.',
                 ms:'Patada simétrica y potente; sentir el avance en cada ciclo.',
                 ritmo:'Técnico, sin buscar velocidad'
               },
               {
-                tipo:'Test 1 — 50 pecho all out',
-                desc:'1×50 pecho máximo desde bloque. Registrar el tiempo y recuperar completo antes del siguiente test.',
-                series:[{reps:1,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:''}],
+                tipo:'Test 1 — 100 IM all out',
+                desc:'1×100 combinado máximo desde bloque (25 mariposa, 25 espalda, 25 pecho, 25 libre). Registrar el tiempo.',
+                series:[{reps:1,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'4min',
-                mf:'Máximo desde la salida con subacuático completo; referencia a mejorar: tus 49,6-51,4 de entrenamiento.',
-                ms:'Atacar desde el bloque; no guardar nada para el final.',
+                mf:'Referencia: tu marca de competencia, 1:30,31 (Copa Salvavidas, 20-06). Mariposa controlada, pecho fuerte, libre a fondo.',
+                ms:'Referencia: 1:18,19 (Copa Salvavidas, 20-06). Atacar mariposa y espalda; cerrar el libre sin ceder.',
                 ritmo:'Máximo'
               },
               {
-                tipo:'Test 2 — 100 IM all out',
-                desc:'1×100 combinado máximo desde bloque (25 mariposa, 25 espalda, 25 pecho, 25 libre). Registrar el tiempo.',
-                series:[{reps:1,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:''}],
-                descanso_bloque:'3min',
-                mf:'Repartir el esfuerzo: mariposa controlada, pecho fuerte y libre a fondo.',
-                ms:'Atacar mariposa y espalda; cerrar el libre sin ceder.',
+                tipo:'Test 2 — 50 pecho all out',
+                desc:'1×50 pecho máximo desde bloque, con subacuático completo. Registrar el tiempo.',
+                series:[{reps:1,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:''}],
+                descanso_bloque:'2min',
+                mf:'Referencia: 44,15 (Orca Chile, 29-08). Subacuático completo y glide en cada ciclo.',
+                ms:'Referencia: 37,2 (IND Orcas, 29-08). Atacar desde el bloque sin guardar nada.',
                 ritmo:'Máximo'
               },
               {
@@ -1852,16 +1852,16 @@ const BLOQUES = [
                 desc:'4×150 libre con pull-buoy y respiración progresiva 3-5-7 para sacar el lactato.',
                 series:[{reps:4,dist:150,estilo:'Libre',implemento:'pull-buoy',salida:'',descanso:'20seg'}],
                 descanso_bloque:'1min',
-                mf:'Respiración controlada, brazada larga.',
+                mf:'Respiración 3-5-7 y brazada larga; tu SWOLF base es 35.',
                 ms:'Agarre firme y eficiencia, sin acelerar.',
                 ritmo:'Aeróbico suave'
               },
               {
                 tipo:'Patada con tabla',
-                desc:'6×50 patada con tabla alternando mariposa, espalda y libre (sin pecho, para cuidar las rodillas), 2 de cada una.',
+                desc:'6×50 patada con tabla alternando pecho y mariposa/espalda, foco en flotación del tren inferior.',
                 series:[{reps:6,dist:50,estilo:'Combinado',implemento:'tabla',salida:'',descanso:'25seg'}],
                 descanso_bloque:'1min',
-                mf:'Patada amplia de mariposa y espalda para las transiciones del IM.',
+                mf:'Cadera alta y patada continua: la flotación del tren inferior es lo que más pesa en tu IM.',
                 ms:'Patada continua, sin parar en la pared.',
                 ritmo:'Moderado'
               },
@@ -1870,7 +1870,7 @@ const BLOQUES = [
                 desc:'250 suave: 200 libre y 50 pecho muy relajado.',
                 series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''},{reps:1,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'',
-                mf:'Soltar hombros.',
+                mf:'Soltar hombros y bajar pulsaciones.',
                 ms:'Recuperar y respirar profundo.',
                 ritmo:'Suave'
               },
@@ -1879,15 +1879,15 @@ const BLOQUES = [
           {
             id:'B5-W1-B', tipo:'B', nombre:'Sesión 2 — Umbral láctico: pecho a ritmo de carrera + IM roto',
             fecha:'2026-10-07', dia:'Mié 7 Oct', intensidad:'🔥 Umbral láctico',
-            objetivo:'Tolerar el lactato de la segunda mitad del 100 IM y sostener la calidad del 50 pecho.',
-            rationale:'Los últimos 50 del IM (pecho y libre) se nadan con lactato; el broken entrena ese ritmo con pausas. El set de 50 pecho con 40 segundos de descanso replica tu patrón de entrenamiento (49,6-51,4 con salida 1:30).',
+            objetivo:'Sostener el ritmo de carrera del 50 pecho y tolerar el lactato de la segunda mitad del 100 IM.',
+            rationale:'Descanso de 1:30 en el pecho: es el que a Felipe le funciona sin colapso láctico y el mínimo útil para Sergio (1:20-1:30). El IM va después con descanso amplio porque el ritmo cae ~6% tras pecho intenso. Pull una vez por semana para aislar brazos.',
             bloques:[
               {
                 tipo:'Calentamiento',
                 desc:'200 libre, 200 espalda y 6×50 libre con aletas en build.',
                 series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:'20seg'},{reps:1,dist:200,estilo:'Espalda',implemento:'',salida:'',descanso:'20seg'},{reps:6,dist:50,estilo:'Libre',implemento:'aletas',salida:'',descanso:'15seg'}],
                 descanso_bloque:'1min',
-                mf:'Posición alta con aletas; subir ritmo de a poco.',
+                mf:'Posición alta con aletas; subir ritmo de a poco (las aletas, solo en build).',
                 ms:'Activar cadencia sin gastar.',
                 ritmo:'Build'
               },
@@ -1896,32 +1896,32 @@ const BLOQUES = [
                 desc:'4×75 pecho con palas: agarre temprano y recobro rápido.',
                 series:[{reps:4,dist:75,estilo:'Pecho',implemento:'palas',salida:'',descanso:'30seg'}],
                 descanso_bloque:'1min',
-                mf:'Tracción completa sin forzar el hombro.',
+                mf:'Tracción completa sin forzar el hombro; el trabajo con snorkel y palas es lo que mejor transfieres a velocidad.',
                 ms:'Sentir el agua en cada fase de la brazada.',
                 ritmo:'Controlado-fuerte'
               },
               {
                 tipo:'Pecho a ritmo de carrera',
-                desc:'6×50 pecho a ritmo de carrera con 40 segundos de descanso: el mismo tiempo en las seis.',
-                series:[{reps:6,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'40seg'}],
-                descanso_bloque:'2min30seg',
-                mf:'Meta 49,5-51,0 en las seis; si la quinta y la sexta suben más de 1,5 s, corta el set.',
-                ms:'Referencia: tu test del lunes más 1 s; las dos últimas igualan el test.',
+                desc:'6×50 pecho a ritmo de carrera con 1:30 de descanso, desde el agua: el mismo tiempo en las seis.',
+                series:[{reps:6,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'1min30seg'}],
+                descanso_bloque:'3min',
+                mf:'Meta 47,5-49,5 en las seis (tus 8×50 del 25-08: 47,0-50,4). Si la sexta pasa 1,5 s de la primera, corta el set.',
+                ms:'Meta 43,0-44,5 (tus 8×50 del 11-08: 43,6-46,2). Mantener el descanso de 1:30.',
                 ritmo:'Ritmo de carrera (50 pecho)'
               },
               {
                 tipo:'IM roto (broken)',
-                desc:'4×100 combinado roto: 25 mariposa, 25 espalda, 25 pecho y 25 libre con 10 segundos de pausa en cada pared; foco en transiciones.',
-                series:[{reps:4,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:'2min'}],
-                descanso_bloque:'2min30seg',
-                mf:'Transiciones limpias; pecho fuerte aunque venga cansado.',
-                ms:'Mariposa agresiva y no ceder en el pecho.',
-                ritmo:'Fuerte (85-90% del test)'
+                desc:'3×100 combinado roto: 25 mariposa, 25 espalda, 25 pecho y 25 libre con 5 segundos de pausa en cada pared; foco en transiciones.',
+                series:[{reps:3,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:'2min30seg'}],
+                descanso_bloque:'3min',
+                mf:'Meta 1:37,5-1:40,0 (tus IM rotos del 11-08: 1:38,2 y 1:40,6). Viene tras pecho: el descanso amplio es a propósito.',
+                ms:'Meta 1:29,0-1:31,0 (11-08: 1:30,0 y 1:31,5). Transiciones limpias.',
+                ritmo:'Fuerte (broken de carrera)'
               },
               {
                 tipo:'Aeróbico con pull',
-                desc:'5×100 libre con pull-buoy, respiración cada 3 brazadas, para recuperar.',
-                series:[{reps:5,dist:100,estilo:'Libre',implemento:'pull-buoy',salida:'',descanso:'20seg'}],
+                desc:'6×100 libre con pull-buoy y respiración cada 3 brazadas, para recuperar.',
+                series:[{reps:6,dist:100,estilo:'Libre',implemento:'pull-buoy',salida:'',descanso:'20seg'}],
                 descanso_bloque:'1min',
                 mf:'Brazada larga y eficiente, DPS alto.',
                 ms:'Mantener agarre firme sin acelerar.',
@@ -1932,7 +1932,7 @@ const BLOQUES = [
                 desc:'300 suave: 200 libre con snorkel y 100 espalda.',
                 series:[{reps:1,dist:200,estilo:'Libre',implemento:'snorkel',salida:'',descanso:''},{reps:1,dist:100,estilo:'Espalda',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'',
-                mf:'Soltar hombros.',
+                mf:'Soltar hombros y bajar pulsaciones.',
                 ms:'Recuperar y respirar profundo.',
                 ritmo:'Suave'
               },
@@ -1942,7 +1942,7 @@ const BLOQUES = [
             id:'B5-W1-C', tipo:'C', nombre:'Sesión 3 — Potencia: salida, subacuático y velocidad',
             fecha:'2026-10-09', dia:'Vie 9 Oct', intensidad:'⚡ Neuromuscular',
             objetivo:'Afinar la salida, el subacuático de pecho y la velocidad máxima en 25 y 50 metros.',
-            rationale:'Repeticiones cortas con descanso casi completo para que cada una salga máxima; el volumen aeróbico alrededor completa los 2000 m sin dejar fatiga.',
+            rationale:'La velocidad de 25 m va primero, antes de acumular lactato (Felipe pierde explosividad si viene después). Descanso largo antes de los máximos: Sergio rinde mejor con 3 min de pausa táctica. El volumen aeróbico alrededor completa los 2000 m sin dejar fatiga.',
             bloques:[
               {
                 tipo:'Calentamiento',
@@ -1957,7 +1957,7 @@ const BLOQUES = [
                 tipo:'Salida y subacuático',
                 desc:'8×25 pecho: salida desde bloque, subacuático completo y 5 brazadas a máxima velocidad.',
                 series:[{reps:8,dist:25,estilo:'Pecho',implemento:'',salida:'',descanso:'45seg'}],
-                descanso_bloque:'1min30seg',
+                descanso_bloque:'3min',
                 mf:'Subacuático completo tras la salida y primer ciclo fuerte.',
                 ms:'Salida explosiva; entrar al agua ya acelerando.',
                 ritmo:'Máximo'
@@ -1966,9 +1966,9 @@ const BLOQUES = [
                 tipo:'Velocidad 50 pecho',
                 desc:'4×50 pecho máximo desde bloque con descanso casi completo.',
                 series:[{reps:4,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'1min30seg'}],
-                descanso_bloque:'2min',
-                mf:'Cada 50 igual o mejor que tu test del lunes; calidad antes que cantidad.',
-                ms:'Cada repetición con intención de competencia: salir fuerte y cerrar fuerte.',
+                descanso_bloque:'3min',
+                mf:'Cada 50 dentro de 1 s de tu marca (44,15); calidad antes que cantidad.',
+                ms:'Cada 50 dentro de 1 s de tu marca (37,2).',
                 ritmo:'Máximo'
               },
               {
@@ -1994,7 +1994,7 @@ const BLOQUES = [
                 desc:'300 suave: 200 libre y 100 espalda.',
                 series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''},{reps:1,dist:100,estilo:'Espalda',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'',
-                mf:'Soltar hombros.',
+                mf:'Soltar hombros y bajar pulsaciones.',
                 ms:'Recuperar y respirar profundo.',
                 ritmo:'Suave'
               },
@@ -2006,14 +2006,14 @@ const BLOQUES = [
         id:'B5-W2', nombre:'Semana 2 (12-17 Oct) — Ritmo de carrera, activación y Copa',
         sesiones:[
           {
-            id:'B5-W2-A', tipo:'A', nombre:'Sesión 4 — Ritmo de carrera: 50 pecho y 100 IM',
+            id:'B5-W2-A', tipo:'A', nombre:'Sesión 4 — Simulacro y ritmo de carrera: 100 IM y 50 pecho',
             fecha:'2026-10-12', dia:'Lun 12 Oct', intensidad:'🏁 Ritmo de carrera',
-            objetivo:'Nadar a ritmo de competencia y ensayar las dos pruebas contra los tiempos del test de la semana 1.',
-            rationale:'Cinco días antes de la Copa: calidad alta con volumen de calidad corto y recuperación amplia. El simulacro final se compara con el test del lunes pasado.',
+            objetivo:'Ensayar las dos pruebas frescos y compararlas con el test de la semana 1 y con tus marcas.',
+            rationale:'Cinco días antes de la Copa. Los simulacros van primero, con el cuerpo fresco como en competencia, IM antes que pecho. Después, ritmo de carrera en formato broken con descansos amplios (3 min), el formato en que mejor responde Felipe.',
             bloques:[
               {
                 tipo:'Calentamiento de carrera',
-                desc:'400 libre suave, 4×50 build (25 pecho + 25 libre) y 4×25 libre con aletas en build.',
+                desc:'400 libre suave, 4×50 build (combinado) y 4×25 libre con aletas en build.',
                 series:[{reps:1,dist:400,estilo:'Libre',implemento:'',salida:'',descanso:'30seg'},{reps:4,dist:50,estilo:'Combinado',implemento:'',salida:'',descanso:'20seg'},{reps:4,dist:25,estilo:'Libre',implemento:'aletas',salida:'',descanso:'15seg'}],
                 descanso_bloque:'1min',
                 mf:'Subir de a poco hasta ritmo de carrera en los últimos 25.',
@@ -2021,45 +2021,45 @@ const BLOQUES = [
                 ritmo:'Build'
               },
               {
-                tipo:'IM roto a ritmo de carrera',
-                desc:'3×100 combinado roto (25 por estilo, 5 segundos de pausa en cada pared) a ritmo de carrera.',
-                series:[{reps:3,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:'2min30seg'}],
-                descanso_bloque:'3min',
-                mf:'Ritmo de carrera del IM en cada 25; pecho sin perder el deslizamiento.',
-                ms:'Igualar el ritmo de tu test del lunes pasado en cada estilo; cerrar fuerte el libre.',
-                ritmo:'Ritmo de carrera (100 IM)'
-              },
-              {
-                tipo:'Pecho a ritmo de carrera',
-                desc:'4×50 pecho a ritmo de carrera desde bloque con descanso casi completo.',
-                series:[{reps:4,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'1min30seg'}],
-                descanso_bloque:'2min',
-                mf:'Meta 49,0-50,0 en las cuatro (tu mejor registro de entrenamiento: 49,6).',
-                ms:'Tu test del lunes pasado menos 0,5 s en las dos últimas; atacar.',
-                ritmo:'Ritmo de carrera (50 pecho)'
-              },
-              {
                 tipo:'Simulacro: 100 IM',
                 desc:'1×100 combinado máximo desde bloque, como en la competencia. Comparar con el test de la semana 1.',
                 series:[{reps:1,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'4min',
-                mf:'Repartir el esfuerzo y cerrar fuerte; objetivo: mejorar el test de la semana 1.',
-                ms:'Salir agresivo y no administrar el libre final.',
+                mf:'Objetivo: igualar o mejorar el test del lunes pasado; tu marca es 1:30,31.',
+                ms:'Objetivo: igualar o mejorar el test del lunes pasado; tu marca es 1:18,19.',
                 ritmo:'Máximo'
               },
               {
                 tipo:'Simulacro: 50 pecho',
-                desc:'1×50 pecho máximo desde bloque, tras los 4 minutos de recuperación del bloque anterior.',
+                desc:'1×50 pecho máximo desde bloque, con subacuático completo.',
                 series:[{reps:1,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:''}],
-                descanso_bloque:'2min',
-                mf:'Subacuático completo y cierre fuerte; objetivo: mejorar tu test.',
-                ms:'Máximo desde el bloque; sin guardar nada.',
+                descanso_bloque:'3min',
+                mf:'Referencia 44,15: subacuático completo y cierre fuerte.',
+                ms:'Referencia 37,2: máximo desde el bloque.',
                 ritmo:'Máximo'
               },
               {
+                tipo:'Pecho a ritmo de carrera',
+                desc:'4×50 pecho a ritmo de carrera, desde el agua, con 1:30 de descanso.',
+                series:[{reps:4,dist:50,estilo:'Pecho',implemento:'',salida:'',descanso:'1min30seg'}],
+                descanso_bloque:'3min',
+                mf:'Meta: igualar o mejorar el ritmo de la sesión 2 (47,5-49,5).',
+                ms:'Meta 43,0-44,0.',
+                ritmo:'Ritmo de carrera (50 pecho)'
+              },
+              {
+                tipo:'IM roto a ritmo de carrera',
+                desc:'2×100 combinado roto (25 por estilo, 5 segundos de pausa en cada pared) con 3 minutos de descanso.',
+                series:[{reps:2,dist:100,estilo:'Combinado',implemento:'',salida:'',descanso:'3min'}],
+                descanso_bloque:'3min30seg',
+                mf:'Meta 1:36,5-1:38,5 (11-08: 1:38,2 y 1:40,6). Descanso de 3 min: el formato donde mejor ejecutas.',
+                ms:'Meta 1:28,0-1:30,0 (11-08: 1:30,0 y 1:31,5).',
+                ritmo:'Ritmo de carrera (100 IM)'
+              },
+              {
                 tipo:'Aeróbico regenerativo con pull',
-                desc:'6×100 libre con pull-buoy y respiración 3-5-7 para recuperar tras el simulacro.',
-                series:[{reps:6,dist:100,estilo:'Libre',implemento:'pull-buoy',salida:'',descanso:'20seg'}],
+                desc:'7×100 libre con pull-buoy y respiración 3-5-7 para recuperar tras los simulacros.',
+                series:[{reps:7,dist:100,estilo:'Libre',implemento:'pull-buoy',salida:'',descanso:'20seg'}],
                 descanso_bloque:'1min',
                 mf:'Brazada larga y relajada.',
                 ms:'Agarre firme sin acelerar.',
@@ -2070,7 +2070,7 @@ const BLOQUES = [
                 desc:'300 suave: 200 libre y 100 espalda.',
                 series:[{reps:1,dist:200,estilo:'Libre',implemento:'',salida:'',descanso:''},{reps:1,dist:100,estilo:'Espalda',implemento:'',salida:'',descanso:''}],
                 descanso_bloque:'',
-                mf:'Soltar hombros.',
+                mf:'Soltar hombros y bajar pulsaciones.',
                 ms:'Recuperar y respirar profundo.',
                 ritmo:'Suave'
               },
@@ -2080,7 +2080,7 @@ const BLOQUES = [
             id:'B5-W2-B', tipo:'B', nombre:'Sesión 5 — Activación pre-competencia (taper)',
             fecha:'2026-10-14', dia:'Mié 14 Oct', intensidad:'⚡ Activación (taper)',
             objetivo:'Mantener la velocidad y las sensaciones de carrera con calidad corta, y mucho nado suave para no perder el agua.',
-            rationale:'A tres días de la Copa: toques cortos de velocidad con recuperación completa. El mínimo de 2000 m se completa con volumen fácil que no deja fatiga.',
+            rationale:'A tres días de la Copa: toques cortos de velocidad con recuperación completa; no se buscan tiempos. El mínimo de 2000 m se completa con volumen fácil que no deja fatiga.',
             bloques:[
               {
                 tipo:'Calentamiento',
@@ -2202,8 +2202,8 @@ const BLOQUES = [
                 desc:'50 pecho y 100 combinado (según programa oficial). Entre pruebas: 200 m suaves y recuperar.',
                 series:[],
                 descanso_bloque:'',
-                mf:'Subacuático completo, glide en cada ciclo y cierre fuerte; en el IM repartir el esfuerzo.',
-                ms:'Salir fuerte desde el bloque, atacar la mariposa y cerrar el libre sin ceder.',
+                mf:'Marcas a mejorar: 50 pecho 44,15 y 100 IM 1:30,31. Subacuático completo, glide en cada ciclo y cierre fuerte.',
+                ms:'Marcas a mejorar: 50 pecho 37,2 y 100 IM 1:18,19. Salir fuerte desde el bloque, atacar la mariposa y cerrar el libre sin ceder.',
                 ritmo:'Máximo'
               },
             ]
