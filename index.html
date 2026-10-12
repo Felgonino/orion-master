@@ -3807,16 +3807,17 @@ async function analizarFotos() {
     'Para las VUELTAS: extrae los datos CRUDOS de cada intervalo de las fotos de Garmin (intervalo, tiempo, distancia_m, ritmo) en el campo "vueltas". Son datos cortos, NO un analisis. Estos se guardan para seguimiento de evolucion. Usa esos mismos tiempos para el analisis por bloques.\n' +
     'IMPORTANTE sobre "antecedentes_planes": estos NO son ajustes a esta sesion (que ya paso y no se repite), sino OBSERVACIONES que ORION usara al disenar los PROXIMOS planes del nadador. Ej: "Felipe sufre en intermitentes con descanso de 60seg, acumula lactato; en futuros planes dosificar mejor o subir descanso". Son aprendizajes para el futuro, no correcciones del pasado.\n' +
     (nadObj.objetivo ? 'PERSONALIZACION: el objetivo tecnico declarado de ' + S.nadador + ' es "' + nadObj.objetivo + '". Al menos uno de los "puntos_positivos" o "puntos_mejora" debe conectar explicitamente con ese objetivo (ej: si el objetivo es "menos brazadas, mayor DPS" y la brazada media de hoy fue alta o baja respecto a su referencia, comentalo en relacion directa a esa meta).\n\n' : '\n') +
+    'Se conciso: puntos_positivos y puntos_mejora maximo 4 items cada uno, una frase por item. El campo "vueltas" va AL FINAL del JSON y debe incluir TODOS los intervalos de TODAS las fotos de vueltas (no omitas ninguno).\n' +
     'Devuelve SOLO JSON valido sin backticks, sin texto antes ni despues:\n' +
-    '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"vueltas":[{"intervalo":1,"tiempo":"0:00","distancia_m":50,"ritmo":"1:40"}],"analisis_bloques":[{"bloque":"nombre del bloque/set","desempeno":"analisis con tiempos reales serie por serie, patrones detectados, vs objetivo","valoracion":"good|info|warn|alert"}],"nota_tiempo":"comentario sobre tiempo total vs movimiento considerando descansos planificados y posible tiempo post-nado, o vacio si no aplica","evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"antecedentes_planes":[]}}';
+    '{"resumen":{"tiempo_total":null,"tiempo_movimiento":null,"distancia_m":null,"ritmo_medio":null,"fc_media":null,"fc_max":null,"cadencia_ppm":null,"brazadas_totales":null,"brazada_media_largo":null,"swolf_medio":null,"te_aerobico":null,"te_anaerobico":null,"carga_ejercicio":null,"calorias_totales":null,"velocidad_media_kmh":null},"analisis_bloques":[{"bloque":"nombre del bloque/set","desempeno":"analisis con tiempos reales serie por serie, patrones detectados, vs objetivo (maximo 70 palabras por bloque)","valoracion":"good|info|warn|alert"}],"nota_tiempo":"comentario sobre tiempo total vs movimiento considerando descansos planificados y posible tiempo post-nado, o vacio si no aplica","evaluacion":{"cumple_plan":true,"puntos_positivos":[],"puntos_mejora":[],"antecedentes_planes":[]},"vueltas":[{"intervalo":1,"tiempo":"0:00","distancia_m":50,"ritmo":"1:40"}]}';
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000);
+    const timeoutId = setTimeout(() => controller.abort(), 150000);
     const resp=await fetch('https://orion-proxy.felgonino.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       signal: controller.signal,
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:5000,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:12000,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})
     });
     clearTimeout(timeoutId);
     clearInterval(iv); setLoad(100,'Análisis completo ✓','');
@@ -3838,12 +3839,19 @@ async function analizarFotos() {
     } catch(parseErr) {
       // Intento de reparar JSON truncado: cerrar arrays/objetos abiertos
       console.error('JSON parse error, intentando reparar:', parseErr.message);
-      throw new Error('La respuesta de la IA llegó incompleta. Intenta de nuevo con menos fotos de vueltas (sube solo las 2-3 más relevantes).');
+      var rep = repararJSONTruncado(raw);
+      if (rep && rep.resumen) {
+        S.extracted = rep;
+        corregirNombreNadador(S.extracted, S.nadador);
+        toast('⚠️ El análisis llegó cortado: se recuperó lo disponible (revisa las vueltas)', 5000);
+      } else {
+        throw new Error('La respuesta de la IA llegó cortada. Reintenta el análisis con las mismas fotos.');
+      }
     }
     setTimeout(()=>{ lov(false); renderResultado(); },300);
   } catch(e){
     clearInterval(iv); lov(false);
-    var msg = e.name === 'AbortError' ? 'El análisis tardó demasiado. Intenta con menos fotos o reintenta.' : e.message;
+    var msg = e.name === 'AbortError' ? 'El análisis tardó demasiado. Reintenta con las mismas fotos.' : e.message;
     toast('❌ '+msg,5000);
   }
 }
