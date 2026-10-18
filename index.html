@@ -1797,7 +1797,7 @@ const BLOQUES = [
     ]
   },
   {
-    id:'B5', activo:true, grupo:'A', color:'#2874A6',
+    id:'B5', activo:false, grupo:'A', color:'#2874A6',
     nombre:'🏆 Copa Delfines 17 octubre — 50 pecho + 100 combinado',
     subtitulo:'50m Pecho · 100m Combinado · Piscina',
     fechaFin:'2026-10-17',
@@ -2212,6 +2212,680 @@ const BLOQUES = [
       },
     ]
   },
+  {
+  "id": "B6",
+  "activo": true,
+  "grupo": "A",
+  "color": "#117864",
+  "nombre": "🌊 Seaman Zapallar 8 noviembre — 3K en mar",
+  "subtitulo": "3K aguas abiertas · 2 piscina + 1 mar por semana · Felipe y Sergio",
+  "fechaFin": "2026-11-08",
+  "semanas": [
+    {
+      "id": "B6-W1",
+      "nombre": "Semana 1 (19-25 Oct) — Reactivación y base aeróbica",
+      "sesiones": [
+        {
+          "id": "B6-W1-A",
+          "tipo": "A",
+          "nombre": "Sesión 1 — Reactivación aeróbica post-Copa + sighting",
+          "fecha": "2026-10-19",
+          "dia": "Lun 19 Oct",
+          "intensidad": "🟢 Aeróbico",
+          "objetivo": "Soltar la carga de la Copa Delfines y volver a la base aeróbica de 3K, practicando orientación (sighting) en piscina.",
+          "rationale": "Dos días después de competir, el foco es volumen controlado sin intensidad. El pull aísla brazos, que es lo que mejor te funciona (antecedentes de Felipe: pull y aislamiento de tren superior). La patada con tabla trabaja la flotación del tren inferior, tu limitante con y sin traje.",
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "400 libre suave y 4×50 libre con aletas en build.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 400,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                },
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "aletas",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Soltar hombros; aletas solo en build, posición alta.",
+              "ms": "Entrar en calor sin prisa; cadencia suave.",
+              "ritmo": "Suave"
+            },
+            {
+              "tipo": "Sighting en piscina",
+              "desc": "6×100 libre levantando la vista cada 6 brazadas, como en el mar.",
+              "series": [
+                {
+                  "reps": 6,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "25seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Levantar la vista sin hundir la cadera; mantener el ritmo mientras orientas.",
+              "ms": "Orientar rápido y volver a la línea de brazada, sin cortar el ritmo.",
+              "ritmo": "Aeróbico 1:46–1:50/100 (Felipe) · sensación 6/10 (Sergio)"
+            },
+            {
+              "tipo": "Base aeróbica con pull",
+              "desc": "4×200 libre con pull-buoy, respiración bilateral.",
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "pull-buoy",
+                  "salida": "",
+                  "descanso": "30seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Meta parcial 1:46–1:47/100 (en B5 el pull salió a 1:49–1:50; el objetivo es 1:45 en los 3K).",
+              "ms": "Pull aeróbico 1:27–1:33/100, igual que tus 7×100 de B4; sin forzar.",
+              "ritmo": "Aeróbico 1:46–1:48/100 (Felipe) · 1:30–1:35/100 (Sergio)"
+            },
+            {
+              "tipo": "Patada con tabla",
+              "desc": "4×50 patada con tabla alternando libre y pecho, foco en cadera alta.",
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "tabla",
+                  "salida": "",
+                  "descanso": "25seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Cadera alta y patada continua: la flotación del tren inferior es tu limitante.",
+              "ms": "Patada continua, sin parar en la pared.",
+              "ritmo": "Moderado"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre muy suave.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Bajar pulsaciones.",
+              "ms": "Soltar y respirar profundo.",
+              "ritmo": "Suave"
+            }
+          ],
+          "volumen": 2400
+        },
+        {
+          "id": "B6-W1-B",
+          "tipo": "B",
+          "nombre": "Sesión 2 — Ritmo crucero sostenido (5×300)",
+          "fecha": "2026-10-21",
+          "dia": "Mié 21 Oct",
+          "intensidad": "🔵 Umbral aeróbico",
+          "objetivo": "Sostener el ritmo crucero de 3K en repeticiones largas con descanso corto, el formato más parecido a nadar continuo.",
+          "rationale": "Tu crucero confiable es 1:43–1:46 en 25 m. Con 5×300 y 30 seg de descanso acumulas tiempo a ritmo sin llegar al lactato de las series cortas con poco descanso, que son las que más te cuestan. Sergio mantiene SWOLF 33 sin degradarse en bloques aeróbicos largos.",
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "400 libre suave y 4×100 libre progresivo.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 400,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                },
+                {
+                  "reps": 4,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Soltar y subir de a poco.",
+              "ms": "Subir de a poco; técnica limpia.",
+              "ritmo": "Progresivo"
+            },
+            {
+              "tipo": "Serie de ritmo crucero",
+              "desc": "5×300 libre a ritmo constante, mismo tiempo en las 5.",
+              "series": [
+                {
+                  "reps": 5,
+                  "dist": 300,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "30seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Objetivo 1:46–1:48/100; en B3 y B4 hiciste crucero 1:41–1:46, no partas más rápido de lo que puedes sostener.",
+              "ms": "Crucero de 1:32–1:35/100 (B4-W3-B y B4-W4-A); regularidad entre repeticiones.",
+              "ritmo": "Crucero 1:46–1:48/100 (Felipe) · 1:32–1:35/100 (Sergio)"
+            },
+            {
+              "tipo": "Activación",
+              "desc": "4×50 libre rápido pero controlado, para cerrar con velocidad.",
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Rápido, sin perder la técnica (SWOLF 35 de referencia).",
+              "ms": "Atacar con eficiencia; explosividad sin agarrotarte.",
+              "ritmo": "Rápido controlado"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre muy suave.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Soltar.",
+              "ms": "Soltar.",
+              "ritmo": "Suave"
+            }
+          ],
+          "volumen": 2700
+        },
+        {
+          "id": "B6-W1-C",
+          "tipo": "C",
+          "nombre": "Sesión 3 — Mar: fondo aeróbico con traje",
+          "fecha": "2026-10-24",
+          "dia": "Sáb 24 Oct",
+          "intensidad": "🌊 Aguas abiertas",
+          "objetivo": "Volver al mar con traje y construir fondo aeróbico a ritmo cómodo, practicando sighting y respiración bilateral.",
+          "rationale": "Primer contacto con el mar desde el Seaman Concón (22-08). El ritmo es más lento que el de carrera a propósito: lo que se trabaja es la adaptación al agua fría y la orientación. Con traje mejoras mucho (tu propia anotación), y debes probar el mismo traje que usarás en Zapallar.",
+          "bloques": [
+            {
+              "tipo": "Entrada progresiva",
+              "desc": "10-12 min nado suave, sighting cada 6-8 brazadas.",
+              "series": [],
+              "dist_total": 500,
+              "descanso_bloque": "",
+              "mf": "Adaptar respiración al agua fría y al oleaje.",
+              "ms": "Entrada tranquila; encontrar el ritmo.",
+              "ritmo": "Suave"
+            },
+            {
+              "tipo": "Fondo continuo",
+              "desc": "1800 m continuos a ritmo aeróbico cómodo, respiración bilateral.",
+              "series": [],
+              "dist_total": 1800,
+              "descanso_bloque": "",
+              "mf": "Aeróbico 1:50–1:55/100; en Concón fuiste a 1:46 de media, hoy bastante más lento.",
+              "ms": "Por sensación 6/10, ritmo constante; registra tu ritmo con el reloj para fijar referencia en mar.",
+              "ritmo": "Aeróbico sostenido"
+            },
+            {
+              "tipo": "Salida",
+              "desc": "200 m suave de regreso.",
+              "series": [],
+              "dist_total": 200,
+              "descanso_bloque": "",
+              "mf": "Bajar pulsaciones.",
+              "ms": "Técnica hasta el final.",
+              "ritmo": "Suave"
+            }
+          ],
+          "volumen": 2500
+        }
+      ]
+    },
+    {
+      "id": "B6-W2",
+      "nombre": "Semana 2 (26 Oct-1 Nov) — Ritmo de carrera y simulacro",
+      "sesiones": [
+        {
+          "id": "B6-W2-A",
+          "tipo": "A",
+          "nombre": "Sesión 4 — Series largas a ritmo de carrera (5×400)",
+          "fecha": "2026-10-26",
+          "dia": "Lun 26 Oct",
+          "intensidad": "🔥 Ritmo carrera",
+          "objetivo": "Acumular 2000 m a ritmo cercano al objetivo de 3K, con descanso corto.",
+          "rationale": "Es la sesión específica del bloque. 5×400 a ritmo de 3K con 30 seg de descanso acerca el estímulo al nado continuo. Hay 12 días a la competencia: todavía se puede cargar.",
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "400 libre suave y 6×50 libre progresivo.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 400,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                },
+                {
+                  "reps": 6,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Subir revoluciones progresivo.",
+              "ms": "Despertar el ritmo; técnica limpia.",
+              "ritmo": "Build"
+            },
+            {
+              "tipo": "Series a ritmo objetivo",
+              "desc": "5×400 libre a ritmo de 3K, sin descender ni subir.",
+              "series": [
+                {
+                  "reps": 5,
+                  "dist": 400,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "30seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Objetivo 1:44–1:46/100 (meta 1:45 en los 3K). Si la repetición 4 se te cae más de 3 seg, para y avisa.",
+              "ms": "Ritmo parejo 1:32–1:35/100; es tu crucero real.",
+              "ritmo": "Ritmo 3K · 1:44–1:46/100 (Felipe) · 1:32–1:35/100 (Sergio)"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre suave.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Soltar.",
+              "ms": "Soltar.",
+              "ritmo": "Suave"
+            }
+          ],
+          "volumen": 2900
+        },
+        {
+          "id": "B6-W2-B",
+          "tipo": "B",
+          "nombre": "Sesión 5 — Cambios de ritmo tipo boyas + pull",
+          "fecha": "2026-10-28",
+          "dia": "Mié 28 Oct",
+          "intensidad": "🟡 Cambios de ritmo",
+          "objetivo": "Practicar las aceleraciones de una carrera de mar (salida, boyas, llegada) manteniendo la eficiencia.",
+          "rationale": "En el mar el ritmo no es constante: hay arranque, giros de boyas y el sprint final. El 8×150 con 50 crucero/50 fuerte/50 crucero entrena eso. El pull con palas consolida la tracción de brazos, que es tu fortaleza.",
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "300 libre y 4×50 libre con aletas en build.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 300,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                },
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "aletas",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Posición alta con aletas.",
+              "ms": "Cadencia activa sin gastar.",
+              "ritmo": "Build"
+            },
+            {
+              "tipo": "Cambios de ritmo",
+              "desc": "8×150 libre: 50 crucero, 50 fuerte y 50 crucero.",
+              "series": [
+                {
+                  "reps": 8,
+                  "dist": 150,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "30seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Crucero 1:46–1:48; los 50 fuertes a ~1:35–1:40. Volver al crucero sin desplomarte.",
+              "ms": "Crucero 1:32–1:35; el fuerte a tu ritmo de umbral (~1:27–1:31).",
+              "ritmo": "Crucero + fuerte"
+            },
+            {
+              "tipo": "Pull con palas",
+              "desc": "4×200 libre con pull-buoy y palas, agarre firme.",
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "pull-buoy",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Agarre fuerte sin dañar el hombro; respiración bilateral.",
+              "ms": "Eficiencia: SWOLF bajo.",
+              "ritmo": "Aeróbico"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre muy suave.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Soltar.",
+              "ms": "Soltar.",
+              "ritmo": "Suave"
+            }
+          ],
+          "volumen": 2700
+        },
+        {
+          "id": "B6-W2-C",
+          "tipo": "C",
+          "nombre": "Sesión 6 — Mar: simulacro Seaman (2000 m a ritmo de carrera)",
+          "fecha": "2026-10-31",
+          "dia": "Sáb 31 Oct",
+          "intensidad": "🏁 Simulacro",
+          "objetivo": "Nadar 2000 m continuos a ritmo de competencia con el traje y el protocolo del día de carrera.",
+          "rationale": "Es el último trabajo fuerte, 8 días antes. 2000 m a ritmo de carrera permiten ajustar ritmo, traje y orientación sin gastar la energía de los 3K. Para Concón hiciste una semana de pre-taper similar y funcionó.",
+          "bloques": [
+            {
+              "tipo": "Entrada progresiva",
+              "desc": "10-12 min suave, subiendo al final; practicar la salida.",
+              "series": [],
+              "dist_total": 500,
+              "descanso_bloque": "",
+              "mf": "Entrar en calor y definir el ritmo.",
+              "ms": "Entrada progresiva.",
+              "ritmo": "Progresivo"
+            },
+            {
+              "tipo": "Ritmo de competencia",
+              "desc": "2000 m continuos a ritmo de carrera, con sighting, drafting si nadan juntos y respiración bilateral.",
+              "series": [],
+              "dist_total": 2000,
+              "descanso_bloque": "",
+              "mf": "Objetivo 1:45–1:47/100, parecido a Concón (1:46 de media). Registrar parciales cada 500 m.",
+              "ms": "Por sensación 7/10; si nadan juntos, uno marca el ritmo y el otro hace drafting. Registrar parciales y ritmo medio con el reloj.",
+              "ritmo": "Ritmo competencia OA"
+            },
+            {
+              "tipo": "Salida",
+              "desc": "300 m suave.",
+              "series": [],
+              "dist_total": 300,
+              "descanso_bloque": "",
+              "mf": "Bajar pulsaciones.",
+              "ms": "Soltar.",
+              "ritmo": "Suave"
+            }
+          ],
+          "volumen": 2800
+        }
+      ]
+    },
+    {
+      "id": "B6-W3",
+      "nombre": "Semana 3 (2-8 Nov) — Taper y competencia",
+      "sesiones": [
+        {
+          "id": "B6-W3-A",
+          "tipo": "A",
+          "nombre": "Sesión 7 — Activación a ritmo de carrera (taper)",
+          "fecha": "2026-11-03",
+          "dia": "Mar 3 Nov",
+          "intensidad": "🟢 Taper",
+          "objetivo": "Mantener la sensación de ritmo de carrera con poco volumen, para llegar descansado.",
+          "rationale": "Competencia a 5 días: volumen mínimo y calidad. Es el patrón de tus pre-tapers (B4-W3-B, 5-6 días antes): FC baja y 2000 m sin fatiga acumulada.",
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "400 libre suave y 4×50 libre progresivo.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 400,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                },
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Soltar y subir de a poco.",
+              "ms": "Técnica limpia.",
+              "ritmo": "Build"
+            },
+            {
+              "tipo": "Ritmo de carrera corto",
+              "desc": "6×100 libre a ritmo de 3K con 30 seg de descanso.",
+              "series": [
+                {
+                  "reps": 6,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "30seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Ritmo 1:44–1:46/100, cómodo y controlado.",
+              "ms": "Ritmo 1:32–1:35/100, sin forzar.",
+              "ritmo": "Ritmo 3K"
+            },
+            {
+              "tipo": "Velocidad",
+              "desc": "4×50 libre rápidos con descanso amplio, sin llegar a la fatiga.",
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "45seg"
+                }
+              ],
+              "descanso_bloque": "1min30seg",
+              "mf": "Rápido y relajado.",
+              "ms": "Explosividad con técnica.",
+              "ritmo": "Rápido"
+            },
+            {
+              "tipo": "Pull suave",
+              "desc": "4×100 libre con pull a ritmo cómodo.",
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "pull-buoy",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Soltar el hombro.",
+              "ms": "Soltar el hombro.",
+              "ritmo": "Aeróbico suave"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre muy suave.",
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Soltar.",
+              "ms": "Soltar.",
+              "ritmo": "Suave"
+            }
+          ],
+          "volumen": 2000
+        },
+        {
+          "id": "B6-W3-B",
+          "tipo": "C",
+          "nombre": "Sesión 8 — Mar: activación corta con traje",
+          "fecha": "2026-11-05",
+          "dia": "Jue 5 Nov",
+          "intensidad": "🌊 Activación",
+          "objetivo": "Tomar contacto con el mar y el traje antes de la competencia, sin gastar energía.",
+          "rationale": "Competencia en 3 días: 20-30 min en el mar con tres aceleraciones cortas. Descansas el viernes y el sábado.",
+          "bloques": [
+            {
+              "tipo": "Entrada suave",
+              "desc": "10 min nado suave, sighting.",
+              "series": [],
+              "dist_total": 400,
+              "descanso_bloque": "",
+              "mf": "Calentar y revisar el traje.",
+              "ms": "Calentar y revisar el traje.",
+              "ritmo": "Suave"
+            },
+            {
+              "tipo": "Activación",
+              "desc": "3 aceleraciones de 1 min a ritmo de carrera, con 2 min suaves entre cada una.",
+              "series": [],
+              "dist_total": 800,
+              "descanso_bloque": "",
+              "mf": "Sentir el ritmo 1:45; no pasarte.",
+              "ms": "Sentir el ritmo; no pasarte.",
+              "ritmo": "Activación"
+            },
+            {
+              "tipo": "Salida",
+              "desc": "300 m suave.",
+              "series": [],
+              "dist_total": 300,
+              "descanso_bloque": "",
+              "mf": "Soltar.",
+              "ms": "Soltar.",
+              "ritmo": "Suave"
+            }
+          ],
+          "volumen": 1500
+        },
+        {
+          "id": "B6-W3-C",
+          "tipo": "C",
+          "nombre": "Competencia — Seaman Zapallar 3K",
+          "fecha": "2026-11-08",
+          "dia": "Dom 8 Nov",
+          "intensidad": "🏁 Competencia",
+          "objetivo": "Competir los 3K del Seaman en mar con traje, aplicando el ritmo crucero y la estrategia de aguas abiertas entrenada.",
+          "rationale": "Día de carrera. Tu referencia es Concón (22-08): 3000 m en 53:11, 2º en la categoría y 9º en la general, con FC media 145.",
+          "bloques": [
+            {
+              "tipo": "Entrada",
+              "desc": "5-10 min suave en el agua antes de la partida, con 2 aceleraciones cortas.",
+              "series": [],
+              "dist_total": 300,
+              "descanso_bloque": "",
+              "mf": "Calentar sin gastar.",
+              "ms": "Calentar sin gastar.",
+              "ritmo": "Suave"
+            },
+            {
+              "tipo": "3K Seaman",
+              "desc": "3000 m continuos a ritmo de carrera: sighting, drafting y respiración bilateral.",
+              "series": [],
+              "dist_total": 3000,
+              "descanso_bloque": "",
+              "mf": "Objetivo 1:45/100 (52:30). Partir controlado y no pasar de 1:46 los primeros 500 m; acelerar en el último kilómetro.",
+              "ms": "Sin referencia previa en mar: partir por sensación 7/10, con drafting a Felipe si van juntos.",
+              "ritmo": "Ritmo competencia OA"
+            }
+          ],
+          "volumen": 3300
+        }
+      ]
+    }
+  ]
+},
 ];
 
 // ═══════════════════════════════════════════════════
@@ -2963,8 +3637,10 @@ async function cargarProgramasRemoto() {
           var g = prog.grupo || 'A';
           var archivadoLocal = false;
           try { archivadoLocal = getArchivados().indexOf(prog.id) >= 0; } catch(e) {}
-          if (archivadoLocal) {
-            prog.activo = false; // archivado en este dispositivo: no desplaza al plan activo
+          var _d=new Date(), _hoy=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');
+          var vencido = !!(prog.fechaFin && prog.fechaFin < _hoy); // plan ya terminado: no desplaza al plan vigente
+          if (archivadoLocal || vencido) {
+            prog.activo = false; // archivado en este dispositivo o vencido: no desplaza al plan activo
           } else {
             BLOQUES.forEach(function(b){ if((b.grupo||'A')===g) b.activo=false; });
             prog.activo = true;
