@@ -8275,7 +8275,7 @@ function imprimirSesion(id) {
   p.push('<style>');
   p.push('*{box-sizing:border-box;margin:0;padding:0}');
   p.push('body{font-family:Arial,sans-serif;font-size:13pt;color:#1B2631;padding:10mm 12mm}');
-  p.push('@media print{@page{size:letter portrait;margin:8mm 10mm}.no-print{display:none!important}body{font-size:12pt;padding:0}}');
+  p.push('@media print{@page{size:8.5in 11in;margin:8mm 10mm}.no-print{display:none!important}body{font-size:12pt;padding:0}}');
   p.push('.no-print{margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap}');
   p.push('button{padding:8px 16px;border:none;border-radius:7px;font-size:12pt;cursor:pointer}');
   p.push('.badge{background:#0D2B55;color:#fff;display:inline-block;padding:2px 10px;border-radius:4px;font-size:10pt;font-weight:700;letter-spacing:1px;margin-bottom:4px}');
@@ -8304,6 +8304,7 @@ function imprimirSesion(id) {
   p.push('<button style="background:#E5E8E8;color:#333" onclick="window.close()">&#x2715; Cerrar<\/button>');
   p.push('<\/div>');
 
+  p.push('<div id="pg">');
   // Header
   p.push('<div class="badge">ORION MASTER<\/div>');
   p.push('<h1>'+s.nombre+'<\/h1>');
@@ -8346,6 +8347,9 @@ function imprimirSesion(id) {
 
   if(tot)p.push('<div class="tot">Distancia total: '+tot+'<\/div>');
   p.push('<div class="foot">ORION Master &bull; '+new Date().toLocaleDateString('es-CL')+'<\/div>');
+  p.push('<\/div>');
+  // Ajuste automático: todo en UNA hoja carta (8,5x11 in) reduciendo la escala si hace falta
+  p.push('<script>function fit(){var e=document.getElementById("pg");if(!e)return;var H=950,z=1;e.style.zoom=1;e.style.width="196mm";var h=e.getBoundingClientRect().height;if(h<=H)return;z=H\/h;for(var i=0;i<6;i++){z=Math.max(0.5,z);e.style.zoom=z;e.style.width=(196\/z)+"mm";h=e.getBoundingClientRect().height;if(h<=H||z<=0.5)break;z=z*H\/h*0.99;}}window.addEventListener("load",fit);window.addEventListener("beforeprint",fit);<\/script>');
   p.push('<\/body><\/html>');
 
   var v=window.open('','_blank','width=880,height=800');
