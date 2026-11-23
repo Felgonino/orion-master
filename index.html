@@ -5236,8 +5236,8 @@ const BLOQUES = [
           "dia": "Lun 23 Nov",
           "intensidad": "🔥 Por intervalo",
           "objetivo": "Mejorar el agarre con drills y luego sostener salidas que bajan 5 s por ronda y un set de mejor promedio, para Sergio, Pablo y Felipe.",
-          "rationale": "En los sets por salida la exigencia es el intervalo, no el ritmo: nadar más rápido da más pausa. El set descendente baja la salida 5 s por ronda y cada uno anota en cuál falla, así se mide su límite real.",
-          "volumen": 2650,
+          "rationale": "En los sets por salida la exigencia es el intervalo, no el ritmo: nadar más rápido da más pausa. El set baja la salida 5 s por ronda sin pausas extra entre rondas, así el tiempo de cada repetición queda controlado y cada uno anota en cuál falla.",
+          "volumen": 2400,
           "bloques": [
             {
               "tipo": "Calentamiento",
@@ -5333,7 +5333,7 @@ const BLOQUES = [
             },
             {
               "tipo": "Set principal · Intervalos descendentes",
-              "desc": "5 rondas: 2×100 libre con salida que baja 5 s en cada ronda (2:00, 1:55, 1:50, 1:45, 1:40) y un 50 suave de recuperación entre rondas. Si no alcanzas la salida, termina esa repetición y sigue en la ronda siguiente; anota en qué salida fallas.",
+              "desc": "10×100 libre en 5 rondas de 2×100, sin pausa extra entre rondas: la salida baja 5 s por ronda (2:00, 1:55, 1:50, 1:45, 1:40). Si no alcanzas la salida, termina esa repetición y sigue con la siguiente; anota en qué salida fallas.",
               "mostrarDesc": true,
               "series": [
                 {
@@ -5345,27 +5345,11 @@ const BLOQUES = [
                   "descanso": ""
                 },
                 {
-                  "reps": 1,
-                  "dist": 50,
-                  "estilo": "Libre",
-                  "implemento": "",
-                  "salida": "",
-                  "descanso": ""
-                },
-                {
                   "reps": 2,
                   "dist": 100,
                   "estilo": "Libre",
                   "implemento": "",
                   "salida": "1:55",
-                  "descanso": ""
-                },
-                {
-                  "reps": 1,
-                  "dist": 50,
-                  "estilo": "Libre",
-                  "implemento": "",
-                  "salida": "",
                   "descanso": ""
                 },
                 {
@@ -5377,27 +5361,11 @@ const BLOQUES = [
                   "descanso": ""
                 },
                 {
-                  "reps": 1,
-                  "dist": 50,
-                  "estilo": "Libre",
-                  "implemento": "",
-                  "salida": "",
-                  "descanso": ""
-                },
-                {
                   "reps": 2,
                   "dist": 100,
                   "estilo": "Libre",
                   "implemento": "",
                   "salida": "1:45",
-                  "descanso": ""
-                },
-                {
-                  "reps": 1,
-                  "dist": 50,
-                  "estilo": "Libre",
-                  "implemento": "",
-                  "salida": "",
                   "descanso": ""
                 },
                 {
@@ -5407,19 +5375,11 @@ const BLOQUES = [
                   "implemento": "",
                   "salida": "1:40",
                   "descanso": ""
-                },
-                {
-                  "reps": 1,
-                  "dist": 50,
-                  "estilo": "Libre",
-                  "implemento": "",
-                  "salida": "",
-                  "descanso": ""
                 }
               ],
               "descanso_bloque": "1min",
-              "mf": "Felipe y Pablo: a su crucero (1:43–1:46/100) la salida 1:50 deja ~5 s de pausa. Sostén la técnica y anota la salida en que fallas.",
-              "ms": "Sergio: a tu crucero (1:32–1:35/100) la salida 2:00 deja ~25 s de pausa. Llega a 1:40 sin perder la técnica.",
+              "mf": "Felipe y Pablo: a su crucero (1:43–1:46/100) la 2:00 deja ~15 s de pausa y la 1:50 solo ~5 s. Sostén la técnica y anota la salida en que fallas.",
+              "ms": "Sergio: a tu crucero (1:32–1:35/100) la 2:00 deja ~25 s de pausa y la 1:40 solo ~5–8 s. Llega a 1:40 sin perder la técnica.",
               "ritmo": "Por intervalo"
             },
             {
@@ -8815,7 +8775,7 @@ async function generarSemanasIA(cfg, desdeW, hastaW) {
       '7. SESIONES DE AGUAS ABIERTAS: para las sesiones marcadas medio "Aguas abiertas" en el reparto, usa "series":[] (vacio, nado continuo sin estructura de pileta) y describe el trabajo en el campo "desc" (ej: "2400-2800m continuos a ritmo crucero, sighting regular, cambios de ritmo simulando boyas").\n' +
       '8. Cada bloque necesita el campo "desc": UNA FRASE CORTA (máximo 15 palabras) en lenguaje natural de que se nada ahi. Se breve, no un parrafo.\n' +
       '9. GLOSARIO: si usas algun termino tecnico que no es basico, agregalo a "glosario_nuevos" con su definicion en UNA frase breve.\n' +
-      '11. METODOLOGIA POR INTERVALO DE SALIDA (usala en el set principal de AL MENOS la mitad de las sesiones de piscina, variando el formato). ESTRUCTURA de sesion: calentamiento (max 400m), set tecnico/drills, set principal, set complementario opcional (pull/patada/otro) y afloje. En las series por salida usa el campo "salida" (ej "1:35" = la repeticion parte cada 1:35 desde que parte la anterior) y deja "descanso" vacio: la exigencia es el INTERVALO, no un ritmo -- si nadas mas rapido descansas mas y si nadas mas lento descansas menos. En esos bloques el campo "ritmo" debe ser "Por intervalo" (no pongas ritmo/100m) y mf/ms explican el esfuerzo y la pausa esperada. FORMATOS (rotalos, no repitas el mismo en la semana): (a) DESCENDENTE o fail set: la salida baja 5seg por ronda, con un nado suave de recuperacion entre rondas (ej 2x100@2:00 + 50 suave, 2x100@1:55 + 50 suave, ...), cada nadador anota la salida en que falla; (b) RONDAS CON RECUPERACION: repeticion corta exigente + nado largo suave a 2:00 por 100 con ambas salidas decrecientes (ej 75@1:35 + 200@4:00, 75@1:30 + 150@3:00, 75@1:25 + 100@2:00, 75@1:20 + 50@1:00); (c) ESCALERA o PIRAMIDE con salida proporcional a la distancia (ej 4x25@:40, 4x50@1:20, 4x100@2:40); (d) MEJOR PROMEDIO: salida fija y se busca el mejor promedio con poca variacion entre repeticiones; (e) SET DE CICLO: salida fija larga repetida (ej 12x50@1:05 en orden IM); (f) ROTOS: distancia larga partida con pausa fija corta (ej 5x300 con 20seg). CALIBRA la salida con el ritmo REAL del nadador: salida = tiempo real de la repeticion + pausa deseada (5-15seg para sostenido/umbral, 20-40seg para calidad). Si los nadadores tienen ritmos distintos, calcula la pausa de cada uno en mf y ms (misma salida, distinta pausa) o ajusta repeticiones.\n' +
+      '11. METODOLOGIA POR INTERVALO DE SALIDA (usala en el set principal de AL MENOS la mitad de las sesiones de piscina, variando el formato). ESTRUCTURA de sesion: calentamiento (max 400m), set tecnico/drills, set principal, set complementario opcional (pull/patada/otro) y afloje. En las series por salida usa el campo "salida" (ej "1:35" = la repeticion parte cada 1:35 desde que parte la anterior) y deja "descanso" vacio: la exigencia es el INTERVALO, no un ritmo -- si nadas mas rapido descansas mas y si nadas mas lento descansas menos. En esos bloques el campo "ritmo" debe ser "Por intervalo" (no pongas ritmo/100m) y mf/ms explican el esfuerzo y la pausa esperada. FORMATOS (rotalos, no repitas el mismo en la semana): (a) DESCENDENTE o fail set: la salida baja 5seg por ronda y las rondas van seguidas, SIN pausas libres entre rondas (ej 2x100@2:00, 2x100@1:55, 2x100@1:50, ...); si se agrega un nado de recuperacion, debe llevar su propia salida (ej 50@1:00) para que todo el tiempo quede controlado; cada nadador anota la salida en que falla; (b) RONDAS CON RECUPERACION: repeticion corta exigente + nado largo suave a 2:00 por 100 con ambas salidas decrecientes (ej 75@1:35 + 200@4:00, 75@1:30 + 150@3:00, 75@1:25 + 100@2:00, 75@1:20 + 50@1:00); (c) ESCALERA o PIRAMIDE con salida proporcional a la distancia (ej 4x25@:40, 4x50@1:20, 4x100@2:40); (d) MEJOR PROMEDIO: salida fija y se busca el mejor promedio con poca variacion entre repeticiones; (e) SET DE CICLO: salida fija larga repetida (ej 12x50@1:05 en orden IM); (f) ROTOS: distancia larga partida con pausa fija corta (ej 5x300 con 20seg). CALIBRA la salida con el ritmo REAL del nadador: salida = tiempo real de la repeticion + pausa deseada (5-15seg para sostenido/umbral, 20-40seg para calidad). Si los nadadores tienen ritmos distintos, calcula la pausa de cada uno en mf y ms (misma salida, distinta pausa) o ajusta repeticiones.\n' +
       '10. BREVEDAD OBLIGATORIA en todos los campos de texto ("objetivo", "rationale", "mf", "ms"): UNA FRASE CORTA cada uno, nunca un parrafo. La prioridad es la precision de los datos numericos (series, distancias, descansos), no la extension del texto.\n\n' +
       'Devuelve SOLO JSON valido, sin backticks ni texto extra:\n' +
       '{"semana_num":'+w+',"nombre":"Semana '+w+' - foco de la semana","glosario_nuevos":[{"termino":"...","definicion":"..."}],' +
