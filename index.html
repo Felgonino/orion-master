@@ -2893,7 +2893,7 @@ const BLOQUES = [
   "color": "#7D3C98",
   "libre": true,
   "nombre": "📚 Biblioteca técnica — sesiones libres",
-  "subtitulo": "Mejora técnica: en cada sesión ~75% crol + ~25% pecho, espalda y mariposa · elige cuál y cuándo",
+  "subtitulo": "Mejora técnica: en cada sesión ~75% crol + ~25% pecho, espalda y mariposa · elige cuál y cuándo · incluye 3 sesiones de crol con set principal por intervalo",
   "fechaFin": "Sin fecha · elige tú el día",
   "semanas": [
     {
@@ -4725,6 +4725,1158 @@ const BLOQUES = [
           "volumen": 2800
         }
       ]
+    },
+    {
+      "id": "B7-K5",
+      "nombre": "⏱️ Crol · Técnica profunda + sets por intervalo",
+      "sesiones": [
+        {
+          "id": "B7-C9",
+          "tipo": "A",
+          "nombre": "Crol · Equilibrio y rotación + escalera por salida",
+          "fecha": "",
+          "dia": "Libre · elige el día",
+          "intensidad": "🏊 Crol 100% · técnica + intervalo",
+          "objetivo": "Rotar desde el core con el cuerpo equilibrado, y sostener esa rotación en una escalera donde la salida es la exigencia.",
+          "rationale": "La rotación se construye por capas: patada lateral (equilibrio de lado), 6-kick switch con chequeo corporal (rotación iniciada en el core), 3-3-3 (simetría entre lados) y overkick (expone si la patada se desconecta al respirar). Después la escalera por salida obliga a sostener esa rotación con fatiga creciente.",
+          "volumen": 2350,
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "200 libre suave y 4×25 libre progresivo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                },
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Soltar hombros y entrar en calor.",
+              "ms": "Entrar en calor con técnica limpia.",
+              "ritmo": "Suave"
+            },
+            {
+              "tipo": "Eje · Patada lateral (side kick)",
+              "desc": "6×25 de lado: brazo de abajo extendido, brazo de arriba pegado al muslo, cara mirando el fondo y girando apenas para respirar. 3 por lado.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 6,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Cadera arriba y cuerpo en línea; si te hundes, usa aletas las primeras 2.",
+              "ms": "Hombro de abajo relajado, sin que las piernas se crucen.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Rotación · 6-kick switch con chequeo corporal",
+              "desc": "8×25: 6 patadas de lado y rotas al otro lado iniciando el giro desde el core. En cada cambio revisa tres cosas: cadera rotando, brazo adelante aún extendido, cuerpo equilibrado. Respira solo en el cambio.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 8,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "La rotación sale del core, no del brazo. Hombros y cadera giran como una sola pieza.",
+              "ms": "Chequea en cada cambio: cadera, brazo extendido, equilibrio.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Simetría · 3-3-3",
+              "desc": "4×50: 3 brazadas solo con el brazo derecho, 3 solo con el izquierdo y 3 completas, repitiendo. Brazo en reposo al costado.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Nota qué lado te cuesta más y nivélalo: ambos lados deben rotar igual.",
+              "ms": "Simetría de rotación y de agarre en los dos lados.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Timing · Overkick",
+              "desc": "4×50 con la patada al doble de la frecuencia habitual y la misma frecuencia de brazos. Fíjate si la patada se desconecta de la brazada o tijerea al respirar.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Si al respirar aparece tijera, el problema es de equilibrio, no de piernas.",
+              "ms": "Mantén la patada conectada al ciclo, sin acelerar los brazos.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Set principal · Escalera por salida",
+              "desc": "Escalera 50-100-150-200-150-100-50 con salida proporcional (la salida sube 55 s por cada 50 m). Mantén la rotación de los drills y el mismo número de brazadas por largo en todos los peldaños.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:00",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:55",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 150,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "2:50",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "3:45",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 150,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "2:50",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:55",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:00",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Felipe y Pablo: a su crucero la pausa queda en ~8–17 s en todos los peldaños. Si la pausa sube, no aflojes.",
+              "ms": "Sergio: la pausa va de ~13 s (50) a ~35 s (200). Usa el margen para nadar más fuerte, no para esperar.",
+              "ritmo": "Por intervalo"
+            },
+            {
+              "tipo": "Set 2 · Integración",
+              "desc": "6×50 libre con salida cada 1:05, con la rotación de los drills y buscando el mejor promedio.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 6,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:05",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Felipe y Pablo: a crucero un 50 sale en ~52 s, la salida deja ~13 s de pausa.",
+              "ms": "Sergio: a crucero un 50 sale en ~47 s, la salida deja ~18 s de pausa.",
+              "ritmo": "Por intervalo"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre muy suave.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Soltar y bajar pulsaciones.",
+              "ms": "Soltar y respirar profundo.",
+              "ritmo": "Suave"
+            }
+          ],
+          "referencias": [
+            {
+              "titulo": "MySwimPro — drills para corregir la rotación en crol",
+              "url": "https://blog.myswimpro.com/2023/02/01/try-these-drills-to-fix-your-freestyle-rotation/",
+              "nota": "3 brazadas y 6 patadas, brazada unilateral."
+            },
+            {
+              "titulo": "Coach Ron Usher — progresiones de drills de crol (catch-up, side kick, un brazo, DPS, gears)",
+              "url": "https://coachronusher.com/freestyle-drill-progressions-a-coachs-cheat-sheet/",
+              "nota": "Progresión de patada lateral: 8, 6, 3 patadas y crol."
+            },
+            {
+              "titulo": "SwimEd — the proprioception playbook (puños con ojos cerrados, body scan, overkick)",
+              "url": "https://swimed.substack.com/p/the-proprioception-playbook-drills",
+              "nota": "6-kick switch con chequeo corporal y overkick."
+            },
+            {
+              "titulo": "USMS — Master Your Freestyle (guía)",
+              "url": "https://www.usms.org/-/media/usms/pdfs/ebooks/master_your_freestyle_guide_usmastersswimming.pdf",
+              "nota": "Cadera y hombros giran como una sola pieza."
+            }
+          ]
+        },
+        {
+          "id": "B7-C10",
+          "tipo": "A",
+          "nombre": "Crol · Agarre — progresión completa de sculling",
+          "fecha": "",
+          "dia": "Libre · elige el día",
+          "intensidad": "🏊 Crol 100% · técnica + intervalo",
+          "objetivo": "Construir el codo alto fase por fase con los cuatro sculls y transferirlo a un 8×100 con brazadas constantes.",
+          "rationale": "Los cuatro sculls recorren la brazada entera: frontal (entrada), de agarre con el diamante de potencia (codo alto / EVF), de empuje (donde la mano acelera) y de final (hasta la cadera). Puños cerrados y dog paddle quitan la mano y el recobro para que el antebrazo haga el trabajo. El test inicial y el set final miden si la sensación se transfiere.",
+          "volumen": 2200,
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "200 libre suave y 4×25 libre progresivo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                },
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Soltar hombros y entrar en calor.",
+              "ms": "Entrar en calor con técnica limpia.",
+              "ritmo": "Suave"
+            },
+            {
+              "tipo": "Test inicial",
+              "desc": "1×100 libre a ritmo crucero contando las brazadas de cada largo. Anota tiempo y conteo: es tu referencia para el final.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "30seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Anota el conteo por largo; lo comparas al terminar el bloque técnico.",
+              "ms": "Anota tiempo y conteo para medir la transferencia.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Scull 1 · Frontal",
+              "desc": "4×25 con los brazos extendidos al frente (manos a las 11 y la 1), palmas abajo, haciendo ochos pequeños. Siente la presión en la ida y en la vuelta. Con snorkel si lo tienes.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "snorkel",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Presión en el antebrazo y en los dedos, no solo en la palma.",
+              "ms": "Manos relajadas y semiabiertas; busca sensibilidad, no fuerza.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Scull 2 · De agarre (diamante de potencia)",
+              "desc": "4×25 con los codos doblados 100–120°, manos bajo los hombros, codos altos y antebrazos verticales, barriendo adentro y afuera. Hombros, codos y manos forman un diamante.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "snorkel",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Esta es la posición exacta del codo alto (EVF): memorízala.",
+              "ms": "Codo por delante de la línea hombro-mano; antebrazo vertical.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Scull 3 · De empuje",
+              "desc": "4×25 con las manos a la mitad del cuerpo apuntando hacia abajo, codos altos y cerca de los hombros. Aquí la mano debe acelerar.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "snorkel",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "La mano acelera en la segunda mitad; no la dejes frenar.",
+              "ms": "Controla el tramo medio sin perder el codo alto.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Scull 4 · De final",
+              "desc": "4×25 con los brazos a la altura de la cadera, ochos cortos y rápidos abriendo y cerrando las palmas.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "snorkel",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "El final del empuje es el que más se abandona cuando llega el cansancio.",
+              "ms": "Termina cada brazada hasta el muslo.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Agarre · Puños cerrados (con ojos cerrados)",
+              "desc": "4×50 crol con los puños cerrados; la última 25 con manos abiertas. Si te sientes seguro en la línea, haz las 25 de puño con los ojos cerrados para afinar la sensación de presión.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Al abrir la mano debe aparecer de golpe más agarre. Esa es la referencia.",
+              "ms": "Con ojos cerrados la sensibilidad sube; úsalo para ubicar el antebrazo.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Agarre · Dog paddle",
+              "desc": "4×50 con recobro por debajo del agua, codo alto y dedos apuntando al fondo, media brazada por vez. Aísla el agarre sin el recobro aéreo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Dedos abajo y codo arriba desde el primer centímetro de la tracción.",
+              "ms": "Presión temprana: la mano agarra antes de empujar.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Set principal · Mejor promedio con brazadas constantes",
+              "desc": "8×100 libre con salida cada 1:55. Cuenta las brazadas por largo: busca el mejor promedio con el mismo conteo en los 8 y sin desviarte más de 2 s del promedio. Compara con el test inicial.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 8,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:55",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Felipe y Pablo: a su crucero (1:43–1:46/100) la salida deja ~9–12 s de pausa.",
+              "ms": "Sergio: a tu crucero (1:32–1:35/100) la salida deja ~20–23 s de pausa.",
+              "ritmo": "Por intervalo"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre muy suave.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Soltar y bajar pulsaciones.",
+              "ms": "Soltar y respirar profundo.",
+              "ritmo": "Suave"
+            }
+          ],
+          "referencias": [
+            {
+              "titulo": "Train Daly — drills de sculling por fases (frontal, agarre, empuje, final)",
+              "url": "https://www.traindaly.com/train-daly/blog/sculling-swimming-drills-feel-for-the-water",
+              "nota": "Los cuatro sculls por fase y el diamante de potencia."
+            },
+            {
+              "titulo": "SwimEd — the proprioception playbook (puños con ojos cerrados, body scan, overkick)",
+              "url": "https://swimed.substack.com/p/the-proprioception-playbook-drills",
+              "nota": "Puños cerrados con ojos cerrados; snorkel y pull-buoy para aislar."
+            },
+            {
+              "titulo": "Your Swim Log — 10 drills de crol (puños, mini-maxi, head-up, hand drag, sculling)",
+              "url": "https://www.yourswimlog.com/freestyle-drills",
+              "nota": "Puños cerrados y sculling: por qué quitan la mano del problema."
+            },
+            {
+              "titulo": "Plana Swim — biblioteca de drills de crol",
+              "url": "https://planaswim.com/info/drills/",
+              "nota": "Dog paddle y sculls frontal, medio y de final."
+            }
+          ]
+        },
+        {
+          "id": "B7-C11",
+          "tipo": "A",
+          "nombre": "Crol · Recobro, entrada y final + rondas con recuperación",
+          "fecha": "",
+          "dia": "Libre · elige el día",
+          "intensidad": "🏊 Crol 100% · técnica + intervalo",
+          "objetivo": "Ordenar el recobro, entrar sin cruzar la línea media y terminar la brazada hasta el muslo, bajo rondas cronometradas.",
+          "rationale": "Arrastre de dedos da el recobro de codo alto; pulgar al muslo evita la brazada corta; wide tracks corrige el cruce de la línea media (la causa del culebreo); archer alarga el cuadrante frontal. Las rondas combinan un 50 exigente con una recuperación que también lleva salida, de modo que ningún tramo se vuelve pausa libre.",
+          "volumen": 2350,
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "200 libre suave y 4×25 libre progresivo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                },
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Soltar hombros y entrar en calor.",
+              "ms": "Entrar en calor con técnica limpia.",
+              "ritmo": "Suave"
+            },
+            {
+              "tipo": "Recobro · Arrastre de dedos",
+              "desc": "4×50 arrastrando las yemas por la superficie durante todo el recobro, codo alto y mano colgando relajada.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Codo alto y recobro relajado; los dedos apenas rozan el agua.",
+              "ms": "Recobro suelto sin perder la línea del cuerpo.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Final · Pulgar al muslo",
+              "desc": "4×50 sin sacar el brazo del agua hasta que el pulgar toca el muslo: obliga a terminar la tracción completa antes de empezar el recobro.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Si sacas el brazo antes, estás regalando el último tercio de la brazada.",
+              "ms": "Termina hasta la cadera en todas las brazadas, también cansado.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Entrada · Wide tracks",
+              "desc": "4×50 entrando las manos más anchas que las 10 y las 2 del reloj, girando el core en vez de tirar con el brazo. Corrige el cruce de la línea media.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Entra por fuera del hombro: si cruzas, el cuerpo culebrea y pierdes dirección.",
+              "ms": "Entrada ancha y estable; la propulsión viene del giro, no del brazo.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Frente · Archer (3/4)",
+              "desc": "6×25: empieza a traccionar recién cuando el brazo que recobra pasa la cabeza, con una pausa de arquero apoyado de lado. Nado de cuadrante frontal.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 6,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "La pausa debe ser de lado y estable, no boca abajo.",
+              "ms": "Alarga el frente sin frenar el ciclo.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Set principal · Rondas con recuperación cronometrada",
+              "desc": "4 rondas: un 50 fuerte con salida 1:00 y un nado suave de recuperación que también lleva salida (2:00 por 100) y baja de distancia cada ronda: 50@1:00 + 200@4:00, 50@1:00 + 150@3:00, 50@1:00 + 100@2:00, 50@1:00 + 50@1:00. El 50 con la técnica de los drills; la recuperación suave de verdad.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:00",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "4:00",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:00",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 150,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "3:00",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:00",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "2:00",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:00",
+                  "descanso": ""
+                },
+                {
+                  "reps": 1,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:00",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Felipe y Pablo: a crucero el 50 sale en ~52 s y la salida deja ~8 s de pausa.",
+              "ms": "Sergio: a crucero el 50 sale en ~47 s y la salida deja ~13 s. Usa el margen para un 50 más fuerte.",
+              "ritmo": "Por intervalo"
+            },
+            {
+              "tipo": "Set 2 · Pull con foco en el ciclo",
+              "desc": "4×100 con pull-buoy, salida cada 2:00: ciclo largo con la misma entrada ancha y el final hasta el muslo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "pull-buoy",
+                  "salida": "2:00",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Felipe y Pablo: pull ~1:49–1:50/100, la salida deja ~10 s de pausa.",
+              "ms": "Sergio: pull ~1:27–1:31/100, la salida deja ~30 s de pausa.",
+              "ritmo": "Por intervalo"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre muy suave.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Soltar y bajar pulsaciones.",
+              "ms": "Soltar y respirar profundo.",
+              "ritmo": "Suave"
+            }
+          ],
+          "referencias": [
+            {
+              "titulo": "Stuart Coaching — biblioteca de drills (archer, wide tracks, dog paddle, pulgar al muslo)",
+              "url": "https://stuartcoaching.com/drills/",
+              "nota": "Archer (3/4), wide tracks, pulgar al muslo, arrastre de dedos."
+            },
+            {
+              "titulo": "Plana Swim — biblioteca de drills de crol",
+              "url": "https://planaswim.com/info/drills/",
+              "nota": "Zip-up, thumb-to-thigh y arrastre de dedos."
+            },
+            {
+              "titulo": "Coach Ron Usher — progresiones de drills de crol (catch-up, side kick, un brazo, DPS, gears)",
+              "url": "https://coachronusher.com/freestyle-drill-progressions-a-coachs-cheat-sheet/",
+              "nota": "Entrada por fuera del hombro; extender rotando el hombro."
+            },
+            {
+              "titulo": "USMS — How to write a swimming workout",
+              "url": "https://www.usms.org/fitness-and-training/articles-and-videos/articles/how-to-write-a-swimming-workout",
+              "nota": "Estructura de la sesión y elección de la salida."
+            }
+          ]
+        },
+        {
+          "id": "B7-C12",
+          "tipo": "A",
+          "nombre": "Crol · Distancia por brazada y tempo + salida descendente",
+          "fecha": "",
+          "dia": "Libre · elige el día",
+          "intensidad": "🏊 Crol 100% · técnica + intervalo",
+          "objetivo": "Subir la distancia por brazada y sostenerla al aumentar el esfuerzo, hasta un set de 75 con salida que baja 5 s por ronda.",
+          "rationale": "La progresión DPS fija un conteo objetivo al 70% y lo defiende hasta el 90%; el mini-maxi (tiempo + brazadas) pone un número único que hay que bajar, evitando el error de nadar lento con pocas brazadas. El set de 75 descendente mide dónde se rompe la eficiencia: anota la salida en que fallas y con cuántas brazadas.",
+          "volumen": 2200,
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "200 libre suave y 4×25 libre progresivo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                },
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Soltar hombros y entrar en calor.",
+              "ms": "Entrar en calor con técnica limpia.",
+              "ritmo": "Suave"
+            },
+            {
+              "tipo": "DPS · Progresión de conteo",
+              "desc": "8×25: los 3 primeros suaves bajando una brazada cada vez (cuenta, −1, −1); el 4º suave al 70% fija tu conteo objetivo; los 4 últimos al 75, 80, 85 y 90% manteniendo ese conteo. Una brazada más al subir el esfuerzo es normal.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 8,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Referencia: hoy haces ~10,6 brazadas por largo. Busca sostener el conteo al subir el esfuerzo, no bajarlo a cualquier precio.",
+              "ms": "Alarga rotando el hombro, no empujando la mano hacia adelante.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "DPS · Mini-maxi (golf score)",
+              "desc": "6×25 rápidos sumando tiempo + brazadas: ese número es tu score y hay que bajarlo. Ej: 25 en 20 s con 11 brazadas = 31.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 6,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Anota los 6 scores: el objetivo es bajarlos sin perder tiempo, no solo nadar con menos brazadas.",
+              "ms": "Mismo score con menos esfuerzo = más eficiencia.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Ciclo largo contado",
+              "desc": "4×50 con una brazada menos por largo que tu base, sin perder tiempo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Si el tiempo se cae, estás planeando de más: la brazada tiene que ser más efectiva, no más lenta.",
+              "ms": "Alargar sin frenar; acelerar la mano en el empuje.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Tempo · Frecuencia constante",
+              "desc": "4×100 libre con frecuencia de brazada constante (Tempo Trainer o conteo mental), manteniendo el conteo por largo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "30seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Busca la frecuencia más alta que puedas sostener sin perder la forma ni la fuerza.",
+              "ms": "Frecuencia pareja de principio a fin, también en el último 25.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Set principal · Salida descendente en 75",
+              "desc": "10×75 en 5 rondas de 2, con la salida bajando 5 s por ronda: 1:35, 1:30, 1:25, 1:20, 1:15. Rondas seguidas, sin pausa libre. Anota en qué salida fallas y con cuántas brazadas por largo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 2,
+                  "dist": 75,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:35",
+                  "descanso": ""
+                },
+                {
+                  "reps": 2,
+                  "dist": 75,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:30",
+                  "descanso": ""
+                },
+                {
+                  "reps": 2,
+                  "dist": 75,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:25",
+                  "descanso": ""
+                },
+                {
+                  "reps": 2,
+                  "dist": 75,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:20",
+                  "descanso": ""
+                },
+                {
+                  "reps": 2,
+                  "dist": 75,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:15",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Felipe y Pablo: a su crucero un 75 sale en ~1:17–1:19, así que la 1:20 deja 2–3 s y la 1:15 probablemente te deja fuera. Esa es la idea.",
+              "ms": "Sergio: a tu crucero un 75 sale en ~1:09–1:11; la 1:15 deja ~4–6 s. Deberías completar las 5 rondas.",
+              "ritmo": "Por intervalo"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre muy suave.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Soltar y bajar pulsaciones.",
+              "ms": "Soltar y respirar profundo.",
+              "ritmo": "Suave"
+            }
+          ],
+          "referencias": [
+            {
+              "titulo": "Coach Ron Usher — progresiones de drills de crol (catch-up, side kick, un brazo, DPS, gears)",
+              "url": "https://coachronusher.com/freestyle-drill-progressions-a-coachs-cheat-sheet/",
+              "nota": "Progresión DPS por porcentajes y referencias de conteo."
+            },
+            {
+              "titulo": "Your Swim Log — 10 drills de crol (puños, mini-maxi, head-up, hand drag, sculling)",
+              "url": "https://www.yourswimlog.com/freestyle-drills",
+              "nota": "Mini-maxi: tiempo + brazadas como score a batir."
+            },
+            {
+              "titulo": "USMS — Master Your Freestyle (guía)",
+              "url": "https://www.usms.org/-/media/usms/pdfs/ebooks/master_your_freestyle_guide_usmastersswimming.pdf",
+              "nota": "Acelerar la mano en el empuje; frecuencia sostenible."
+            },
+            {
+              "titulo": "USMS — How to write a swimming workout",
+              "url": "https://www.usms.org/fitness-and-training/articles-and-videos/articles/how-to-write-a-swimming-workout",
+              "nota": "Cómo se arma el set principal y la salida."
+            }
+          ]
+        },
+        {
+          "id": "B7-C13",
+          "tipo": "A",
+          "nombre": "Crol · Respiración, patada y timing + set de ciclo",
+          "fecha": "",
+          "dia": "Libre · elige el día",
+          "intensidad": "🏊 Crol 100% · técnica + intervalo",
+          "objetivo": "Equilibrar la respiración hacia ambos lados y conectar la patada con el ciclo, aplicándolo en 12×50 con patrón fijo.",
+          "rationale": "Zero to six compara 2, 4 y 6 tiempos de patada: el de 2 es el más económico para 3K pero exige el mejor equilibrio. Toe-tap sube la cadera; burbujas-burbujas-respira ordena la exhalación (cuando falta aire, el problema es el CO2, no el oxígeno); el trabajo al lado no dominante y la falsa respiración nivelan los dos lados. Head-up transfiere al sighting en mar.",
+          "volumen": 2100,
+          "bloques": [
+            {
+              "tipo": "Calentamiento",
+              "desc": "200 libre suave y 4×25 libre progresivo.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                },
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Soltar hombros y entrar en calor.",
+              "ms": "Entrar en calor con técnica limpia.",
+              "ritmo": "Suave"
+            },
+            {
+              "tipo": "Patada · Zero to six",
+              "desc": "4×50 sumando patada: el 1º sin patada, el 2º a 2 tiempos, el 3º a 4 tiempos y el 4º a 6 tiempos. Anota cuál se siente natural y equilibrado.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "A 2 tiempos es lo más económico para 3K, pero exige el mejor equilibrio. Compara contra el de 6.",
+              "ms": "Para pruebas cortas el de 6 tiempos manda; registra la diferencia de sensación.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Patada · Toe-tap",
+              "desc": "4×50 repitiendo el ejercicio anterior, pero imaginando que golpeas la superficie con los dedos de los pies en cada patada hacia arriba: sube la cadera y hace la patada más propulsiva.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Patada desde la cadera, piernas largas y sueltas, juntas.",
+              "ms": "Pies relajados, sin abrir las piernas: la patada ancha frena.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Respiración · Burbujas-burbujas-respira",
+              "desc": "8×25 exhalando dos veces bajo el agua y respirando sin levantar la cabeza (un ojo queda dentro). La exhalación arranca apenas terminas de inspirar.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 8,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "15seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Cuando te falte aire, exhala más fuerte en vez de bajar el ritmo: el problema es el CO2.",
+              "ms": "Exhalación continua; la cabeza no se levanta, rota con el cuerpo.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Respiración · Lado no dominante y falsa respiración",
+              "desc": "3×100 alternando: 25 respirando cada 2 al lado no dominante, 25 cada 3, 25 cada 4 y 25 con falsa respiración (rotas como si respiraras, sin sacar la cara).",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 3,
+                  "dist": 100,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "30seg"
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Respiras siempre al izquierdo: este bloque es tu lado flojo, nivélalo.",
+              "ms": "La falsa respiración entrena el equilibrio sin romper el ritmo.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Posición · Head-up (Tarzán)",
+              "desc": "4×25 con la cabeza fuera y la vista al frente, patada más fuerte para sostener la línea. Corrige el exceso de planeo y da recobro alto.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 25,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": "20seg"
+                }
+              ],
+              "descanso_bloque": "45seg",
+              "mf": "Sirve también para el sighting en mar: vista al frente sin frenar el ciclo.",
+              "ms": "Ritmo continuo, sin pausa muerta al frente.",
+              "ritmo": "Técnico"
+            },
+            {
+              "tipo": "Set principal · Set de ciclo con patrón fijo",
+              "desc": "12×50 libre con salida cada 1:05 y patrón de respiración fijo por grupos de 4: las 4 primeras cada 3, las 4 siguientes cada 5 y las 4 últimas cada 3 al lado no dominante.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:05",
+                  "descanso": ""
+                },
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:05",
+                  "descanso": ""
+                },
+                {
+                  "reps": 4,
+                  "dist": 50,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "1:05",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "1min",
+              "mf": "Felipe y Pablo: a crucero un 50 sale en ~52 s, la salida deja ~13 s de pausa.",
+              "ms": "Sergio: a crucero un 50 sale en ~47 s, la salida deja ~18 s de pausa.",
+              "ritmo": "Por intervalo"
+            },
+            {
+              "tipo": "Afloje",
+              "desc": "200 libre muy suave.",
+              "mostrarDesc": true,
+              "series": [
+                {
+                  "reps": 1,
+                  "dist": 200,
+                  "estilo": "Libre",
+                  "implemento": "",
+                  "salida": "",
+                  "descanso": ""
+                }
+              ],
+              "descanso_bloque": "",
+              "mf": "Soltar y bajar pulsaciones.",
+              "ms": "Soltar y respirar profundo.",
+              "ritmo": "Suave"
+            }
+          ],
+          "referencias": [
+            {
+              "titulo": "USMS — Master Your Freestyle (guía)",
+              "url": "https://www.usms.org/-/media/usms/pdfs/ebooks/master_your_freestyle_guide_usmastersswimming.pdf",
+              "nota": "Zero to six, toe-tap, respiración alterna y falsa respiración."
+            },
+            {
+              "titulo": "Your Swim Log — 10 drills de crol (puños, mini-maxi, head-up, hand drag, sculling)",
+              "url": "https://www.yourswimlog.com/freestyle-drills",
+              "nota": "Head-up: corrige el exceso de planeo y sube el recobro."
+            },
+            {
+              "titulo": "Plana Swim — biblioteca de drills de crol",
+              "url": "https://planaswim.com/info/drills/",
+              "nota": "Patrón de respiración bilateral 3/5/7."
+            },
+            {
+              "titulo": "USMS — 5 entrenamientos de crol",
+              "url": "https://www.usms.org/fitness-and-training/articles-and-videos/articles/the-5-best-freestyle-workouts",
+              "nota": "Un foco por set: patada, respiración o tracción."
+            }
+          ]
+        }
+      ]
     }
   ]
 },
@@ -5585,7 +6737,7 @@ let GLOSARIO = [
   { termino:'Tabla', definicion:'Flotador plano que se sostiene con las manos para aislar el trabajo de piernas.', ejecucion:'Extiende los brazos al frente, agarra la tabla por los laterales o la parte superior. Mantén las caderas altas y el cuerpo alineado. Úsala para sets específicos de pateo. En espalda se puede usar apoyada sobre el pecho. Evita usarla si el objetivo del set es técnica completa de nado.' },
   { termino:'Palas', definicion:'Paletas plásticas que se colocan en las manos para aumentar la superficie de propulsión y la resistencia al avance.', ejecucion:'Generan más carga sobre hombros y espalda. Úsalas solo cuando ya tienes buena técnica de brazada — amplifican tanto los movimientos correctos como los errores. Ideales para fuerza específica de natación. Combínalas con pull-buoy. Nunca en sets de velocidad máxima ni cuando estés fatigado.' },
   { termino:'Snorkel frontal', definicion:'Tubo de respiración frontal que permite nadar sin rotar la cabeza para respirar.', ejecucion:'Colócalo centrado en la frente, bien ajustado. Permite concentrarse completamente en la técnica de brazada y posición corporal sin interrumpir el ciclo de movimiento. Ideal para drill de técnica, para corregir el rolido y para sets donde la respiración distorsiona la postura. Úsalo en libre y espalda principalmente.' },
-  { termino:'DPS (Distancia por Brazada)', definicion:'Metros que avanzas por cada ciclo completo de brazada. Es el indicador más directo de eficiencia técnica.', ejecucion:'Se mide contando brazadas por largo y dividiendo la distancia entre ese número. En piscina 25m, un DPS de 9-11m por brazada es bueno para master. Felipe debe enfocarse en aumentar su DPS. Se mejora con mejor agarre del agua, menos deslizamiento lateral y rolido más completo.' },
+  { termino:'DPS (Distancia por Brazada)', definicion:'Metros que avanzas por cada ciclo completo de brazada. Es el indicador más directo de eficiencia técnica.', ejecucion:'Se mide contando brazadas por largo y dividiendo la distancia entre ese número. En piscina 25m, un DPS de 9-11m por brazada es bueno para master. Se entrena fijando un conteo objetivo al 70% de esfuerzo y defendiéndolo hasta el 90%; una brazada más al subir el esfuerzo es normal. Felipe debe enfocarse en aumentar su DPS. Se mejora con mejor agarre del agua, menos deslizamiento lateral y rolido más completo.' },
   { termino:'Rolido', definicion:'Rotación del cuerpo sobre su eje longitudinal durante el nado de libre y espalda.', ejecucion:'En libre: el cuerpo debe rotar 35-45 grados hacia cada lado sincronizado con la brazada. En espalda: la rotación es similar pero en posición dorsal. Un rolido correcto permite mayor alcance de la brazada, reduce la resistencia frontal y facilita la respiración. Error común: rotar los hombros sin rotar las caderas.' },
   { termino:'Agarre del agua', definicion:'Fase inicial de la brazada donde la mano \'engancha\' el agua para comenzar la tracción.', ejecucion:'La mano entra al agua con los dedos ligeramente separados, se extiende hacia adelante y hacia abajo en un ángulo de 45°, luego \'agarra\' el agua antes de iniciar el tirón. Un mal agarre (mano que resbala) desperdicia toda la energía de la brazada. Practicar con el ejercicio \'catch-up\' o con snorkel frontal.' },
   { termino:'Entrada de mano', definicion:'Momento y posición en que la mano entra al agua al inicio de la brazada.', ejecucion:'En libre: la mano debe entrar alineada con el hombro (no cruzando la línea media), con los dedos primero, pulgar ligeramente hacia abajo. En espalda: la mano entra con el dedo meñique primero, brazo extendido alineado con el hombro. Una entrada incorrecta genera resistencia y desvía el cuerpo.' },
@@ -5601,7 +6753,7 @@ let GLOSARIO = [
   { termino:'Resistencia de velocidad', definicion:'Capacidad de mantener una velocidad alta por más tiempo del que duraría naturalmente.', ejecucion:'Series medianas (50-100m) a ritmo más rápido que el umbral, con descanso suficiente para recuperarse. Ejemplo: 6×50m a ritmo máximo sostenible con 45seg descanso. Desarrolla la capacidad de aguantar el ritmo de competencia al final de la prueba — el \'cierre\'.' },
   { termino:'Activación / Calentamiento', definicion:'Fase inicial de la sesión que prepara el cuerpo fisiológica y neuromuscularmente para el trabajo principal.', ejecucion:'Siempre empieza suave y va progresando en intensidad. Incluye nado suave, drill técnico y algunas aceleraciones cortas. Nunca se omite — el rendimiento en el bloque principal depende de la calidad del calentamiento. Duración típica en piscina 25m: 300-500m.' },
   { termino:'Afloje / Vuelta a la calma', definicion:'Fase final de la sesión para facilitar la recuperación y eliminar el lactato muscular.', ejecucion:'Nado suave, sin esfuerzo, preferentemente en estilo libre o espalda. Activa la circulación para limpiar los metabolitos de la fatiga. Nunca se omite si se quiso entrenar bien — una sesión sin afloje compromete la recuperación para el próximo entrenamiento. Duración típica: 150-200m.' },
-  { termino:'Tiempo de salida (@ / por)', definicion:'Intervalo de tiempo desde que sale una repetición hasta que sale la siguiente, incluyendo el nado y el descanso.', ejecucion:'Ejemplo: \'4×100 @2:00\' significa que cada 2 minutos parte un 100m. Si nadas el 100 en 1:45, tienes 15seg de descanso. Si lo nadas en 2:05, saliste tarde y el set pierde su objetivo. El tiempo de salida controla la intensidad y el descanso simultáneamente. Es más preciso que indicar el descanso fijo.' },
+  { termino:'Tiempo de salida (@ / por)', definicion:'Intervalo de tiempo desde que sale una repetición hasta que sale la siguiente, incluyendo el nado y el descanso.', ejecucion:'Ejemplo: \'4×100 @2:00\' significa que cada 2 minutos parte un 100m. Si nadas el 100 en 1:45, tienes 15seg de descanso. Si lo nadas en 2:05, saliste tarde y el set pierde su objetivo. El tiempo de salida controla la intensidad y el descanso simultáneamente. Es más preciso que indicar el descanso fijo. La exigencia del set es el intervalo, no el ritmo: si nadas más rápido descansas más y si nadas más lento descansas menos. En el grupo se escribe 75@1:35 o 100@2.' },
   { termino:'Descanso fijo', definicion:'Tiempo de pausa entre repeticiones medido desde que terminas hasta que empiezas la siguiente.', ejecucion:'Ejemplo: \'6×50 desc 30seg\' significa 30 segundos de pausa después de cada 50m. A diferencia del tiempo de salida, el descanso fijo es igual para todos independiente del ritmo. Se usa más en sets de velocidad donde la recuperación completa es necesaria para mantener la calidad del sprint.' },
   { termino:'Negativo split', definicion:'Estrategia de nadar la segunda mitad de una distancia más rápido que la primera.', ejecucion:'Es la estrategia de pacing más eficiente en competencia. Evita salir demasiado rápido y morir al final. En entrenamiento se practica en series largas: los primeros 200m más suaves que los últimos 200m. Clave para Sergio, que tiende a nadar conservador — el negativo split lo obliga a atacar en la segunda mitad.' },
   { termino:'Pirámide', definicion:'Estructura de series donde la distancia o intensidad sube y luego baja (o solo sube).', ejecucion:'Ejemplo ascendente: 50 + 100 + 150 + 200m. Ejemplo pirámide completa: 50+100+150+200+150+100+50m. Permite trabajar distintas longitudes en un mismo set, generando variedad de estímulos. Las distancias cortas al inicio activan la velocidad; las largas en el centro trabajan resistencia; las cortas al final trabajan cierre bajo fatiga.' },
@@ -5640,7 +6792,36 @@ let GLOSARIO = [
   { termino:"6/3/6", definicion:"Drill de rotación: 6 patadas de lado, 3 brazadas rotando y 6 patadas del otro lado.", ejecucion:"Cambia de lado girando desde la cadera sin perder la línea del cuerpo." },
   { termino:"Brazada unilateral", definicion:"Drill de crol con un solo brazo, el otro extendido al frente o junto al muslo.", ejecucion:"Haz 25 m con cada brazo; siente la rotación de la cadera al entrar la mano." },
   { termino:"Zipper (cremallera)", definicion:"Drill de recobro: arrastrar el pulgar por el costado hasta la axila en cada recobro.", ejecucion:"Recobro corto y relajado con el codo guiando." },
-  { termino:"Burbujas-burbujas-respira", definicion:"Drill de respiración: exhalar dos veces bajo el agua y respirar sin levantar la cabeza.", ejecucion:"Exhala continuo con la cara en el agua; al respirar, un ojo queda dentro." }
+  { termino:"Burbujas-burbujas-respira", definicion:"Drill de respiración: exhalar dos veces bajo el agua y respirar sin levantar la cabeza.", ejecucion:"Exhala continuo con la cara en el agua; al respirar, un ojo queda dentro." },
+  { termino:"Fail set (salida descendente)", definicion:"Serie en la que la salida baja 5 s por ronda hasta que no alcanzas el intervalo.", ejecucion:"Anota en qué salida fallas; esa es tu referencia para el próximo ciclo." },
+  { termino:"Escalera por salida", definicion:"Serie que sube y baja la distancia (50-100-150-200-150-100-50) con salida proporcional a cada distancia.", ejecucion:"Mantén el mismo número de brazadas en cada peldaño; la pausa es lo que sobra de la salida." },
+  { termino:"Mejor promedio", definicion:"Serie con salida fija donde buscas el mejor tiempo promedio posible con poca variación entre repeticiones.", ejecucion:"Ningún tiempo debe alejarse más de 2 s del promedio; si te desvías, ajusta el esfuerzo en la siguiente." },
+  { termino:"Rondas con recuperación cronometrada", definicion:"Una repetición exigente seguida de un nado suave que también tiene salida, para que todo el tiempo de la ronda quede controlado.", ejecucion:"Ej: 50@1:00 + 200@4:00. La recuperación va suave a ~2:00 por 100, no como pausa libre." },
+  { termino:"3 brazadas y 6 patadas", definicion:"Drill de balance y rotación: 3 brazadas y, en la tercera, quedarse de lado con el brazo extendido durante 6 patadas; luego del otro lado.", ejecucion:"Cabeza mirando el fondo; la rotación nace en la cadera." },
+  { termino:"Catch-up con pulgares", definicion:"Variante de catch-up con los pulgares en L contra los índices; las manos se juntan por delante de la cabeza en cada brazada.", ejecucion:"Mantiene las manos por delante de los hombros y evita que se crucen en la entrada." },
+  { termino:"Scull de agarre (diamante de potencia)", definicion:"Sculling con codos doblados 100-120°, manos bajo los hombros y antebrazos verticales; hombros, codos y manos forman un diamante.", ejecucion:"Barre adentro y afuera sin perder la posición: es la posición exacta del codo alto (EVF)." },
+  { termino:"Scull de empuje", definicion:"Sculling con las manos a la mitad del cuerpo apuntando abajo y los codos altos cerca de los hombros.", ejecucion:"Trabaja el tramo donde la mano debe acelerar; no la dejes frenar." },
+  { termino:"Scull de final", definicion:"Sculling con los brazos a la altura de la cadera, en ochos cortos y rápidos.", ejecucion:"Entrena terminar la brazada hasta el muslo, lo primero que se abandona con el cansancio." },
+  { termino:"Dog paddle", definicion:"Drill de agarre con recobro por debajo del agua, media brazada por vez, codo alto y dedos al fondo.", ejecucion:"Aísla la tracción sin el recobro aéreo; busca presión desde el primer centímetro." },
+  { termino:"Wide tracks (entrada ancha)", definicion:"Drill de entrada: las manos entran más anchas que las 10 y las 2 del reloj y la propulsión viene del giro del core.", ejecucion:"Corrige el cruce de la línea media, que hace culebrear el cuerpo y perder dirección." },
+  { termino:"Archer (3/4)", definicion:"Drill de cuadrante frontal: la tracción empieza recién cuando el brazo que recobra pasa la cabeza, con una pausa de arquero apoyado de lado.", ejecucion:"La pausa debe ser de lado y estable; alarga el frente sin frenar el ciclo." },
+  { termino:"Pulgar al muslo (thumb to thigh)", definicion:"Drill de final de brazada: el brazo no sale del agua hasta que el pulgar toca el muslo.", ejecucion:"Evita la brazada corta; obliga a completar el empuje hasta la cadera." },
+  { termino:"3-3-3", definicion:"Drill de simetría: 3 brazadas solo con el brazo derecho, 3 solo con el izquierdo y 3 completas.", ejecucion:"Sirve para detectar y nivelar diferencias de rotación y de agarre entre lados." },
+  { termino:"6-kick switch", definicion:"Drill de rotación: 6 patadas de lado y rotación al otro lado iniciada desde el core, respirando solo en el cambio.", ejecucion:"En cada cambio revisa cadera rotando, brazo adelante extendido y cuerpo equilibrado." },
+  { termino:"Overkick", definicion:"Drill de timing: patada al doble de la frecuencia habitual manteniendo la frecuencia de brazos.", ejecucion:"Expone si la patada se desconecta del ciclo o tijerea al respirar." },
+  { termino:"Zero to six", definicion:"Comparación de patada: 4×50 sin patada, a 2, a 4 y a 6 tiempos, para ver cuál se adapta a cada distancia.", ejecucion:"El de 2 tiempos es el más económico en fondo pero exige el mejor equilibrio." },
+  { termino:"Toe-tap", definicion:"Cue de patada: imaginar que los dedos de los pies golpean la superficie en cada patada hacia arriba.", ejecucion:"Sube la cadera, nivela el cuerpo y hace la patada más propulsiva." },
+  { termino:"Mini-maxi (golf score)", definicion:"Score de eficiencia: tiempo del largo + número de brazadas. Un score más bajo es una brazada más eficiente.", ejecucion:"Ej: 25 en 20 s con 11 brazadas = 31. Hay que bajar el score sin perder tiempo." },
+  { termino:"Head-up (Tarzán)", definicion:"Drill con la cabeza fuera del agua y la vista al frente, que exige más patada para sostener la línea.", ejecucion:"Corrige el exceso de planeo, sube el recobro y transfiere al sighting en aguas abiertas." },
+  { termino:"Falsa respiración", definicion:"Rotar como si fueras a respirar sin sacar la cara del agua.", ejecucion:"Entrena el equilibrio de la rotación sin romper el ritmo del ciclo." },
+  { termino:"Scull frontal", definicion:"Sculling con los brazos extendidos al frente (manos a las 11 y la 1) y palmas abajo, haciendo ochos pequeños.", ejecucion:"Trabaja la sensibilidad en la entrada y la extensión. Siente la presión tanto en la ida como en la vuelta; manos relajadas y semiabiertas." },
+  { termino:"Cuadrante frontal (front quadrant)", definicion:"Forma de nadar en la que un brazo siempre está por delante de la cabeza: la tracción empieza recién cuando el brazo que recobra pasa la cabeza.", ejecucion:"Alarga la brazada y estabiliza el cuerpo. Se entrena con catch-up, archer (3/4) y brazada unilateral." },
+  { termino:"Cruce de la línea media", definicion:"Error en que la mano entra o tracciona pasando el eje central del cuerpo.", ejecucion:"Hace culebrear el cuerpo y perder dirección, especialmente en aguas abiertas. Se corrige con wide tracks y entrando por fuera del hombro." },
+  { termino:"Frecuencia de brazada (tempo)", definicion:"Cantidad de brazadas por minuto. Junto con la distancia por brazada determina la velocidad.", ejecucion:"Se entrena con Tempo Trainer o conteo mental manteniendo el conteo por largo. Busca la frecuencia más alta que puedas sostener sin perder forma ni fuerza." },
+  { termino:"Patada 2 tiempos", definicion:"Patrón de 2 golpes de pies por ciclo completo de brazada.", ejecucion:"Es el patrón más económico para fondo y aguas abiertas, pero exige el mejor equilibrio corporal. Compáralo contra el de 6 tiempos con el drill zero to six." },
+  { termino:"Set de ciclo", definicion:"Serie con una salida fija repetida muchas veces, donde el objetivo es sostener el mismo tiempo y la misma técnica en todas las repeticiones.", ejecucion:"Ej: 12×50@1:05. No se trata de hacer la primera rápida, sino de que la última sea igual que la primera." },
+  { termino:"Chequeo corporal (body scan)", definicion:"Revisión mental de puntos clave del cuerpo durante un drill, en vez de nadar en automático.", ejecucion:"Ej: en cada cambio del 6-kick switch revisa cadera rotando, brazo adelante extendido y cuerpo equilibrado." },
+  { termino:"Test de conteo de brazadas", definicion:"Medición antes y después de un bloque técnico para saber si el trabajo se transfirió al nado completo.", ejecucion:"Nada un 100 a ritmo crucero anotando tiempo y brazadas por largo, haz el bloque técnico y repite. La mejora real es mismo tiempo con menos brazadas, o menos tiempo con el mismo conteo." }
 ];
 
 
@@ -8209,12 +9390,14 @@ async function guardarNadador(i) {
 // GLOSARIO — vista
 // ═══════════════════════════════════════════════════
 var GLOS_CATEGORIAS = {
-  'Implementos': ['Aletas','Pull-buoy','Tabla','Palas','Snorkel frontal'],
-  'Técnica de nado': ['DPS (Distancia por Brazada)','Rolido','Agarre del agua','Entrada de mano','Pateo 6 tiempos','Subacuático','IM (Individual Medley / Combinado)','Drill','Glide / Deslizamiento','Transición (IM)'],
-  'Sistemas y tipos de trabajo': ['Aeróbico (A1 / A2)','Umbral anaeróbico (AN1)','CRTP (Capacidad de Repetición en Trabajo de Alta Intensidad)','VO2max','Tempo / Ritmo de carrera','Resistencia de velocidad','Activación / Calentamiento','Afloje / Vuelta a la calma','Broken / Series rotas','Build / Progresivo','Taper / Afinamiento','Tolerancia láctica','All out (máximo)'],
-  'Competencia y estrategia': ['Tiempo de salida (@ / por)','Descanso fijo','Negativo split','Pirámide','Salida desde bloque','Salida de espaldas','Viraje','Drafting','Pacing / Distribución de esfuerzo','Sighting (Navegación)','Ritmo crucero','Test de marcas','Simulacro de competencia','Sesión comodín'],
+  'Implementos': ['Aletas', 'Pull-buoy', 'Tabla', 'Palas', 'Snorkel frontal'],
+  'Técnica de nado': ['DPS (Distancia por Brazada)', 'Rolido', 'Agarre del agua', 'Entrada de mano', 'Pateo 6 tiempos', 'Patada 2 tiempos', 'Subacuático', 'IM (Individual Medley / Combinado)', 'Drill', 'Glide / Deslizamiento', 'Transición (IM)', 'SWOLF', 'Codo alto (EVF)', 'Cuadrante frontal (front quadrant)', 'Cruce de la línea media', 'Frecuencia de brazada (tempo)', 'Chequeo corporal (body scan)', 'Respiración progresiva (3-5-7)', 'Restricción respiratoria', 'Falsa respiración', 'Burbujas-burbujas-respira'],
+  'Drills técnicos': ['Sink downs (hundimiento)', 'Torpedo', 'Patada lateral (side kick)', 'Catch-up', 'Catch-up con pulgares', 'Arrastre de dedos (fingertip drag)', 'Javelin', 'Sculling (scull)', 'Scull frontal', 'Scull de agarre (diamante de potencia)', 'Scull de empuje', 'Scull de final', 'Puños cerrados (fist drill)', 'Dog paddle', '6/3/6', '3 brazadas y 6 patadas', 'Brazada unilateral', '3-3-3', '6-kick switch', 'Overkick', 'Zipper (cremallera)', 'Wide tracks (entrada ancha)', 'Archer (3/4)', 'Pulgar al muslo (thumb to thigh)', 'Zero to six', 'Toe-tap', 'Head-up (Tarzán)', 'Mini-maxi (golf score)', 'Test de conteo de brazadas'],
+  'Sets por intervalo': ['Fail set (salida descendente)', 'Escalera por salida', 'Mejor promedio', 'Rondas con recuperación cronometrada', 'Set de ciclo', 'Broken / Series rotas', 'Pirámide', 'Descanso fijo', 'Tiempo de salida (@ / por)'],
+  'Sistemas y tipos de trabajo': ['Aeróbico (A1 / A2)', 'Umbral anaeróbico (AN1)', 'CRTP (Capacidad de Repetición en Trabajo de Alta Intensidad)', 'VO2max', 'Tempo / Ritmo de carrera', 'Resistencia de velocidad', 'Activación / Calentamiento', 'Afloje / Vuelta a la calma', 'Build / Progresivo', 'Taper / Afinamiento', 'Tolerancia láctica', 'All out (máximo)', 'Recuperación activa', 'Velocidad supra-máxima', 'Descenso de tiempos'],
+  'Competencia y estrategia': ['Negativo split', 'Salida desde bloque', 'Salida de espaldas', 'Viraje', 'Drafting', 'Pacing / Distribución de esfuerzo', 'Sighting (Navegación)', 'Ritmo crucero', 'Test de marcas', 'Simulacro de competencia', 'Sesión comodín'],
 };
-var GLOS_CAT_EMOJI = {'Implementos':'🏊','Técnica de nado':'💪','Sistemas y tipos de trabajo':'🔥','Competencia y estrategia':'🏁'};
+var GLOS_CAT_EMOJI = {'Implementos':'🏊','Técnica de nado':'💪','Drills técnicos':'🎯','Sets por intervalo':'⏱️','Sistemas y tipos de trabajo':'🔥','Competencia y estrategia':'🏁','Otros':'📖'};
 
 var GLOS_ABIERTA = null; // categoría desplegada actualmente
 
@@ -8239,7 +9422,9 @@ function renderGlosCategorias() {
   var cont = document.getElementById('glos-cats');
   if (!cont) return;
   var h = '';
-  var orden = ['Implementos','Técnica de nado','Sistemas y tipos de trabajo','Competencia y estrategia'];
+  var orden = ['Implementos','Técnica de nado','Drills técnicos','Sets por intervalo','Sistemas y tipos de trabajo','Competencia y estrategia'];
+  // cualquier término sin categoría (incluidos los que agregue la IA) queda visible en 'Otros'
+  if (GLOSARIO.some(function(g){ return catDeTermino(g.termino)==='Otros'; })) orden.push('Otros');
   orden.forEach(function(cat){
     // Contar términos de esta categoría que existen en GLOSARIO
     var items = GLOSARIO.filter(function(g){ return catDeTermino(g.termino) === cat; });
